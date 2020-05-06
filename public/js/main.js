@@ -494,7 +494,7 @@ $('.words').on("click", '.options', function () {
 
     }
     $(".canvas-container").css({
-      width: canvas.width + "px",
+      // width: canvas.width + "px",
       height: canvas.height + "px",
     })
   }
