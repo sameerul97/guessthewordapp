@@ -26,7 +26,6 @@ html, body {
   /* max-width: 500px; */
   /* margin: auto; */
   /* position: relative; */
-
   position: absolute;
   right: 0;
   height: 100%;
@@ -47,13 +46,13 @@ html, body {
     top: 0;
     border: 1px solid red; */
   position: absolute;
-    right: 0;
-    height: 100%;
-    width: 500px;
-    top: 50%;
-    left: 50%;
-    margin-right: -50%;
-    transform: translate(-50%, -50%);
+  right: 0;
+  height: 100%;
+  width: 500px;
+  top: 50%;
+  left: 50%;
+  margin-right: -50%;
+  transform: translate(-50%, -50%);
   border: 1px solid red;
 }
 
@@ -219,15 +218,17 @@ p {
   text-transform: uppercase;
 }
 
-.game button{
+.game button {
   font-family: 'Rajdhani', sans-serif;
   color: white;
   font-weight: 600;
   font-size: 1.5rem;
 }
-.startGame{
+
+.startGame {
   display: none;
 }
+
 #createdRoomName {
   /* position: absolute; */
   /* top: 0; */
@@ -242,7 +243,7 @@ p {
   display: none;
 }
 
-.alluser{
+.alluser {
   position: absolute;
   font-family: 'Rajdhani', sans-serif;
   color: black;
@@ -251,10 +252,9 @@ p {
   display: none;
   /* top: 0; */
   /* left: 0; */
-
 }
 
-.scores{
+.scores {
   right: 0;
   top: 0;
   position: absolute;
@@ -266,7 +266,7 @@ p {
   display: none;
 }
 
-.words{
+.words {
   position: absolute;
   bottom: 0;
   top: 90%;
@@ -276,16 +276,34 @@ p {
   z-index: 11;
 }
 
-.clearCanvas{
+.clearCanvas {
   position: absolute;
   bottom: 0;
   display: none;
 }
 
-.gameOver{
+.gameOver {
   position: absolute;
   top: 50%;
   left: 50%;
   /* margin-right: -50%; */
   transform: translate(-50%, -50%);
+}
+
+@media only screen and (max-width: 992px) {
+  .roomOptions button {
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 500;
+    font-size: 1rem;
+  }
+  .roomOptions {
+    /* height: 658px; */
+    width: auto;
+    /* max-width: 500px; */
+    /* margin: auto;
+    position: absolute;
+    top: 0;
+    margin-top: 5px; */
+    right: 0;
+  }
 }
