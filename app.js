@@ -94,6 +94,7 @@ function onConnection(socket) {
             sockets.sockets[item].playing = false;
             sockets.sockets[item].rounds = [false, false, false];
             sockets.sockets[item].scores = 0;
+            sockets.sockets[item].alreadyGuessed = false;
             socketsPlayingGame.push(sockets.sockets[item]);
           }
           if (sockets.sockets[item]._admin) {

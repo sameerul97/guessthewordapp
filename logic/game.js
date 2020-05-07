@@ -78,6 +78,9 @@ class Game {
                             this.users[this.userIndex].playing = true;
                             this.nextPlayerAlert(socket, this.users[this.userIndex].id, io)
                             clearInterval(interval);
+                            for (i in this.users) {
+                                this.users[i].alreadyGuessed = false;
+                            }
                         }
                     }
                 });
@@ -104,8 +107,11 @@ class Game {
         if (selectedAnswer === this.chosenWord) {
             for (i in this.users) {
                 if (this.users[i].id === socketId) {
-                    this.users[i].scores = this.users[i].scores + 1;
-                    temp = this.users[i].userName, this.users[i].scores;
+                    if (this.users[i].alreadyGuessed == false) {
+                        this.users[i].scores = this.users[i].scores + 1;
+                        this.users[i].alreadyGuessed = true;
+                        temp = this.users[i].userName, this.users[i].scores;
+                    }
                 }
             }
             this.io.in(this.roomName).emit('scoresUpdated', { data: this.users.map(function (val) { return { id: val.id, score: val.scores } }) });
@@ -117,8 +123,8 @@ class Game {
         this.io.sockets.connected[socketId].emit('youArePlayingNext', { playing: true, gameInstanceIndex: this.gameInstanceIndex })
     }
 
-    clearSocketsCanvas(){
-        this.io.in(this.roomName).emit('clearCanvas',  true);
+    clearSocketsCanvas() {
+        this.io.in(this.roomName).emit('clearCanvas', true);
     }
     gameOver() {
         if (this.userIndex === this.users.length) {
