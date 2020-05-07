@@ -10,7 +10,7 @@
 
   <link rel="stylesheet" href="css/micromodal.css">
   <link rel="stylesheet" href="css/style.css">
-
+  <link rel="stylesheet" href="css/reset.css">
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600&display=swap" rel="stylesheet">
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"
     integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
@@ -22,13 +22,13 @@
 
 <body>
   <!-- <h1>Draw </h1>   -->
-  <button class="modal__btn modal__btn-primary leaveRoom" onclick="leaveRoom()">Leave Room</button>
-  <button class="modal__btn modal__btn-primary clearCanvas" onclick="clearCanvas()">clear board</button>
+  <button class="modal__btn modal__btn-primary leaveRoom" onclick="leaveRoom()">Exit</button>
+  <button class="modal__btn modal__btn-primary clearCanvas" onclick="clearCanvas()">Clear</button>
 
   <canvas class="whiteboard" height="900" width="500">
 
   </canvas>
-  <!-- <div class="canvas-container">
+  <div class="canvas-container">
 
     <div class="game">
       <h1 class="gameTite">Guess the Word</h1>
@@ -62,7 +62,7 @@
     </div>
 
 
-  </div> -->
+  </div>
 
   <div class="words">
     <div class="wordToGuess"></div>

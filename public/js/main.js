@@ -447,12 +447,12 @@ $('.words').on("click", '.options', function () {
   function onMouseUp(e) {
     if (!drawing) { return; }
     drawing = false;
-    drawLine(current.x, current.y, e.clientX - canvasPositionHelper() || e.touches[0].clientX - canvasPositionHelper(), e.clientY || e.touches[0].clientY - 50, current.color, true);
+    drawLine(current.x, current.y, e.clientX - canvasPositionHelper() || e.touches[0].clientX - canvasPositionHelper(), e.clientY || e.touches[0].clientY , current.color, true);
   }
 
   function onMouseMove(e) {
     if (!drawing) { return; }
-    drawLine(current.x, current.y, e.clientX - canvasPositionHelper() || e.touches[0].clientX - canvasPositionHelper(), e.clientY || e.touches[0].clientY, current.color, true);
+    drawLine(current.x, current.y, e.clientX - canvasPositionHelper() || e.touches[0].clientX - canvasPositionHelper(), e.clientY || e.touches[0].clientY , current.color, true);
     current.x = e.clientX - canvasPositionHelper() || e.touches[0].clientX - canvasPositionHelper();
     current.y = e.clientY  || e.touches[0].clientY ;
   }
@@ -494,7 +494,7 @@ $('.words').on("click", '.options', function () {
 
     }
     $(".canvas-container").css({
-      // width: canvas.width + "px",
+      width: canvas.width + "px",
       height: canvas.height + "px",
     })
   }
