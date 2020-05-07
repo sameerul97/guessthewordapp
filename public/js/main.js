@@ -1,5 +1,5 @@
 'use strict';
-var socket = io();
+var socket = io({ reconnection: false });
 // currentRoom hold user connected room (ie room called 'cat' )
 var currentRoom = undefined;
 var userName = undefined;
@@ -48,8 +48,8 @@ function showLeaveroomButton() {
   $(".colors").css({
     "left": document.getElementsByClassName("whiteboard")[0].offsetLeft - document.getElementsByClassName("whiteboard")[0].offsetWidth / 2 + "px",
     "bottom": "30px ",
-    "display" : "block",
-    "transform" : "translate(-0%, 0%)"
+    "display": "block",
+    "transform": "translate(-0%, 0%)"
   })
 
   $(".canvas-container").css({
@@ -449,20 +449,20 @@ $('.words').on("click", '.options', function () {
   function onMouseDown(e) {
     drawing = true;
     current.x = e.clientX - canvasPositionHelper() || e.touches[0].clientX - canvasPositionHelper();
-    current.y = e.clientY  || e.touches[0].clientY ;
+    current.y = e.clientY || e.touches[0].clientY;
   }
 
   function onMouseUp(e) {
     if (!drawing) { return; }
     drawing = false;
-    drawLine(current.x, current.y, e.clientX - canvasPositionHelper() || e.touches[0].clientX - canvasPositionHelper(), e.clientY || e.touches[0].clientY , current.color, true);
+    drawLine(current.x, current.y, e.clientX - canvasPositionHelper() || e.touches[0].clientX - canvasPositionHelper(), e.clientY || e.touches[0].clientY, current.color, true);
   }
 
   function onMouseMove(e) {
     if (!drawing) { return; }
-    drawLine(current.x, current.y, e.clientX - canvasPositionHelper() || e.touches[0].clientX - canvasPositionHelper(), e.clientY || e.touches[0].clientY , current.color, true);
+    drawLine(current.x, current.y, e.clientX - canvasPositionHelper() || e.touches[0].clientX - canvasPositionHelper(), e.clientY || e.touches[0].clientY, current.color, true);
     current.x = e.clientX - canvasPositionHelper() || e.touches[0].clientX - canvasPositionHelper();
-    current.y = e.clientY  || e.touches[0].clientY ;
+    current.y = e.clientY || e.touches[0].clientY;
   }
 
   function onColorUpdate(e) {
