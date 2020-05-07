@@ -172,7 +172,7 @@ function onConnection(socket) {
   })
 
   socket.on("selectedAnswer", (data) => {
-    console.log(data, data.gameInstanceIndex);
+    // console.log(data, data.gameInstanceIndex);
     gameInstances[data.gameInstanceIndex].verifyAnswer(socket.id, data.selectedAnswer)
   })
 
