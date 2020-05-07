@@ -71,10 +71,13 @@ html, body {
   /* margin-right: -50%; */
   transform: translate(-50%, 0%);
   z-index: 9;
+  display: none;
+
+
 }
 
 .color {
-  display: inline-block;
+  /* display: inline-block; */
   height: 30px;
   width: 30px;
 }
@@ -247,6 +250,8 @@ p {
 
 .leaveRoom {
   display: none;
+  position: absolute;
+    bottom: 0;
 }
 
 .alluser {
@@ -280,6 +285,9 @@ p {
   /* margin-right: -50%; */
   transform: translate(-50%, 0%);
   z-index: 11;
+  width: 100%;
+  text-align: center;
+  height: 34px;
 }
 
 .clearCanvas {
@@ -319,6 +327,15 @@ p {
     left: 0;
   }
   .clearCanvas {
-    right: 0;
+    right: 0 !important;
+  }
+  .colors{
+    position: absolute;
+    bottom: 40px;
+    /* top: 90%; */
+    left: 0;
+    /* margin-right: -50%; */
+    transform: translate(0%, 0%);
+    z-index: 9;
   }
 }

@@ -45,6 +45,13 @@ function showLeaveroomButton() {
     "z-index": "10"
   })
 
+  $(".colors").css({
+    "left": document.getElementsByClassName("whiteboard")[0].offsetLeft - document.getElementsByClassName("whiteboard")[0].offsetWidth / 2 + "px",
+    "bottom": "30px ",
+    "display" : "block",
+    "transform" : "translate(-0%, 0%)"
+  })
+
   $(".canvas-container").css({
     // "margin-top": $(".leaveRoom").outerHeight() + "px"
   })
@@ -288,6 +295,7 @@ $('.words').on("click", '.options', function () {
 
   // chosenword for user
   socket.on('word', function (word) {
+    currentlyPlaying = true;
     // console.log(word);
     $(".wordToGuess").empty();
     $(".wordToGuess_options").empty();
@@ -340,7 +348,7 @@ $('.words').on("click", '.options', function () {
     if (data.playing) {
       roomInstance = data.gameInstanceIndex;
       sayOkay(data.gameInstanceIndex);
-      currentlyPlaying = true;
+      // currentlyPlaying = true;
       // enableCanvasDrawing();
     }
   })
