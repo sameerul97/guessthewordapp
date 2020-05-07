@@ -440,21 +440,21 @@ $('.words').on("click", '.options', function () {
   }
   function onMouseDown(e) {
     drawing = true;
-    current.x = e.clientX - canvasPositionHelper() || e.touches[0].clientX;
-    current.y = e.clientY || e.touches[0].clientY;
+    current.x = e.clientX - canvasPositionHelper() || e.touches[0].clientX - canvasPositionHelper();
+    current.y = e.clientY  || e.touches[0].clientY ;
   }
 
   function onMouseUp(e) {
     if (!drawing) { return; }
     drawing = false;
-    drawLine(current.x, current.y, e.clientX - canvasPositionHelper() || e.touches[0].clientX, e.clientY || e.touches[0].clientY, current.color, true);
+    drawLine(current.x, current.y, e.clientX - canvasPositionHelper() || e.touches[0].clientX - canvasPositionHelper(), e.clientY || e.touches[0].clientY - 50, current.color, true);
   }
 
   function onMouseMove(e) {
     if (!drawing) { return; }
-    drawLine(current.x, current.y, e.clientX - canvasPositionHelper() || e.touches[0].clientX, e.clientY || e.touches[0].clientY, current.color, true);
-    current.x = e.clientX - canvasPositionHelper() || e.touches[0].clientX;
-    current.y = e.clientY || e.touches[0].clientY;
+    drawLine(current.x, current.y, e.clientX - canvasPositionHelper() || e.touches[0].clientX - canvasPositionHelper(), e.clientY || e.touches[0].clientY, current.color, true);
+    current.x = e.clientX - canvasPositionHelper() || e.touches[0].clientX - canvasPositionHelper();
+    current.y = e.clientY  || e.touches[0].clientY ;
   }
 
   function onColorUpdate(e) {
