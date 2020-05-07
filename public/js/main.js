@@ -299,8 +299,8 @@ $('.words').on("click", '.options', function () {
     // console.log(word);
     $(".wordToGuess").empty();
     $(".wordToGuess_options").empty();
-    enableCanvasDrawing();
     clearCanvasOnNewWord();
+    enableCanvasDrawing();
     $(".wordToGuess").append("<p>" + word + "</p>");
   })
 
