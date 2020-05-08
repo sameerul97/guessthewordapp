@@ -75,32 +75,35 @@ function onConnection(socket) {
           playing: false,
           rounds: [false, false, false],
           scores: 0,
-          playing: false
+          playing: false,
+          alreadyGuessed : false
         }
+        // setting playing true for admin (who creates the room)
         if (socket.id == clients[i]) {
           var temp = {
             id: clients[i],
             playing: false,
             rounds: [false, false, false],
             scores: 0,
-            playing: true
+            playing: true,
+            alreadyGuessed : false
           }
         }
-        // socketsPlayingGame.push(temp);
-        Object.keys(sockets.sockets).forEach((item) => {
-          if (sockets.sockets[item].id == clients[i]) {
-            // console.log("@setting props /n",clients[i])
-            sockets.sockets[item].played = false;
-            sockets.sockets[item].playing = false;
-            sockets.sockets[item].rounds = [false, false, false];
-            sockets.sockets[item].scores = 0;
-            sockets.sockets[item].alreadyGuessed = false;
-            socketsPlayingGame.push(sockets.sockets[item]);
-          }
-          if (sockets.sockets[item]._admin) {
-            sockets.sockets[item].playing = true;
-          }
-        })
+        socketsPlayingGame.push(temp);
+        // Object.keys(sockets.sockets).forEach((item) => {
+        //   if (sockets.sockets[item].id == clients[i]) {
+        //     // console.log("@setting props /n",clients[i])
+        //     sockets.sockets[item].played = false;
+        //     sockets.sockets[item].playing = false;
+        //     sockets.sockets[item].rounds = [false, false, false];
+        //     sockets.sockets[item].scores = 0;
+        //     sockets.sockets[item].alreadyGuessed = false;
+        //     socketsPlayingGame.push(sockets.sockets[item]);
+        //   }
+        //   if (sockets.sockets[item]._admin) {
+        //     sockets.sockets[item].playing = true;
+        //   }
+        // })
       }
 
       // console.log("TEMP NEW: ", tempData)
@@ -120,7 +123,7 @@ function onConnection(socket) {
       var gameInstanceIndex = gameInstances.push(someModule) - 1;
       // socket.emit("setGameInstance", gameInstanceIndex);
       io.in(roomName).emit('setGameInstance', gameInstanceIndex);
-      someModule.print(socket, io, gameInstanceIndex, (socket) => {
+      someModule.startGame(socket, io, gameInstanceIndex, (socket) => {
         // on fisish delete the game instance to free up memory (although js garbage collector will handle it automatiaclly)
         // console.log('Delete');
         // console.log(this.)
@@ -168,7 +171,7 @@ function onConnection(socket) {
     // console.log("Handhake initiated APP.js", data);
     // console.log(socket.userName);
     // gameInstances[data].tempFunc();
-    setTimeout(() => gameInstances[data].print(socket), 3000)
+    setTimeout(() => gameInstances[data].startGame(socket), 3000)
 
   })
 

@@ -12,8 +12,8 @@ var word = require('../components/word');
  */
 
 /**
-* @class
-*/
+ * @class
+ */
 class Game {
 
     constructor(roomName, users, index = 0, userIndex = 0, tempIndex = 0, ) {
@@ -27,7 +27,7 @@ class Game {
          * scores: 0,
          * playing: false
          * }
-        */
+         */
         this.users = users;
         // Index is not used
         this.index = index;
@@ -50,37 +50,36 @@ class Game {
     }
     /**
      * Start Game
-    * Initiates the setInterval function which gets called every 'this.timeSeconds'. It sends the selected word 
-    * the current user (playing socket) and emits a event to other user in the room
-    * @param socket sockets Instance who is currently playing
-    * @param io Main Socket IO server instance 
-    * @param gameInstanceIndex is the index where the created gameinstance stored
-    * 
-    */
-    print(socket, io, gameInstanceIndex, callback) {
+     * Initiates the setInterval function which gets called every 'this.timeSeconds'. It sends the selected word 
+     * the current user (playing socket) and emits a event to other user in the room
+     * @param socket sockets Instance who is currently playing
+     * @param io Main Socket IO server instance 
+     * @param gameInstanceIndex is the index where the created gameinstance stored
+     * 
+     */
+    startGame(socket, io, gameInstanceIndex, callback) {
+        // StartGame first run 
         if (this.gameInstanceIndex == null) {
             this.io = io;
             this.gameInstanceIndex = gameInstanceIndex;
             var returnData = this.sendWords(socket, this.userIndex);
         }
         var interval = setInterval(() => {
+            this.resetAlreadyGuessedProperty();
             if (this.gameOver()) {
                 this.io.in(this.roomName).emit("gameOver", "score");
                 clearInterval(interval);
-            }
-            else {
+            } else {
                 this.sendWords(socket, this.userIndex, (word) => {
                     returnData = word;
                     if (this.userRoundsFinished()) {
                         this.userIndex++;
                         this.roundsIndex = 0;
-                        if (this.userIndex === (this.users.length)) { } else {
+                        if (this.userIndex === (this.users.length)) {} else {
                             this.users[this.userIndex].playing = true;
                             this.nextPlayerAlert(socket, this.users[this.userIndex].id, io)
                             clearInterval(interval);
-                            for (i in this.users) {
-                                this.users[i].alreadyGuessed = false;
-                            }
+
                         }
                     }
                 });
@@ -92,7 +91,11 @@ class Game {
     sendWords(socket, index, fn) {
         var data = word.getWord(guessWords);
         // multiple destructuring  
-        var { chosenWord } = { options } = data;
+        var {
+            chosenWord
+        } = {
+            options
+        } = data;
         this.chosenWord = chosenWord;
         this.users[index].rounds[this.roundsIndex] = true;
         this.roundsIndex++;
@@ -101,26 +104,47 @@ class Game {
         if (fn) fn(word);
     }
 
-    tempFunc() { }
+    tempFunc() {}
     verifyAnswer(socketId, selectedAnswer) {
         var temp;
         if (selectedAnswer === this.chosenWord) {
             for (i in this.users) {
                 if (this.users[i].id === socketId) {
+                    console.log(this.users[i]);
                     if (this.users[i].alreadyGuessed == false) {
                         this.users[i].scores = this.users[i].scores + 1;
                         this.users[i].alreadyGuessed = true;
                         temp = this.users[i].userName, this.users[i].scores;
+                        this.io.in(this.roomName).emit('scoresUpdated', {
+                            data: this.users.map(function (val) {
+                                return {
+                                    id: val.id,
+                                    score: val.scores
+                                }
+                            })
+                        });
                     }
                 }
             }
-            this.io.in(this.roomName).emit('scoresUpdated', { data: this.users.map(function (val) { return { id: val.id, score: val.scores } }) });
+        } else {
+            for (i in this.users) {
+                if (this.users[i].id === socketId) {
+                    this.users[i].alreadyGuessed = true;
+                }
+            }
         }
     }
 
     nextPlayerAlert(socket, socketId, io) {
-        this.io.in(this.roomName).emit('nextPlayerAlert', { userGoingToPlay: socketId, timerSeconds: this.timerSeconds, gameInstanceIndex: this.gameInstanceIndex });
-        this.io.sockets.connected[socketId].emit('youArePlayingNext', { playing: true, gameInstanceIndex: this.gameInstanceIndex })
+        this.io.in(this.roomName).emit('nextPlayerAlert', {
+            userGoingToPlay: socketId,
+            timerSeconds: this.timerSeconds,
+            gameInstanceIndex: this.gameInstanceIndex
+        });
+        this.io.sockets.connected[socketId].emit('youArePlayingNext', {
+            playing: true,
+            gameInstanceIndex: this.gameInstanceIndex
+        })
     }
 
     clearSocketsCanvas() {
@@ -141,6 +165,12 @@ class Game {
             }
         }
         return false;
+    }
+    // method fired after each round is finished
+    resetAlreadyGuessedProperty(){
+        for (i in this.users) {
+            this.users[i].alreadyGuessed = false;
+        }
     }
 }
 module.exports = Game;

@@ -319,6 +319,8 @@ $('.words').on("click", '.options', function () {
     console.log("nextPlayerAlert", data);
     var cUsers = $(".connectedUsers").children();
     setTimeout(function () {
+      var nextPlayingUser = undefined;
+      console.log("Setting border for new user")
       $('.connectedUsers').children('div').each(function (i, el) {
         // console.log(i,el, $(this)) 
         $(this).css({
@@ -328,15 +330,18 @@ $('.words').on("click", '.options', function () {
       $('.connectedUsers').children('div').each(function (i, el) {
         // console.log(i,el, $(this))
         if ($(this).attr("id") === data.userGoingToPlay) {
+          nextPlayingUser = $(this).text();
           $(this).css({
             border: "2px solid black"
           })
         }
       });
-      // disableCanvasDrawing();
+      disableCanvasDrawing();
+      $(".wordToGuess_options , .wordToGuess").empty();
+      $(".wordToGuess").append("<p>"+ nextPlayingUser +  " is drawing now </p>");
     }, data.timerSeconds)
 
-    console.log("Event emmited");
+    // console.log("Event emmited");
     roomInstance = data.gameInstanceIndex;
     // $(".wordToGuess_options").empty();
     // $(".wordToGuess").empty();
@@ -378,7 +383,7 @@ $('.words').on("click", '.options', function () {
         }
       }
     }
-    console.log(tempScores)
+    // console.log(tempScores)
     $(".user_scores").empty();
     for (i in tempScores) {
       $(".user_scores").append(tempScores[i]);
