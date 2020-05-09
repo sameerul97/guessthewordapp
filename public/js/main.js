@@ -448,14 +448,22 @@ $('.words').on("click", '.options', function () {
   }
 
   function canvasPositionHelper() {
-    return document.getElementsByClassName("whiteboard")[0].offsetLeft ;
     // return document.getElementsByClassName("whiteboard")[0].offsetLeft - 250;
-    // return '';
+    // return document.getElementsByClassName("whiteboard")[0].offsetLeft - document.getElementsByClassName("whiteboard")[0].offsetWidth / 2
+    // return document.getElementsByClassName("whiteboard")[0].offsetLeft - 250;
+    if (window.innerWidth < 992) {
+      return '';
+    }
+    return document.getElementsByClassName("whiteboard")[0].offsetLeft - 250;
+  }
+  function canvasPositionYHelper(){
+    // return document.getElementsByClassName("whiteboard")[0].offsetTop - document.getElementsByClassName("whiteboard")[0].offsetTop - document.getElementsByClassName("whiteboard")[0].offsetHeight / 2
+    return ''
   }
   function onMouseDown(e) {
     drawing = true;
     current.x = e.clientX - canvasPositionHelper() || e.touches[0].clientX - canvasPositionHelper();
-    current.y = e.clientY || e.touches[0].clientY;
+    current.y = e.clientY - canvasPositionYHelper()|| e.touches[0].clientY;
   }
 
   function onMouseUp(e) {
@@ -500,8 +508,8 @@ $('.words').on("click", '.options', function () {
   function onResize() {
     // canvas.width = window.innerWidth;
     if (window.innerWidth < 700) {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      canvas.width = window.outerWidth;
+      canvas.height = window.outerHeight;
       console.log(canvas.width)
 
     } else {
