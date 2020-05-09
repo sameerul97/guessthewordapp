@@ -448,7 +448,8 @@ $('.words').on("click", '.options', function () {
   }
 
   function canvasPositionHelper() {
-    return document.getElementsByClassName("whiteboard")[0].offsetLeft - 250;
+    return document.getElementsByClassName("whiteboard")[0].offsetLeft ;
+    // return document.getElementsByClassName("whiteboard")[0].offsetLeft - 250;
     // return '';
   }
   function onMouseDown(e) {
@@ -487,6 +488,7 @@ $('.words').on("click", '.options', function () {
     };
   }
 
+  // function triggered when other sockets send drawing data and this client needs to draw
   function onDrawingEvent(data) {
     var w = canvas.width;
     var h = canvas.height;
