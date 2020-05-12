@@ -4,7 +4,7 @@
 
 * {
   box-sizing: border-box;
-  overflow:  hidden;
+  overflow: hidden;
 }
 
 * {
@@ -62,7 +62,7 @@ html, body {
   transform: translate(-50%, -50%);
   border: 1px solid red;
   /* height: 100vh !important; */
-    /* width: 100vw !important; */
+  /* width: 100vw !important; */
 }
 
 .colors {
@@ -75,8 +75,6 @@ html, body {
   transform: translate(-50%, 0%);
   z-index: 9;
   display: none;
-
-
 }
 
 .color {
@@ -254,7 +252,7 @@ p {
 .leaveRoom {
   display: none;
   position: absolute;
-    bottom: 0;
+  bottom: 0;
 }
 
 .alluser {
@@ -307,6 +305,17 @@ p {
   transform: translate(-50%, -50%);
 }
 
+@media only screen and (max-width: 500px) {
+  .whiteboard {
+    height: 100vh !important;
+    width: 100vw !important;
+  }
+  .canvas-container {
+    height: 100vh !important;
+    width: 100vw !important;
+  }
+}
+
 @media only screen and (max-width: 992px) {
   .roomOptions button {
     font-family: 'Rajdhani', sans-serif;
@@ -324,7 +333,7 @@ p {
     right: 0;
   }
   .canvas-container {
-    width: auto;
+    /* width: auto; */
   }
   .leaveRoom {
     left: 0;
@@ -332,7 +341,7 @@ p {
   .clearCanvas {
     right: 0 !important;
   }
-  .colors{
+  .colors {
     position: absolute;
     bottom: 40px;
     /* top: 90%; */
@@ -341,9 +350,4 @@ p {
     transform: translate(0%, 0%);
     z-index: 9;
   }
-   .whiteboard{
-       height: 100vh !important;
-    width: 100vw !important;
-
-   }
 }

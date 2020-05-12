@@ -434,6 +434,7 @@ $('.words').on("click", '.options', function () {
     if (!emit) { return; }
     var w = canvas.width;
     var h = canvas.height;
+    console.log(w, h)
 
     socket.emit('drawing', {
       currentRoom: currentRoom,
@@ -451,7 +452,7 @@ $('.words').on("click", '.options', function () {
     // return document.getElementsByClassName("whiteboard")[0].offsetLeft - 250;
     // return document.getElementsByClassName("whiteboard")[0].offsetLeft - document.getElementsByClassName("whiteboard")[0].offsetWidth / 2
     // return document.getElementsByClassName("whiteboard")[0].offsetLeft - 250;
-    if (window.innerWidth < 992) {
+    if (window.innerWidth < 500) {
       return '';
     }
     return document.getElementsByClassName("whiteboard")[0].offsetLeft - 250;
@@ -507,17 +508,25 @@ $('.words').on("click", '.options', function () {
   // make the canvas fill its parent
   function onResize() {
     // canvas.width = window.innerWidth;
-    if (window.innerWidth < 700) {
+    if (window.innerWidth < 500) {
       canvas.width = window.outerWidth;
       canvas.height = window.outerHeight;
       console.log(canvas.width)
-
+      $(".whiteboard").css({
+        height: "100%"
+      })
     } else {
       canvas.height = window.innerHeight;
-
+      $(".canvas-container").css({
+        width: "500px"
+      })
+      $(".whiteboard").css({
+        width: "500px"
+      })
+      $(".whiteboard").attr("width","500");
     }
     $(".canvas-container").css({
-      width: canvas.width + "px",
+      // width: canvas.width + "px",
       height: canvas.height + "px",
     })
   }
