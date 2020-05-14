@@ -24,8 +24,8 @@
 
 <body>
   <!-- <h1>Draw </h1>   -->
-  <button class="modal__btn modal__btn-primary leaveRoom"  onclick="leaveRoom()">🗙</button>
-  <button class="modal__btn modal__btn-primary clearCanvas"  onclick="clearCanvas()">Clear</button>
+  <button class="modal__btn modal__btn-primary leaveRoom btnText" onclick="leaveRoom()">X</button>
+  <button class="modal__btn modal__btn-primary clearCanvas btnText" onclick="clearCanvas()">C</button>
 
   <canvas class="whiteboard" height="900" width="500">
 
@@ -70,8 +70,8 @@
     <div class="wordToGuess"></div>
     <div class="wordToGuess_options"></div>
     <!-- <div class="wordToGuess_options">
-      <button class="options modal__btn modal__btn-primary ">jail</button><button
-        class="options modal__btn modal__btn-primary ">hat</button><button
+      <button class="options modal__btn modal__btn-primary ">bakset</button><button
+        class="options modal__btn modal__btn-primary ">House plant</button><button
         class="options modal__btn modal__btn-primary ">wristwatch</button><button
         class="options modal__btn modal__btn-primary ">owl</button><br></div> -->
   </div>
@@ -170,7 +170,11 @@
 
   <!-- <script src="https://unpkg.com/micromodal/dist/micromodal.min.js"></script> -->
   <script src="js/libs/socket.io.js"></script>
+  <script src="./js/helper.js"></script>
   <script src="./js/main.js"></script>
+  <script src="./js/canvas.js"></script>
+  <script src="./js/events.js"></script>
+
   <script>
     MicroModal.init();
 

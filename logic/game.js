@@ -110,7 +110,7 @@ class Game {
         if (selectedAnswer === this.chosenWord) {
             for (i in this.users) {
                 if (this.users[i].id === socketId) {
-                    console.log(this.users[i]);
+                    // console.log(this.users[i]);
                     if (this.users[i].alreadyGuessed == false) {
                         this.users[i].scores = this.users[i].scores + 1;
                         this.users[i].alreadyGuessed = true;
@@ -123,6 +123,10 @@ class Game {
                                 }
                             })
                         });
+                        this.io.sockets.connected[socketId].emit('verifiedAnswer', {
+                            correct : true,
+                            correctAnswer : this.chosenWord,
+                        })
                     }
                 }
             }
@@ -130,6 +134,10 @@ class Game {
             for (i in this.users) {
                 if (this.users[i].id === socketId) {
                     this.users[i].alreadyGuessed = true;
+                    this.io.sockets.connected[socketId].emit('verifiedAnswer', {
+                        correct : false,
+                        correctAnswer : this.chosenWord,
+                    })
                 }
             }
         }

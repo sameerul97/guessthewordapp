@@ -167,7 +167,7 @@ function onConnection(socket) {
 
 
   })
-  socket.on('handshakeBoom', (data) => {
+  socket.on('handshakeIntialised', (data) => {
     // console.log("Handhake initiated APP.js", data);
     // console.log(socket.userName);
     // gameInstances[data].tempFunc();
@@ -176,7 +176,7 @@ function onConnection(socket) {
   })
 
   socket.on("selectedAnswer", (data) => {
-    console.log(data, data.gameInstanceIndex);
+    // console.log(data, data.gameInstanceIndex);
     gameInstances[data.gameInstanceIndex].verifyAnswer(socket.id, data.selectedAnswer)
   })
 

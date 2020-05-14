@@ -280,15 +280,21 @@ p {
 
 .words {
   position: absolute;
-  bottom: 0;
-  top: 90%;
+  bottom: 10px;
+  /* top: 90%; */
   left: 50%;
   /* margin-right: -50%; */
   transform: translate(-50%, 0%);
   z-index: 11;
-  width: 100%;
+  /* width: 100%; */
   text-align: center;
-  height: 34px;
+  /* height: 34px; */
+  width: 300px;
+}
+
+.options {
+  width: 45%;
+  margin: 1px 1px;
 }
 
 .clearCanvas {
@@ -303,6 +309,12 @@ p {
   left: 50%;
   /* margin-right: -50%; */
   transform: translate(-50%, -50%);
+}
+
+.btnText {
+  font-family: Rajdhani, sans-serif;
+  font-weight: bolder;
+  font-size: 1rem;
 }
 
 @media only screen and (max-width: 500px) {
@@ -339,7 +351,7 @@ p {
     left: 0;
   }
   .clearCanvas {
-    right: 0 !important;
+    /* right: 0 !important; */
   }
   .colors {
     position: absolute;
