@@ -133,5 +133,5 @@ function onResize() {
         // width: canvas.width + "px",
         height: canvas.height + "px",
     })
-    showLeaveroomButton()
+    positionButtonsInCanvasResponsively()
 }

@@ -14,7 +14,12 @@ var room = require('./components/room');
 // var game = require('./test');
 // var gameClass = require('./ooptest');
 var gameClass = require('./logic/game');
+
+
+// Need to be stored in Redis DB 
 var gameInstances = [];
+var createdRoom = new Array();
+var events = require("./events/events")
 console.log();
 
 app.use(express.static(__dirname + '/public'));
@@ -23,33 +28,63 @@ function emitUserId(socket) {
   socket.emit("userId", socket.id);
 }
 
+// helper
+Array.prototype.contains = function (v) {
+  for (i in this) {
+    if (this[i] == v) return true;
+  }
+  return false;
+}
+
+
+
 function onConnection(socket) {
   socket.on('drawing', (data) => {
     socket.to(data.currentRoom).emit('drawing', {
       data: data.drawData
     });
   });
+
   // user creating a room (and sends back created room name to the user )
   socket.on('createRoom', function (userName) {
     // createRoom(socket,user);
     var roomName = room.createRoom(socket, userName, roomNames);
     io.to(roomName).emit('roomNameIs', roomName);
+    createdRoom.push(roomName);
     emitUserId(socket);
   });
 
   // User joining a specific room (user gives in roomName , username)
-  socket.on('joinRoom', (roomToJoin, userName) => {
-    room.joinRoom(socket, roomToJoin, userName);
-    // console.log("Entered Room name : ", room, " by ", userName);
-    // console.log("Connected user name ", socket.userName);
+  socket.on('joinRoom', events.joinRoom(io, socket, createdRoom, function (err) {
+    // let errMessage = err;
+    if (err) socket.emit("roomVerified", { success: false, message: err.message })
+    else socket.emit("roomVerified", { success: true, message: null }), emitUserId(socket)
+  }));
+  // socket.on('joinRoom', joinRoom(roomToJoin, userName, function (error, doc) {
+  //   //   // doc.children[0]._id will be undefined
+  //   if (error) {
+  //     console.log("Mesag", error);
+  //     // socket.emit("roomError" , )
+  //   }
+  // }));
 
-    // Get all users in a room and replies back with array
-    room.getAllUsersInARoom(io, roomToJoin, (connectedUsers) => {
-      // Notifying all the user in that room
-      io.in(roomToJoin).emit('aUserJoined', connectedUsers);
-    });
-    emitUserId(socket);
-  })
+  // socket.on('joinRoom', (roomToJoin, userName) => {
+  //   if (createdRoom.contains(roomToJoin)) {
+  //     room.joinRoom(socket, roomToJoin, userName);
+  //     // console.log("Entered Room name : ", room, " by ", userName);
+  //     // console.log("Connected user name ", socket.userName);
+
+  //     // Get all users in a room and replies back with array
+  //     room.getAllUsersInARoom(io, roomToJoin, (connectedUsers) => {
+  //       // Notifying all the user in that room
+  //       io.in(roomToJoin).emit('aUserJoined', connectedUsers);
+  //     });
+  //     emitUserId(socket);
+  //   } else {
+  //     throw new Error("Room does not exist");
+  //   }
+
+  // })
 
 
   socket.on('playGame', (roomName) => {
@@ -76,7 +111,7 @@ function onConnection(socket) {
           rounds: [false, false, false],
           scores: 0,
           playing: false,
-          alreadyGuessed : false
+          alreadyGuessed: false
         }
         // setting playing true for admin (who creates the room)
         if (socket.id == clients[i]) {
@@ -86,7 +121,7 @@ function onConnection(socket) {
             rounds: [false, false, false],
             scores: 0,
             playing: true,
-            alreadyGuessed : false
+            alreadyGuessed: false
           }
         }
         socketsPlayingGame.push(temp);
@@ -177,7 +212,8 @@ function onConnection(socket) {
 
   socket.on("selectedAnswer", (data) => {
     // console.log(data, data.gameInstanceIndex);
-    gameInstances[data.gameInstanceIndex].verifyAnswer(socket.id, data.selectedAnswer)
+    gameInstances[data.gameInstanceIndex].verifyAnswer(socket.id, data.selectedAnswer);
+    // throw Error('TEsT error in code');
   })
 
   socket.on("clearCanvas", (data) => {

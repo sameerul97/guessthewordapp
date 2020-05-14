@@ -1,3 +1,24 @@
+socket.on("roomVerified", function (data) {
+    if (!data.success) {
+        console.log(data);
+        $("#modal-2-content").prepend('<p class="errorMessage">' + data.message + '</p>')
+        setTimeout(function () {
+            $("#modal-2-content p").remove()
+        }, 3000)
+    } else {
+        MicroModal.close('joinRoomModal');
+        $(".createRoom").hide()
+        $(".joinRoom").hide()
+        $(".game").hide();
+        positionButtonsInCanvasResponsively();
+        showScores();
+        hideUsernameForm();
+        showExitRoomButton();
+        document.getElementById('createdRoomName').innerHTML = "Room name : " + currentRoom;
+    }
+})
+
+
 // socket.on('drawing', onDrawingEvent(data.data));
 socket.on('drawing', function (data) {
     // console.log("INCOMIN DATA : " , data.data);

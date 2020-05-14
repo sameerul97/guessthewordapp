@@ -11,7 +11,7 @@ var currentlyPlaying = false;
 var alreadyGuessed = false;
 
 // positioning exitRoom, clearnCanvas and colour selector element dynamically 
-function showLeaveroomButton() {
+function positionButtonsInCanvasResponsively() {
   $(".leaveRoom").css({
     // "position": "relative",
     "position": "absolute",
@@ -91,20 +91,7 @@ function joinRoom(e) {
     var enteredRoomName = document.getElementById("enteredRoomName").value;
     userName = document.getElementById('userName').value;
     socket.emit('joinRoom', enteredRoomName, userName);
-    // check whether room is in server if not show error to user
-    // toggle modal if success
     currentRoom = enteredRoomName;
-    $(".createRoom").hide()
-    $(".joinRoom").hide()
-    $(".game").hide();
-    showLeaveroomButton();
-    showScores();
-    hideUsernameForm();
-    showExitRoomButton(); 
-    // showClearCanvasButton();showColorSelector();
-
-    // enableCanvasDrawing();
-
   }
 }
 
@@ -121,7 +108,7 @@ function playGame() {
   $(".game").hide();
   // enableCanvasDrawing();
   enableCanvasDrawing();
-  showLeaveroomButton();
+  positionButtonsInCanvasResponsively();
   showExitRoomButton(); showClearCanvasButton();showColorSelector();
   hideUsernameForm();
   showScores();
