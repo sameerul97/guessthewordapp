@@ -26,6 +26,7 @@ class Game {
          * rounds: [false, false, false],
          * scores: 0,
          * playing: false
+         * alreadyGuessesd : false
          * }
          */
         this.users = users;
@@ -46,7 +47,7 @@ class Game {
         // current Chosen word (the answer)
         this.chosenWord = null;
         // Refers to seconds each user gets between each rounds to draw the word
-        this.timerSeconds = 15000;
+        this.timerSeconds = 5000;
     }
     /**
      * Start Game
