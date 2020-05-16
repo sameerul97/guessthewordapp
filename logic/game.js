@@ -4,6 +4,8 @@ var roomNames = obj.roomNames;
 var guessWords = obj.guessWords;
 var word = require('../components/word');
 
+ 
+
 /**
  * Needed a multiton pattern to implement game logic, for every game user starts 'Game' instance is created
  * Game class handles the logic of sending user the cord and other users in the room with optional words. 
@@ -14,8 +16,15 @@ var word = require('../components/word');
 /**
  * @class
  */
+ 
 class Game {
-
+    /**
+     * @param  {string} roomName
+     * @param  {Array.<Object>} users
+     * @param  {number} [index]=0
+     * @param  {number} [userIndex]=0
+     * @param  {number} [tempIndex]=0
+     */
     constructor(roomName, users, index = 0, userIndex = 0, tempIndex = 0, ) {
         // Current name is used to emit event to all the users in room
         this.roomName = roomName;
@@ -47,7 +56,7 @@ class Game {
         // current Chosen word (the answer)
         this.chosenWord = null;
         // Refers to seconds each user gets between each rounds to draw the word
-        this.timerSeconds = 5000;
+        this.timerSeconds = 15000;
     }
     /**
      * Start Game
@@ -76,7 +85,7 @@ class Game {
                     if (this.userRoundsFinished()) {
                         this.userIndex++;
                         this.roundsIndex = 0;
-                        if (this.userIndex === (this.users.length)) {} else {
+                        if (this.userIndex === (this.users.length)) { } else {
                             this.users[this.userIndex].playing = true;
                             this.nextPlayerAlert(socket, this.users[this.userIndex].id, io)
                             clearInterval(interval);
@@ -95,21 +104,24 @@ class Game {
         var {
             chosenWord
         } = {
+            // @ts-ignore
             options
         } = data;
         this.chosenWord = chosenWord;
         this.users[index].rounds[this.roundsIndex] = true;
         this.roundsIndex++;
         socket.emit('word', chosenWord);
+        // @ts-ignore
         socket.to(this.roomName).emit('options', options);
         if (fn) fn(word);
     }
 
-    tempFunc() {}
+    tempFunc() { }
+
     verifyAnswer(socketId, selectedAnswer) {
         var temp;
         if (selectedAnswer === this.chosenWord) {
-            for (i in this.users) {
+            for (let i in this.users) {
                 if (this.users[i].id === socketId) {
                     // console.log(this.users[i]);
                     if (this.users[i].alreadyGuessed == false) {
@@ -125,19 +137,19 @@ class Game {
                             })
                         });
                         this.io.sockets.connected[socketId].emit('verifiedAnswer', {
-                            correct : true,
-                            correctAnswer : this.chosenWord,
+                            correct: true,
+                            correctAnswer: this.chosenWord,
                         })
                     }
                 }
             }
         } else {
-            for (i in this.users) {
+            for (let i in this.users) {
                 if (this.users[i].id === socketId) {
                     this.users[i].alreadyGuessed = true;
                     this.io.sockets.connected[socketId].emit('verifiedAnswer', {
-                        correct : false,
-                        correctAnswer : this.chosenWord,
+                        correct: false,
+                        correctAnswer: this.chosenWord,
                     })
                 }
             }
@@ -176,10 +188,24 @@ class Game {
         return false;
     }
     // method fired after each round is finished
-    resetAlreadyGuessedProperty(){
-        for (i in this.users) {
+    resetAlreadyGuessedProperty() {
+        for (let i in this.users) {
             this.users[i].alreadyGuessed = false;
         }
     }
 }
 module.exports = Game;
+
+// @ts-check
+/**
+ * @param {string} somebody
+ */
+function sayHello(somebody) {
+    if (!somebody) {
+        somebody = "John Doe";
+    }
+    console.log("Hello " + somebody);
+}
+
+// sayHello(78888);
+// new Game("",[{}],2);

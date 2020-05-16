@@ -12,7 +12,7 @@ const joinRoom = (io, socket, createdRoom, callback) => (roomToJoin, userName) =
             // Notifying all the user in that room
             io.in(roomToJoin).emit('aUserJoined', connectedUsers);
         });
-        callback(null);
+        callback(null,roomToJoin);
     } else {
         callback(new Error("Error : Roomname is not valid or verify room name"));
     }

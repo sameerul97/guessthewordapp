@@ -1,5 +1,6 @@
 var canvas = document.getElementsByClassName('whiteboard')[0];
 var colors = document.getElementsByClassName('color');
+// @ts-ignore
 var context = canvas.getContext('2d');
 
 var current = {
@@ -36,11 +37,15 @@ function drawLine(x0, y0, x1, y1, color, emit) {
     context.closePath();
 
     if (!emit) { return; }
+    // @ts-ignore
     var w = canvas.width;
+    // @ts-ignore
     var h = canvas.height;
     console.log(w, h)
     // sending the multiplier value rather than actual cordinates
+    // @ts-ignore
     socket.emit('drawing', {
+        // @ts-ignore
         currentRoom: currentRoom,
         drawData: {
             x0: x0 / w,
@@ -59,6 +64,7 @@ function canvasPositionHelper() {
     if (window.innerWidth < 500) {
         return '';
     }
+    // @ts-ignore
     return document.getElementsByClassName("whiteboard")[0].offsetLeft - document.getElementsByClassName("whiteboard")[0].width / 2;
 }
 function canvasPositionYHelper() {
@@ -67,19 +73,24 @@ function canvasPositionYHelper() {
 }
 function onMouseDown(e) {
     drawing = true;
+    // @ts-ignore
     current.x = e.clientX - canvasPositionHelper() || e.touches[0].clientX - canvasPositionHelper();
+    // @ts-ignore
     current.y = e.clientY - canvasPositionYHelper() || e.touches[0].clientY;
 }
 
 function onMouseUp(e) {
     if (!drawing) { return; }
     drawing = false;
+    // @ts-ignore
     drawLine(current.x, current.y, e.clientX - canvasPositionHelper() || e.touches[0].clientX - canvasPositionHelper(), e.clientY || e.touches[0].clientY, current.color, true);
 }
 
 function onMouseMove(e) {
     if (!drawing) { return; }
+    // @ts-ignore
     drawLine(current.x, current.y, e.clientX - canvasPositionHelper() || e.touches[0].clientX - canvasPositionHelper(), e.clientY || e.touches[0].clientY, current.color, true);
+    // @ts-ignore
     current.x = e.clientX - canvasPositionHelper() || e.touches[0].clientX - canvasPositionHelper();
     current.y = e.clientY || e.touches[0].clientY;
 }
@@ -103,7 +114,9 @@ function throttle(callback, delay) {
 
 // function triggered when other sockets send drawing data and this client needs to draw
 function onDrawingEvent(data) {
+    // @ts-ignore
     var w = canvas.width;
+    // @ts-ignore
     var h = canvas.height;
     // var data = data.data;
     drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color);
@@ -113,25 +126,37 @@ function onDrawingEvent(data) {
 function onResize() {
     // canvas.width = window.innerWidth;
     if (window.innerWidth < 500) {
+        // @ts-ignore
         canvas.width = window.outerWidth;
+        // @ts-ignore
         canvas.height = window.outerHeight;
+        // @ts-ignore
         console.log(canvas.width)
+        // @ts-ignore
         $(".whiteboard").css({
             height: "100%"
         })
     } else {
+        // @ts-ignore
         canvas.height = window.innerHeight;
+        // @ts-ignore
         $(".canvas-container").css({
             width: "500px"
         })
         // $(".whiteboard").css({
         //   width: "500px"
         // })
+        // @ts-ignore
         $(".whiteboard").attr("width", "500");
     }
+    // @ts-ignore
     $(".canvas-container").css({
         // width: canvas.width + "px",
+        // @ts-ignore
         height: canvas.height + "px",
     })
+    // @ts-ignore
     positionButtonsInCanvasResponsively()
 }
+
+

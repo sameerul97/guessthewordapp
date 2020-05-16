@@ -1,8 +1,10 @@
+// @ts-check
 const express = require('express');
 const app = express();
-const http = require('http').Server(app);
+const http = new (require('http').Server)(app);
 const io = require('socket.io')(http);
 const port = process.env.PORT || 3000;
+
 
 // var roomNames = ["dog","cat","parrot","monkey","mouse"];
 var fs = require('fs');
@@ -19,6 +21,7 @@ var gameClass = require('./logic/game');
 // Need to be stored in Redis DB 
 var gameInstances = [];
 var createdRoom = new Array();
+var currentlyCreatedRoom = [];
 var events = require("./events/events")
 console.log();
 
@@ -29,8 +32,9 @@ function emitUserId(socket) {
 }
 
 // helper
+// @ts-ignore
 Array.prototype.contains = function (v) {
-  for (i in this) {
+  for (let i in this) {
     if (this[i] == v) return true;
   }
   return false;
@@ -50,7 +54,15 @@ function onConnection(socket) {
     // createRoom(socket,user);
     var roomName = room.createRoom(socket, userName, roomNames);
     io.to(roomName).emit('roomNameIs', roomName);
-    createdRoom.push(roomName);
+    // createdRoom.push(roomName);
+    let temp = {
+      roomName : roomName,
+      gameInstance : undefined,
+      gameInstanceIndex : createdRoom.length,
+      playing : false
+    }
+    // io.in(roomName).emit('setGameInstance', createdRoom.length - 1);
+    createdRoom.push(temp);
     emitUserId(socket);
   });
 
@@ -79,13 +91,13 @@ function onConnection(socket) {
     // console.log("All the sockets in current room ", sockets.sockets);
     // io.of('/').adapter.clients([roomName], (err, clients) => {
     // console.log("IDS ", clients);
-    for (i in sockets.connected) {
+    for (let i in sockets.connected) {
       var temp = {
         id: sockets.connected[i].id,
         playing: false,
         rounds: [false, false, false],
         scores: 0,
-        playing: false,
+        // playing: false,
         alreadyGuessed: false
       }
       // setting playing true for admin (who creates the room)
@@ -95,7 +107,7 @@ function onConnection(socket) {
           playing: false,
           rounds: [false, false, false],
           scores: 0,
-          playing: true,
+          // playing: true,
           alreadyGuessed: false
         }
       }
@@ -128,17 +140,18 @@ function onConnection(socket) {
     //   console.log();
     // }
     // fs.writeFileSync('socketData.json', socketsPlayingGame[0]);
-
-    someModule = new gameClass(roomName, socketsPlayingGame);
-    var gameInstanceIndex = gameInstances.push(someModule) - 1;
+    let Game = new gameClass(roomName, socketsPlayingGame);
+    var gameInstanceIndex = gameInstances.push(Game) - 1;
     // socket.emit("setGameInstance", gameInstanceIndex);
-    // var temp = {
-    //   gameInstanceIndex: gameInstanceIndex,
-    //   gameInstance: someModule,
-    //   playing: true
-    // }
+    var temp2 = {
+      roomName: roomName,
+      gameInstanceIndex: gameInstanceIndex,
+      gameInstance: Game,
+      playing: true
+    }
+    // currentlyCreatedRoom.push(temp2);
     io.in(roomName).emit('setGameInstance', gameInstanceIndex);
-    someModule.startGame(socket, io, gameInstanceIndex, (socket) => {
+    Game.startGame(socket, io, gameInstanceIndex, (socket) => {
       // on fisish delete the game instance to free up memory (although js garbage collector will handle it automatiaclly)
       // console.log('Delete');
       // console.log(this.)
@@ -206,12 +219,12 @@ function onConnection(socket) {
 
   socket.on('disconnecting', function () {
     var joinedRooms = [];
-    for (i in socket.rooms) {
+    for (let i in socket.rooms) {
       joinedRooms.push(socket.rooms[i])
     }
     // socket.emit('aUserLeft')
     // emitting events to all the rooms user were in.
-    for (i in joinedRooms) {
+    for (let i in joinedRooms) {
       io.in(joinedRooms[i]).emit('aUserLeft', socket.id);
     }
     // emitting events to all except sender
