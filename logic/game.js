@@ -4,7 +4,7 @@ var roomNames = obj.roomNames;
 var guessWords = obj.guessWords;
 var word = require('../components/word');
 
- 
+// @ts-check
 
 /**
  * Needed a multiton pattern to implement game logic, for every game user starts 'Game' instance is created
@@ -16,14 +16,15 @@ var word = require('../components/word');
 /**
  * @class
  */
- 
+
+// @ts-check
 class Game {
     /**
      * @param  {string} roomName
      * @param  {Array.<Object>} users
-     * @param  {number} [index]=0
-     * @param  {number} [userIndex]=0
-     * @param  {number} [tempIndex]=0
+     * @param  {number} index=0
+     * @param  {number} userIndex=0
+     * @param  {number} tempIndex=0
      */
     constructor(roomName, users, index = 0, userIndex = 0, tempIndex = 0, ) {
         // Current name is used to emit event to all the users in room
@@ -56,7 +57,7 @@ class Game {
         // current Chosen word (the answer)
         this.chosenWord = null;
         // Refers to seconds each user gets between each rounds to draw the word
-        this.timerSeconds = 15000;
+        this.timerSeconds = 20000;
     }
     /**
      * Start Game
@@ -69,6 +70,7 @@ class Game {
      */
     startGame(socket, io, gameInstanceIndex, callback) {
         // StartGame first run 
+        // console.log("Users in ", this.roomName, " ", this.users);
         if (this.gameInstanceIndex == null) {
             this.io = io;
             this.gameInstanceIndex = gameInstanceIndex;
@@ -104,14 +106,12 @@ class Game {
         var {
             chosenWord
         } = {
-            // @ts-ignore
             options
         } = data;
         this.chosenWord = chosenWord;
         this.users[index].rounds[this.roundsIndex] = true;
         this.roundsIndex++;
         socket.emit('word', chosenWord);
-        // @ts-ignore
         socket.to(this.roomName).emit('options', options);
         if (fn) fn(word);
     }
@@ -121,7 +121,7 @@ class Game {
     verifyAnswer(socketId, selectedAnswer) {
         var temp;
         if (selectedAnswer === this.chosenWord) {
-            for (let i in this.users) {
+            for (i in this.users) {
                 if (this.users[i].id === socketId) {
                     // console.log(this.users[i]);
                     if (this.users[i].alreadyGuessed == false) {
@@ -144,7 +144,7 @@ class Game {
                 }
             }
         } else {
-            for (let i in this.users) {
+            for (i in this.users) {
                 if (this.users[i].id === socketId) {
                     this.users[i].alreadyGuessed = true;
                     this.io.sockets.connected[socketId].emit('verifiedAnswer', {
@@ -162,7 +162,8 @@ class Game {
             timerSeconds: this.timerSeconds,
             gameInstanceIndex: this.gameInstanceIndex
         });
-        this.io.sockets.connected[socketId].emit('youArePlayingNext', {
+        this.io.to(socketId).emit('youArePlayingNext', {
+            // this.io.sockets.connected[socketId].emit('youArePlayingNext', {
             playing: true,
             gameInstanceIndex: this.gameInstanceIndex
         })
@@ -189,23 +190,10 @@ class Game {
     }
     // method fired after each round is finished
     resetAlreadyGuessedProperty() {
-        for (let i in this.users) {
+        for (i in this.users) {
             this.users[i].alreadyGuessed = false;
         }
     }
 }
 module.exports = Game;
 
-// @ts-check
-/**
- * @param {string} somebody
- */
-function sayHello(somebody) {
-    if (!somebody) {
-        somebody = "John Doe";
-    }
-    console.log("Hello " + somebody);
-}
-
-// sayHello(78888);
-// new Game("",[{}],2);

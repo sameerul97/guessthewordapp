@@ -11,9 +11,11 @@ module.exports = {
     socket._admin = true;
     var roomName = roomNames[Math.floor(Math.random() * roomNames.length)];
     // var index2Pop = roomNames.findIndex(room => room === roomName); 
+    let index2Pop = roomNames.indexOf(roomName)
     socket.join(roomName);
     // remove the name from the roomNames list once joined
-    roomNames.pop(roomNames.findIndex(room => room === roomName));
+    roomNames.splice(index2Pop, 1);
+    // roomNames.pop(roomNames.findIndex(room => room === roomName));
     // console.log(socket.userName , " created a room called ", roomName);
     return roomName;
   },

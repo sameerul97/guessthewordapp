@@ -136,7 +136,7 @@ socket.on('nextPlayerAlert', function (data) {
 socket.on("youArePlayingNext", function (data) {
     if (data.playing) {
         roomInstance = data.gameInstanceIndex;
-        initiateHandshake(data.gameInstanceIndex);
+        initiateHandshake(roomInstance);
         // currentlyPlaying = true;
         // enableCanvasDrawing();
     }

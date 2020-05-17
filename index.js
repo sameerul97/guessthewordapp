@@ -1,7 +1,7 @@
-// @ts-check
+
 const express = require('express');
 const app = express();
-const http = new (require('http').Server)(app);
+const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const port = process.env.PORT || 3000;
 
@@ -32,9 +32,8 @@ function emitUserId(socket) {
 }
 
 // helper
-// @ts-ignore
 Array.prototype.contains = function (v) {
-  for (let i in this) {
+  for (i in this) {
     if (this[i] == v) return true;
   }
   return false;
@@ -54,15 +53,14 @@ function onConnection(socket) {
     // createRoom(socket,user);
     var roomName = room.createRoom(socket, userName, roomNames);
     io.to(roomName).emit('roomNameIs', roomName);
-    // createdRoom.push(roomName);
-    let temp = {
-      roomName : roomName,
-      gameInstance : undefined,
-      gameInstanceIndex : createdRoom.length,
-      playing : false
+    createdRoom.push(roomName);
+    let tempVar = {
+      roomName: roomName,
+      gameInstanceIndex: currentlyCreatedRoom.length,
+      gameInstance: undefined,
+      playing: false
     }
-    // io.in(roomName).emit('setGameInstance', createdRoom.length - 1);
-    createdRoom.push(temp);
+    currentlyCreatedRoom.push(tempVar);
     emitUserId(socket);
   });
 
@@ -90,85 +88,115 @@ function onConnection(socket) {
     var tempData = []
     // console.log("All the sockets in current room ", sockets.sockets);
     // io.of('/').adapter.clients([roomName], (err, clients) => {
-    // console.log("IDS ", clients);
-    for (let i in sockets.connected) {
-      var temp = {
-        id: sockets.connected[i].id,
-        playing: false,
-        rounds: [false, false, false],
-        scores: 0,
-        // playing: false,
-        alreadyGuessed: false
-      }
-      // setting playing true for admin (who creates the room)
-      if (socket.id == sockets.connected[i].id) {
-        var temp = {
-          id: sockets.connected[i].id,
-          playing: false,
+    // io.of('/chat').in(roomName).clients((error, clients) => {
+    io.of('/').adapter.clients([roomName], (err, clients) => {
+
+      if (err) throw err;
+      // console.log("Index JS ", clients, clients.length); // => [Anw2LatarvGVVXEIAAAD]
+      // });
+      // console.log("IDS ", clients);
+      for (let i = 0; i < clients.length; i++) {
+        // console.log(clients[i])
+        let temp = {
+          id: clients[i],
+          // playing: false,
           rounds: [false, false, false],
           scores: 0,
-          // playing: true,
+          playing: false,
           alreadyGuessed: false
         }
+        // setting playing true for admin (who creates the room)
+        if (socket.id == clients[i]) {
+          temp = {
+            id: clients[i],
+            // playing: false,
+            rounds: [false, false, false],
+            scores: 0,
+            playing: true,
+            alreadyGuessed: false
+          }
+        }
+        socketsPlayingGame.push(temp);
       }
-      socketsPlayingGame.push(temp);
-      // Object.keys(sockets.sockets).forEach((item) => {
-      //   if (sockets.sockets[item].id == clients[i]) {
-      //     // console.log("@setting props /n",clients[i])
-      //     sockets.sockets[item].played = false;
-      //     sockets.sockets[item].playing = false;
-      //     sockets.sockets[item].rounds = [false, false, false];
-      //     sockets.sockets[item].scores = 0;
-      //     sockets.sockets[item].alreadyGuessed = false;
-      //     socketsPlayingGame.push(sockets.sockets[item]);
-      //   }
-      //   if (sockets.sockets[item]._admin) {
-      //     sockets.sockets[item].playing = true;
-      //   }
-      // })
-    }
+      for (i in clients) {
+        // console.log(clients[i])
+        // let temp = {
+        //   id: clients[i],
+        //   // playing: false,
+        //   rounds: [false, false, false],
+        //   scores: 0,
+        //   playing: false,
+        //   alreadyGuessed: false
+        // }
+        // // setting playing true for admin (who creates the room)
+        // if (socket.id == clients[i]) {
+        //   temp = {
+        //     id: clients[i],
+        //     // playing: false,
+        //     rounds: [false, false, false],
+        //     scores: 0,
+        //     playing: true,
+        //     alreadyGuessed: false
+        //   }
+        // }
+        // socketsPlayingGame.push(temp);
+        // Object.keys(sockets.sockets).forEach((item) => {
+        //   if (sockets.sockets[item].id == clients[i]) {
+        //     // console.log("@setting props /n",clients[i])
+        //     sockets.sockets[item].played = false;
+        //     sockets.sockets[item].playing = false;
+        //     sockets.sockets[item].rounds = [false, false, false];
+        //     sockets.sockets[item].scores = 0;
+        //     sockets.sockets[item].alreadyGuessed = false;
+        //     socketsPlayingGame.push(sockets.sockets[item]);
+        //   }
+        //   if (sockets.sockets[item]._admin) {
+        //     sockets.sockets[item].playing = true;
+        //   }
+        // })
+      }
 
-    // console.log("TEMP NEW: ", tempData)
-    // socket._playing = true;
-    // console.log("All the 2 sockets in current room ", sockets.sockets);
-    // console.log("SOCKETS PLAYING GAMEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE " , socketsPlayingGame)
-    // for (i in socketsPlayingGame) {
-    //   console.log("USER ID ", socketsPlayingGame[i].id)
-    //   console.log("Admin ", socketsPlayingGame[i]._admin)
-    //   console.log("PLAYING ", socketsPlayingGame[i].playing)
-    //   console.log("USERNAME ", socketsPlayingGame[i].userName)
-    //   console.log();
-    // }
-    // fs.writeFileSync('socketData.json', socketsPlayingGame[0]);
-    let Game = new gameClass(roomName, socketsPlayingGame);
-    var gameInstanceIndex = gameInstances.push(Game) - 1;
-    // socket.emit("setGameInstance", gameInstanceIndex);
-    var temp2 = {
-      roomName: roomName,
-      gameInstanceIndex: gameInstanceIndex,
-      gameInstance: Game,
-      playing: true
-    }
-    // currentlyCreatedRoom.push(temp2);
-    io.in(roomName).emit('setGameInstance', gameInstanceIndex);
-    Game.startGame(socket, io, gameInstanceIndex, (socket) => {
-      // on fisish delete the game instance to free up memory (although js garbage collector will handle it automatiaclly)
-      // console.log('Delete');
-      // console.log(this.)
-      // delete someModule;
-      // console.log(someModule)
+      // console.log("TEMP NEW: ", tempData)
+      // socket._playing = true;
+      // console.log("All the 2 sockets in current room ", sockets.sockets);
+      // console.log("SOCKETS PLAYING GAMEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE " , socketsPlayingGame)
+      // for (i in socketsPlayingGame) {
+      //   console.log("USER ID ", socketsPlayingGame[i].id)
+      //   console.log("Admin ", socketsPlayingGame[i]._admin)
+      //   console.log("PLAYING ", socketsPlayingGame[i].playing)
+      //   console.log("USERNAME ", socketsPlayingGame[i].userName)
+      //   console.log();
+      // }
+      // fs.writeFileSync('socketData.json', socketsPlayingGame[0]);
+      someModule = new gameClass(roomName, socketsPlayingGame);
+      var gameInstanceIndex = gameInstances.push(someModule) - 1;
+      // socket.emit("setGameInstance", gameInstanceIndex);
+      // var temp2 = {
+      //   roomName: roomName,
+      //   gameInstanceIndex: gameInstanceIndex,
+      //   gameInstance: someModule,
+      //   playing: true
+      // }
+      // currentlyCreatedRoom.push(temp2);
+      io.in(roomName).emit('setGameInstance', gameInstanceIndex);
+      someModule.startGame(socket, io, gameInstanceIndex, (socket) => {
+        // on fisish delete the game instance to free up memory (although js garbage collector will handle it automatiaclly)
+        // console.log('Delete');
+        // console.log(this.)
+        // delete someModule;
+        // console.log(someModule)
+      });
+
+      // console.log(gameInstances);
+      // console.log(gameInstances[0]);
+
+
+      // game.setSockets(socketsPlayingGame, guessWords, () => {
+      //   game.startGame();
+      // });
+
+      // callback(connectedUsers);
     });
-
-    // console.log(gameInstances);
-    // console.log(gameInstances[0]);
-
-
-    // game.setSockets(socketsPlayingGame, guessWords, () => {
-    //   game.startGame();
-    // });
-
-    // callback(connectedUsers);
-    // });
     // console.log("All sockets ",sockets.sockets);
 
     // var data = word.getWord(guessWords);
@@ -219,12 +247,12 @@ function onConnection(socket) {
 
   socket.on('disconnecting', function () {
     var joinedRooms = [];
-    for (let i in socket.rooms) {
+    for (i in socket.rooms) {
       joinedRooms.push(socket.rooms[i])
     }
     // socket.emit('aUserLeft')
     // emitting events to all the rooms user were in.
-    for (let i in joinedRooms) {
+    for (i in joinedRooms) {
       io.in(joinedRooms[i]).emit('aUserLeft', socket.id);
     }
     // emitting events to all except sender
