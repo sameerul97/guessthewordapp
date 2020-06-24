@@ -12,7 +12,7 @@ class Game {
     this.currentPlayerIndex = null;
     this.gameInstanceKey = null;
     this.chosenWord = null;
-    this.timerSeconds = 5000;
+    this.timerSeconds = 20000;
   }
 }
 

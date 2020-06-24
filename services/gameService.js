@@ -89,7 +89,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       var tempGame = JSON.parse(gameObject);
       tempGame.__proto__ = Game.prototype;
-      console.log(tempGame);
+      // console.log(tempGame);
       resolve(tempGame);
     });
   },
