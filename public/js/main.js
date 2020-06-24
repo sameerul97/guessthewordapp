@@ -1,5 +1,9 @@
 'use strict';
-var socket = io({ reconnection: false });
+const appName = "guessthewordapp";
+var socket = io({
+  reconnection: false,
+  autoConnect: false,
+});
 // currentRoom hold user connected room (ie room called 'cat' )
 var currentRoom = undefined;
 var userName = undefined;
@@ -60,8 +64,29 @@ function username() {
 function createRoom(e) {
   e.preventDefault();
   if (username()) {
+    // $.ajax({
+    //   url: '/createRoom',
+    //   type: 'POST',
+    //   beforeSend: function (xhr) {
+    //     if (localStorage.getItem(appName)) {
+    //       xhr.setRequestHeader('Authorization', localStorage.getItem(appName));
+    //     }
+    //   },
+    //   data: {
+    //     username: userName
+    //   },
+    //   success: function (token) {
+    //     console.log(token);
+    //     localStorage.setItem(appName, token.token);
+    //   },
+    //   error: function () {},
+    // });
+    socket.io.opts.query = {
+      token: alreadyPlayed()
+    }
+    socket.open();
     // Asking to create a new room
-    socket.emit('createRoom', userName);
+    socket.emit('createRoom', { username: userName });
     // socket replies back with created room name (which should be sent to other user who wants to play together)
     socket.on("roomNameIs", function (roomName) {
       // console.log(roomName);
@@ -88,6 +113,7 @@ function triggerJoinRoomModal() {
 function joinRoom(e) {
   e.preventDefault();
   if (username()) {
+    socket.open();
     var enteredRoomName = document.getElementById("enteredRoomName").value;
     userName = document.getElementById('userName').value;
     socket.emit('joinRoom', enteredRoomName, userName);
@@ -109,7 +135,9 @@ function playGame() {
   // enableCanvasDrawing();
   enableCanvasDrawing();
   positionButtonsInCanvasResponsively();
-  showExitRoomButton(); showClearCanvasButton();showColorSelector();
+  showExitRoomButton();
+  showClearCanvasButton();
+  showColorSelector();
   hideUsernameForm();
   showScores();
 
@@ -137,15 +165,17 @@ function clearCanvas() {
     // var colors = document.getElementsByClassName('color');
     // var context = canvas.getContext('2d');
     // context.clearRect(0, 0, canvas.width, canvas.height);
-    socket.emit("clearCanvas", { gameInstanceIndex: roomInstance });
+    socket.emit("clearCanvas", {
+      gameInstanceIndex: roomInstance
+    });
   }
 
 }
 
 
-function initiateHandshake(gameInstanceIndex) {
+function initiateHandshake() {
   console.log("Intiating handshake okay with new client")
-  socket.emit('handshakeIntialised', gameInstanceIndex);
+  socket.emit('handshakeIntialised', roomInstance);
 }
 
 
@@ -154,9 +184,12 @@ $('.words').on("click", '.options', function () {
   // console.log("TEXT clicked");
   console.log($(this).text());
   selectedWord = $(this).text();
-  if(!alreadyGuessed){
+  if (!alreadyGuessed) {
     alreadyGuessed = true;
-    socket.emit("selectedAnswer", { gameInstanceIndex: roomInstance, selectedAnswer: $(this).text() })
+    socket.emit("selectedAnswer", {
+      gameInstanceIndex: roomInstance,
+      selectedAnswer: $(this).text()
+    })
   }
 });
 

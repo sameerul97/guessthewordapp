@@ -1,8 +1,8 @@
-var fs = require('fs');
-var obj = JSON.parse(fs.readFileSync('./game_data/data.json', 'utf8'));
-var roomNames = obj.roomNames;
+var fs         = require('fs');
+var obj        = JSON.parse(fs.readFileSync('./data/data.json', 'utf8'));
+var roomNames  = obj.roomNames;
 var guessWords = obj.guessWords;
-var word = require('../components/word');
+var word       = require('../Services/wordService');
 
 // @ts-check
 
@@ -22,9 +22,9 @@ class Game {
     /**
      * @param  {string} roomName
      * @param  {Array.<Object>} users
-     * @param  {number} index=0
-     * @param  {number} userIndex=0
-     * @param  {number} tempIndex=0
+     * @param  {number} index     = 0
+     * @param  {number} userIndex = 0
+     * @param  {number} tempIndex = 0
      */
     constructor(roomName, users, index = 0, userIndex = 0, tempIndex = 0, ) {
         // Current name is used to emit event to all the users in room
@@ -32,11 +32,11 @@ class Game {
         // users var holds array of object containing users data. 
         /**
          * {
-         * playing: false,
-         * rounds: [false, false, false],
-         * scores: 0,
-         * playing: false
-         * alreadyGuessesd : false
+         * playing        : false,
+         * rounds         : [false, false, false],
+         * scores         : 0,
+         * playing        : false
+         * alreadyGuessesd: false
          * }
          */
         this.users = users;
@@ -72,9 +72,9 @@ class Game {
         // StartGame first run 
         // console.log("Users in ", this.roomName, " ", this.users);
         if (this.gameInstanceIndex == null) {
-            this.io = io;
-            this.gameInstanceIndex = gameInstanceIndex;
-            var returnData = this.sendWords(socket, this.userIndex);
+                this.io                = io;
+                this.gameInstanceIndex = gameInstanceIndex;
+            var returnData             = this.sendWords(socket, this.userIndex);
         }
         var interval = setInterval(() => {
             this.resetAlreadyGuessedProperty();
@@ -108,7 +108,7 @@ class Game {
         } = {
             options
         } = data;
-        this.chosenWord = chosenWord;
+                   this.chosenWord                 = chosenWord;
         this.users[index].rounds[this.roundsIndex] = true;
         this.roundsIndex++;
         socket.emit('word', chosenWord);
@@ -125,19 +125,19 @@ class Game {
                 if (this.users[i].id === socketId) {
                     // console.log(this.users[i]);
                     if (this.users[i].alreadyGuessed == false) {
-                        this.users[i].scores = this.users[i].scores + 1;
+                        this.users[i].scores         = this.users[i].scores + 1;
                         this.users[i].alreadyGuessed = true;
-                        temp = this.users[i].userName, this.users[i].scores;
+                                   temp              = this.users[i].userName, this.users[i].scores;
                         this.io.in(this.roomName).emit('scoresUpdated', {
                             data: this.users.map(function (val) {
                                 return {
-                                    id: val.id,
+                                    id   : val.id,
                                     score: val.scores
                                 }
                             })
                         });
                         this.io.sockets.connected[socketId].emit('verifiedAnswer', {
-                            correct: true,
+                            correct      : true,
                             correctAnswer: this.chosenWord,
                         })
                     }
@@ -148,7 +148,7 @@ class Game {
                 if (this.users[i].id === socketId) {
                     this.users[i].alreadyGuessed = true;
                     this.io.sockets.connected[socketId].emit('verifiedAnswer', {
-                        correct: false,
+                        correct      : false,
                         correctAnswer: this.chosenWord,
                     })
                 }
@@ -158,19 +158,19 @@ class Game {
 
     nextPlayerAlert(socket, socketId, io) {
         this.io.in(this.roomName).emit('nextPlayerAlert', {
-            userGoingToPlay: socketId,
-            timerSeconds: this.timerSeconds,
+            userGoingToPlay  : socketId,
+            timerSeconds     : this.timerSeconds,
             gameInstanceIndex: this.gameInstanceIndex
         });
         this.io.to(socketId).emit('youArePlayingNext', {
             // this.io.sockets.connected[socketId].emit('youArePlayingNext', {
-            playing: true,
+            playing          : true,
             gameInstanceIndex: this.gameInstanceIndex
         })
     }
 
     clearSocketsCanvas() {
-        this.io.in(this.roomName).emit('clearCanvas', true);
+            
     }
     gameOver() {
         if (this.userIndex === this.users.length) {

@@ -71,3 +71,10 @@ function hideColorSelector() {
     });
 }
 
+function alreadyPlayed() {
+    if (localStorage.getItem(appName)) {
+        return localStorage.getItem(appName);
+    }
+    return null;
+}
+

@@ -32,10 +32,17 @@ socket.on('aUserJoined', function (data) {
     $(".alluser").show();
     showRoomName();
     allUsers = data;
+    // let userId = data.userId, username = data.username;
     $(".connectedUsers").empty();
     for (i in data) {
-        $(".connectedUsers").append("<div id=" + data[i].id + ">" + data[i].name + "</div>")
+        if (data[i].id === userId) {
+            $(".connectedUsers").append("<div id=" + data[i].id + ">" + data[i].name + " (YOU) </div>")
+        } else {
+            $(".connectedUsers").append("<div id=" + data[i].id + ">" + data[i].name + "</div>")
+        }
     }
+    // $(".connectedUsers").append("<div id=" + userId + ">" + username + "</div>")
+
 });
 
 // user left a room
@@ -126,7 +133,7 @@ socket.on('nextPlayerAlert', function (data) {
     }, data.timerSeconds)
 
     // console.log("Event emmited");
-    roomInstance = data.gameInstanceIndex;
+    // roomInstance = data.gameInstanceIndex;
     // $(".wordToGuess_options").empty();
     // $(".wordToGuess").empty();
 
@@ -135,8 +142,8 @@ socket.on('nextPlayerAlert', function (data) {
 
 socket.on("youArePlayingNext", function (data) {
     if (data.playing) {
-        roomInstance = data.gameInstanceIndex;
-        initiateHandshake(roomInstance);
+        // roomInstance = data.gameInstanceIndex;
+        initiateHandshake();
         // currentlyPlaying = true;
         // enableCanvasDrawing();
     }
@@ -160,7 +167,7 @@ socket.on("scoresUpdated", function (data) {
     console.log("Scores ", scoresData);
     for (var i in scoresData) {
         for (var tempIndex in allUsers) {
-            if (scoresData[i].id == allUsers[tempIndex].id) {
+            if (scoresData[i].id === allUsers[tempIndex].id) {
                 // console.log(allUsers[tempIndex]);
                 tempScores.push("<p>" + allUsers[tempIndex].name + " " + scoresData[i].score + "</p>");
                 // console.log(tempScores)
@@ -189,8 +196,8 @@ socket.on("gameOver", function (data) {
 socket.on("verifiedAnswer", function (data) {
     if (data.correct) {
         $('.wordToGuess_options').children('button').each(function (i, el) {
-            console.log($(this).text())
-            if (data.correctAnswer == $(this).text()) {
+            // console.log($(this).text())
+            if (data.correctAnswer === $(this).text()) {
                 $(this).css({
                     "background-color": "green"
                 })
@@ -198,13 +205,13 @@ socket.on("verifiedAnswer", function (data) {
         })
     } else {
         $('.wordToGuess_options').children('button').each(function (i, el) {
-            console.log($(this).text())
-            if ($(this).text() == selectedWord) {
+            console.log($(this).text() === data.correctAnswer)
+            if ($(this).text() === selectedWord) {
                 $(this).css({
                     "background-color": "red"
                 })
             }
-            if ($(this).text() == data.correctAnswer) {
+            if ($(this).text() === data.correctAnswer) {
                 $(this).css({
                     "background-color": "green"
                 })

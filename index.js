@@ -1,387 +1,112 @@
+// libs
+const express = require("express"),
+  app = express(),
+  fs = require("fs"),
+  redis = require("redis"),
+  jwt = require("jsonwebtoken"),
+  http = require("http").Server(app),
+  port = process.env.PORT || 3000,
+  privateKey = fs.readFileSync("private.key"),
+  rAdapter = require("socket.io-redis");
 
-const express = require('express');
-const app = express();
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
-const port = process.env.PORT || 3000;
+global.io = require("socket.io")(http);
 
+// controller
+var roomController = require("./controllers/roomController");
+var gameController = require("./controllers/gameController");
 
-// var roomNames = ["dog","cat","parrot","monkey","mouse"];
-var fs = require('fs');
-var obj = JSON.parse(fs.readFileSync('./game_data/data.json', 'utf8'));
-var roomNames = obj.roomNames;
-var guessWords = obj.guessWords;
-var word = require('./components/word');
-var room = require('./components/room');
-// var game = require('./test');
-// var gameClass = require('./ooptest');
-var gameClass = require('./logic/game');
+// service
+const word = require("./services/wordService");
+const roomService = require("./services/roomService");
+const gameService = require("./services/gameService");
+const jwtService = require("./services/jwtService");
 
+// Game module
+// var GameClass = require('./entity/game2');
+var GameClass = require("./entity/game3");
 
-// Need to be stored in Redis DB 
-var gameInstances = [];
-var createdRoom = new Array();
-var currentlyCreatedRoom = [];
-var events = require("./events/events")
-console.log();
+// Redis Config
+const { Redis } = require("./config");
+const { randomBytes } = require("crypto");
+const pub = redis.createClient(Redis.port, Redis.host, {
+  auth_pass: Redis.password,
+});
+const sub = redis.createClient(Redis.port, Redis.host, {
+  auth_pass: Redis.password,
+});
+io.adapter(rAdapter({ pubClient: pub, subClient: sub, requestsTimeout: 8000 }));
+const client = redis
+  .createClient(Redis.port, Redis.host)
+  .on("error", (err) => console.error("Redis connection error ", err));
+client.auth(Redis.password);
 
-app.use(express.static(__dirname + '/public'));
+// setting service DB connection
+roomService.setRClient(client);
+gameService.setRClient(client);
+GameClass.setRClient(client);
 
-function emitUserId(socket) {
-  socket.emit("userId", socket.id);
-}
+// rAdapter.pubClient.on('error', function () {
+//   console.log("Redis Labs Error for Pub");
+// });
+// rAdapter.subClient.on('error', function () {
+//   console.log("Redis Labs Error for Sub");
+// });
 
-// helper
-Array.prototype.contains = function (v) {
-  for (i in this) {
-    if (this[i] == v) return true;
-  }
-  return false;
-}
+// Setting view
+app.use(express.static(__dirname + "/public"));
 
-
+// socket use middleware to check the token
+// io.use(existingUser);
 
 function onConnection(socket) {
-  socket.on('drawing', (data) => {
-    socket.to(data.currentRoom).emit('drawing', {
-      data: data.drawData
+  socket.on("drawing", (data) => {
+    socket.to(data.currentRoom).emit("drawing", {
+      data: data.drawData,
     });
   });
 
-  // user creating a room (and sends back created room name to the user )
-  socket.on('createRoom', function (userName) {
-    // createRoom(socket,user);
-    var roomName = room.createRoom(socket, userName, roomNames);
-    io.to(roomName).emit('roomNameIs', roomName);
-    createdRoom.push(roomName);
-    let tempVar = {
-      roomName: roomName,
-      gameInstanceIndex: currentlyCreatedRoom.length,
-      gameInstance: undefined,
-      playing: false
-    }
-    currentlyCreatedRoom.push(tempVar);
-    emitUserId(socket);
-  });
+  socket.on("createRoom", roomController.createRoom(socket));
 
-  // User joining a specific room (user gives in roomName , username)
-  socket.on('joinRoom', events.joinRoom(io, socket, createdRoom, function (err) {
-    if (err)
-      socket.emit("roomVerified", { success: false, message: err.message })
-    else
-      socket.emit("roomVerified", { success: true, message: null }), emitUserId(socket)
-  }));
+  socket.on("joinRoom", roomController.joinRoom(socket));
 
-  socket.on('playGame', (roomName) => {
+  socket.on("playGame", gameController.playGame(socket));
 
-    // socket.admin = true;
-    // socket._playing = true;
-    // socket._round = [false,false,false];
-    var clients = io.sockets.adapter.rooms[roomName].sockets;
-    // console.log(clients)
-    // console.log("ALL SOCKETS IN " + clients + "ROOM");
-    // for(i in clients){
-    //   // console.log(clients[i]);
-    // }
-    var sockets = io.in(roomName);
-    var socketsPlayingGame = [];
-    var tempData = []
-    // console.log("All the sockets in current room ", sockets.sockets);
-    // io.of('/').adapter.clients([roomName], (err, clients) => {
-    // io.of('/chat').in(roomName).clients((error, clients) => {
-    io.of('/').adapter.clients([roomName], (err, clients) => {
+  socket.on("handshakeIntialised", gameController.handShakeListerner(socket));
 
-      if (err) throw err;
-      // console.log("Index JS ", clients, clients.length); // => [Anw2LatarvGVVXEIAAAD]
-      // });
-      // console.log("IDS ", clients);
-      for (let i = 0; i < clients.length; i++) {
-        // console.log(clients[i])
-        let temp = {
-          id: clients[i],
-          // playing: false,
-          rounds: [false, false, false],
-          scores: 0,
-          playing: false,
-          alreadyGuessed: false
-        }
-        // setting playing true for admin (who creates the room)
-        if (socket.id == clients[i]) {
-          temp = {
-            id: clients[i],
-            // playing: false,
-            rounds: [false, false, false],
-            scores: 0,
-            playing: true,
-            alreadyGuessed: false
-          }
-        }
-        socketsPlayingGame.push(temp);
-      }
-      for (i in clients) {
-        // console.log(clients[i])
-        // let temp = {
-        //   id: clients[i],
-        //   // playing: false,
-        //   rounds: [false, false, false],
-        //   scores: 0,
-        //   playing: false,
-        //   alreadyGuessed: false
-        // }
-        // // setting playing true for admin (who creates the room)
-        // if (socket.id == clients[i]) {
-        //   temp = {
-        //     id: clients[i],
-        //     // playing: false,
-        //     rounds: [false, false, false],
-        //     scores: 0,
-        //     playing: true,
-        //     alreadyGuessed: false
-        //   }
-        // }
-        // socketsPlayingGame.push(temp);
-        // Object.keys(sockets.sockets).forEach((item) => {
-        //   if (sockets.sockets[item].id == clients[i]) {
-        //     // console.log("@setting props /n",clients[i])
-        //     sockets.sockets[item].played = false;
-        //     sockets.sockets[item].playing = false;
-        //     sockets.sockets[item].rounds = [false, false, false];
-        //     sockets.sockets[item].scores = 0;
-        //     sockets.sockets[item].alreadyGuessed = false;
-        //     socketsPlayingGame.push(sockets.sockets[item]);
-        //   }
-        //   if (sockets.sockets[item]._admin) {
-        //     sockets.sockets[item].playing = true;
-        //   }
-        // })
-      }
-
-      // console.log("TEMP NEW: ", tempData)
-      // socket._playing = true;
-      // console.log("All the 2 sockets in current room ", sockets.sockets);
-      // console.log("SOCKETS PLAYING GAMEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE " , socketsPlayingGame)
-      // for (i in socketsPlayingGame) {
-      //   console.log("USER ID ", socketsPlayingGame[i].id)
-      //   console.log("Admin ", socketsPlayingGame[i]._admin)
-      //   console.log("PLAYING ", socketsPlayingGame[i].playing)
-      //   console.log("USERNAME ", socketsPlayingGame[i].userName)
-      //   console.log();
-      // }
-      // fs.writeFileSync('socketData.json', socketsPlayingGame[0]);
-      someModule = new gameClass(roomName, socketsPlayingGame);
-      var gameInstanceIndex = gameInstances.push(someModule) - 1;
-      // socket.emit("setGameInstance", gameInstanceIndex);
-      // var temp2 = {
-      //   roomName: roomName,
-      //   gameInstanceIndex: gameInstanceIndex,
-      //   gameInstance: someModule,
-      //   playing: true
-      // }
-      // currentlyCreatedRoom.push(temp2);
-      io.in(roomName).emit('setGameInstance', gameInstanceIndex);
-      someModule.startGame(socket, io, gameInstanceIndex, (socket) => {
-        // on fisish delete the game instance to free up memory (although js garbage collector will handle it automatiaclly)
-        // console.log('Delete');
-        // console.log(this.)
-        // delete someModule;
-        // console.log(someModule)
-      });
-
-      // console.log(gameInstances);
-      // console.log(gameInstances[0]);
-
-
-      // game.setSockets(socketsPlayingGame, guessWords, () => {
-      //   game.startGame();
-      // });
-
-      // callback(connectedUsers);
-    });
-    // console.log("All sockets ",sockets.sockets);
-
-    // var data = word.getWord(guessWords);
-    // multiple destructuring  
-    // var { chosenWord } = { options } = data;
-    // socket.emit('chosenWord', {
-    //   chosenWord
-    // })
-    // socket.to(roomName).emit('options', {
-    //   options
-    // });
-
-    /**
-     * Steps
-     *  get all sockets in the room, 
-     */
-    var allSockets
-    // setInterval(()=>{
-    //   var data = word.getWord(guessWords);
-    //   var {chosenWord} = {options} = data;
-    //   socket.emit('chosenWord', {chosenWord})
-    //   socket.to(roomName).emit('options', {options});
-    // },10000)
-
-
-  })
-  socket.on('handshakeIntialised', (data) => {
-    // console.log("Handhake initiated APP.js", data);
-    // console.log(socket.userName);
-    // gameInstances[data].tempFunc();
-    setTimeout(() => gameInstances[data].startGame(socket), 3000)
-
-  })
-
-  socket.on("selectedAnswer", (data) => {
-    // console.log(data, data.gameInstanceIndex);
-    gameInstances[data.gameInstanceIndex].verifyAnswer(socket.id, data.selectedAnswer);
-    // throw Error('TEsT error in code');
-  })
+  socket.on("selectedAnswer", gameController.verifyAnswer(socket));
 
   socket.on("clearCanvas", (data) => {
-    gameInstances[data.gameInstanceIndex].clearSocketsCanvas()
-  })
+    gameInstances[data.gameInstanceIndex].clearSocketsCanvas();
+  });
+
+
+  // Need to rewrite the following methods
   // remove socket from the room
   socket.on("leaveRoom", (data) => {
-    console.log(data)
-  })
+    console.log(data);
+  });
 
-  socket.on('disconnecting', function () {
+  socket.on("disconnecting", function () {
     var joinedRooms = [];
     for (i in socket.rooms) {
-      joinedRooms.push(socket.rooms[i])
+      joinedRooms.push(socket.rooms[i]);
     }
     // socket.emit('aUserLeft')
     // emitting events to all the rooms user were in.
     for (i in joinedRooms) {
-      io.in(joinedRooms[i]).emit('aUserLeft', socket.id);
+      // io.in(joinedRooms[i]).emit('aUserLeft', socket.id);
     }
     // emitting events to all except sender
     // socket.broadcast.emit('broadcast', 'hello friends!');
-  })
-  socket.on('disconnect', function () {
+  });
+  socket.on("disconnect", function () {
     // io.emit('user disconnected');
     // console.log("Disconnected :" , socket)
   });
 }
 
-io.on('connection', onConnection);
+io.on("connection", onConnection);
 
 
-// // Creating a new room 
-// var createRoom = function(socket,userName){
-//   socket.userName = userName;
-//   var roomName = roomNames[Math.floor(Math.random() * roomNames.length)];
-//   // var index2Pop = roomNames.findIndex(room => room === roomName); 
-//   socket.join(roomName);
-//   // remove the name from the roomNames list once joined
-//   roomNames.pop(roomNames.findIndex(room => room === roomName));
-//   // console.log(socket.userName , " created a room called ", roomName);
-//   io.to(roomName).emit('roomNameIs',roomName);
-// }
+http.listen(port, () => console.log("listening on port " + port));
 
-
-http.listen(port, () => console.log('listening on port ' + port));
-
-
-var _tempsockets = {
-  users: [{
-    id: 1,
-    userName: "sameer",
-    played: false,
-    playing: true,
-    rounds: [false, false, false]
-  },
-  {
-    id: 2,
-    userName: "shahzaib",
-    played: false,
-    playing: false,
-    rounds: [false, false, false]
-  },
-  {
-    id: 3,
-    userName: "danial",
-    played: false,
-    playing: false,
-    rounds: [false, false, false]
-  },
-  {
-    id: 4,
-    userName: "jehan",
-    played: false,
-    playing: false,
-    rounds: [false, false, false]
-  },
-  {
-    id: 5,
-    userName: "dee",
-    played: false,
-    playing: false,
-    rounds: [false, false, false]
-  }
-  ]
-}
-
-// game.setSockets(_tempsockets.users, guessWords, () => {
-//   game.startGame();
-// });
-
-var _tempsockets2 = {
-  users: [{
-    id: 1,
-    userName: "popeye",
-    played: false,
-    playing: true,
-    rounds: [false, false, false]
-  },
-  {
-    id: 2,
-    userName: "tom",
-    played: false,
-    playing: false,
-    rounds: [false, false, false]
-  },
-  {
-    id: 3,
-    userName: "jerry",
-    played: false,
-    playing: false,
-    rounds: [false, false, false]
-  }
-  ]
-}
-
-
-// setTimeout(()=>{
-//   game.setSockets(_tempsockets2.users, guessWords, () => {
-//     game.startGame();
-//   });
-// },1800);
-
-// var testmod = require('./ooptest');
-
-// // var MyModule = require('MyModule');
-
-// someModule1 = new gameClass('cat', _tempsockets.users);
-// console.log("APP JS" , someModule1.print());
-// someModule1.listAll();
-// someModule = new gameClass('dog', _tempsockets2.users);
-// // // setTimeout(() => {
-//   someModule.print(() => {
-//     // on fisish delete the game instance to free up memory (although js garbage collector will handle it automatiaclly)
-//     console.log('Delete');
-//     // console.log(this.)
-//     delete someModule;
-//     // console.log(someModule)
-//   });
-// }, 1200)
-// someModule.print();
-// someModule1.print();
-
-// someModule.setMyVar(_tempsockets2.users, ()=>{
-//     testmod.showVar()
-// });
-// testmod.setMyVar(_tempsockets2.users, ()=>{
-//   testmod.showVar()
-// });
-// testmod.showVar();
