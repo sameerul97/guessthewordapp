@@ -7,13 +7,13 @@ const playGame = (socket) => async (roomName) => {
     var clientsInRoom = await RoomService.getAllClientIdsInRoom(roomName);
     await GameService.generateGameEnvironment(clientsInRoom);
     await GameService.gameInit(roomName, clientsInRoom, socket);
-   } catch (err) {
+  } catch (err) {
     console.log(err);
   }
 };
 
 const handShakeListerner = (socket) => async (gameInstanceKey) => {
-   try {
+  try {
     var gameObject = await GameService.getGameObject(gameInstanceKey);
     var parsedGameObject = await GameService.gameParser(gameObject);
     await GameService.handShakeVerify(socket, parsedGameObject);
@@ -36,7 +36,7 @@ const verifyAnswer = (socket) => async (data) => {
       socket.id,
       parsedGameObject
     );
- 
+
     if (!userAlreadyGuessed) {
       await GameService.verifyAnswer(socket.id, parsedGameObject, isCorrect);
     }
@@ -45,4 +45,17 @@ const verifyAnswer = (socket) => async (data) => {
   }
 };
 
-module.exports = { playGame, handShakeListerner, verifyAnswer };
+const clearCanvas = (socket) => async (data) => {
+  const { roomName } = data;
+  const { gameInstanceIndex } = data;
+
+  try {
+    var gameObject = await GameService.getGameObject(gameInstanceIndex);
+    var parsedGameObject = await GameService.gameParser(gameObject);
+    io.in(parsedGameObject.roomName).emit("clearCanvas", true);
+  } catch (err) {
+    console.log("Wrong Game Key");
+  }
+};
+
+module.exports = { playGame, handShakeListerner, verifyAnswer, clearCanvas };

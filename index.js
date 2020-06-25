@@ -34,7 +34,9 @@ const pub = redis.createClient(Redis.port, Redis.host, {
 const sub = redis.createClient(Redis.port, Redis.host, {
   auth_pass: Redis.password,
 });
-io.adapter(rAdapter({ pubClient: pub, subClient: sub, requestsTimeout: 8000 }));
+io.adapter(
+  rAdapter({ pubClient: pub, subClient: sub, requestsTimeout: 15000 })
+);
 const client = redis
   .createClient(Redis.port, Redis.host)
   .on("error", (err) => console.error("Redis connection error ", err));
@@ -75,10 +77,10 @@ function onConnection(socket) {
 
   socket.on("selectedAnswer", gameController.verifyAnswer(socket));
 
-  socket.on("clearCanvas", (data) => {
-    gameInstances[data.gameInstanceIndex].clearSocketsCanvas();
-  });
-
+  socket.on("clearCanvas", gameController.clearCanvas(socket));
+  // socket.on("clearCanvas", (data) => {
+  //   gameInstances[data.gameInstanceIndex].clearSocketsCanvas();
+  // });
 
   // Need to rewrite the following methods
   // remove socket from the room
@@ -87,17 +89,24 @@ function onConnection(socket) {
   });
 
   socket.on("disconnecting", function () {
-    var joinedRooms = [];
-    for (i in socket.rooms) {
-      joinedRooms.push(socket.rooms[i]);
-    }
-    // socket.emit('aUserLeft')
-    // emitting events to all the rooms user were in.
-    for (i in joinedRooms) {
-      // io.in(joinedRooms[i]).emit('aUserLeft', socket.id);
-    }
-    // emitting events to all except sender
-    // socket.broadcast.emit('broadcast', 'hello friends!');
+    io.of("/").adapter.remoteDisconnect(socket.id, true, (err) => {
+      if (err) {
+        /* unknown id */
+      }
+      // success
+    });
+
+    // var joinedRooms = [];
+    // for (i in socket.rooms) {
+    //   joinedRooms.push(socket.rooms[i]);
+    // }
+    // // socket.emit('aUserLeft')
+    // // emitting events to all the rooms user were in.
+    // for (i in joinedRooms) {
+    //   // io.in(joinedRooms[i]).emit('aUserLeft', socket.id);
+    // }
+    // // emitting events to all except sender
+    // // socket.broadcast.emit('broadcast', 'hello friends!');
   });
   socket.on("disconnect", function () {
     // io.emit('user disconnected');
@@ -107,6 +116,4 @@ function onConnection(socket) {
 
 io.on("connection", onConnection);
 
-
 http.listen(port, () => console.log("listening on port " + port));
-
