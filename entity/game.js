@@ -170,6 +170,7 @@ class Game {
     }
 
     clearSocketsCanvas() {
+        this.io.in(this.roomName).emit('clearCanvas', true);
             
     }
     gameOver() {

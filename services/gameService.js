@@ -30,6 +30,7 @@ module.exports = {
 
       io.in(roomName).emit("setGameInstance", gameInstanceKey);
       gameJson = JSON.stringify(NewGame);
+      // TODO:Delete the GameObject on Gameover or user leaves
       rClient.set("Game:" + gameInstanceKey, gameJson, (err, reply) => {
         // TODO: error handle if UPDATE gameInstance fails
         if (err) console.log("ERR", err);
@@ -78,7 +79,7 @@ module.exports = {
         if (err) {
           // TODO: error handle if get gameObject retuns error (tampered key)
           console.log(err);
-          // reject(err);
+          reject(err);
         } else {
           resolve(reply);
         }
