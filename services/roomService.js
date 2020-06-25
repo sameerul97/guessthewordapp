@@ -98,7 +98,7 @@ module.exports = {
         if (err) {
           // TODO: create custom error if get all username fails
           // BUG: (Test) if multiple node instances are running check all communicating properly  
-          console.log(err)
+          // console.log(err)
           reject(err);
         }
         // console.log('ALL USERS FROM ROOM SERVICE', reply)
