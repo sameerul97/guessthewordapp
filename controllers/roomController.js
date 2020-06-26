@@ -74,10 +74,6 @@ const createRoom = (socket) => async (socketData) => {
         if (err instanceof InvalidUsernameError) {
             // console.log(err);
             // TODO: Send invalid username error to client with socket.emit 
-        } else if {
-
-        } else if{
-
         }
         // io.in(roomName).emit('aUserJoined',
         //     { username: User.getUsername(socket), userId: User.getUserId(socket) });
