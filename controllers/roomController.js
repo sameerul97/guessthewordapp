@@ -22,8 +22,8 @@ let { NameSpace } = require("../config");
 const joinRoom = (socket) => async (roomToJoin, userName) => {
     // let { username } = userName;
     try {
-        var setuserName       = User.setUsername(socket, userName);
-        var setAdmin          = User.setAdmin(socket, false);
+        var setuserName       = await User.setUsername(socket, userName);
+        var setAdmin          = await User.setAdmin(socket, false);
         var roomExist         = await Room.roomExist(roomToJoin);
         var joinRoom          = await Room.joinRoom(socket, roomToJoin);
         var addUserInRoom     = await Room.setUsernameInRedis(User.getUserId(socket), roomToJoin, User.getUsername(socket));
@@ -54,27 +54,33 @@ const createRoom = (socket) => async (socketData) => {
   var { username } = socketData;
   try {
     // create room, join in that room, sign a token and send that to the user
-    var setuserName       = User.setUsername(socket, username);
-    var setAdmin          = User.setAdmin(socket, true);
+    var setuserName       = await User.setUsername(socket, username);
+    var setAdmin          = await User.setAdmin(socket, true);
     var roomName          = await Room.createRoom();
     var joinRoom          = await Room.joinRoom(socket, roomName);
     var addUserInRoom     = await Room.setUsernameInRedis(User.getUserId(socket), roomName, User.getUsername(socket));
     var clientIdsInRoom   = await Room.getAllClientIdsInRoom(roomName);
     var getAllUsersInRoom = await Room.getAllUsersInRoom(clientIdsInRoom);
     let arr               = await Room.mapUserIdWithUsername(clientIdsInRoom, getAllUsersInRoom);
+    // sign a token and send that to user
+    io.to(roomName).emit('roomNameIs', roomName);
+    socket.emit("userId", User.getUserId(socket));
+    // let arr = clientIdsInRoom.map((i,ind)=>{var t = {}; t.id = i;  t.name = getAllUsersInRoom[ind];return t; })
 
-        // sign a token and send that to user
-        io.to(roomName).emit('roomNameIs', roomName);
-        socket.emit("userId", User.getUserId(socket));
-        // let arr = clientIdsInRoom.map((i,ind)=>{var t = {}; t.id = i;  t.name = getAllUsersInRoom[ind];return t; })
+    io.in(roomName).emit("aUserJoined", arr);
+    // io.in(roomName).emit('aUserJoined',
+    //     { username: User.getUsername(socket), userId: User.getUserId(socket) });
+    } catch (err) {
+        if (err instanceof InvalidUsernameError) {
+            // console.log(err);
+            // TODO: Send invalid username error to client with socket.emit 
+        } else if {
 
-        io.in(roomName).emit("aUserJoined", arr);
+        } else if{
+
+        }
         // io.in(roomName).emit('aUserJoined',
         //     { username: User.getUsername(socket), userId: User.getUserId(socket) });
-    } catch (err) {
-        console.log(err);
-        io.in(roomName).emit('aUserJoined',
-            { username: User.getUsername(socket), userId: User.getUserId(socket) });
     }
 }
 
