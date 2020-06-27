@@ -81,6 +81,9 @@ function createRoom(e) {
     //   },
     //   error: function () {},
     // });
+    
+    // TODO: Use this params to send token to server on new connection
+    // check if socket is valid and within time limit
     socket.io.opts.query = {
       token: alreadyPlayed()
     }

@@ -89,12 +89,13 @@ function onConnection(socket) {
   });
 
   socket.on("disconnecting", function () {
-    io.of("/").adapter.remoteDisconnect(socket.id, true, (err) => {
-      if (err) {
-        /* unknown id */
-      }
-      // success
-    });
+    // console.log("Sockeet disconnecting", socket.id);
+    // io.of("/").adapter.remoteDisconnect(socket.id, true, (err) => {
+    //   if (err) {
+    //     /* unknown id */
+    //   }
+    //   // success
+    // });
 
     // var joinedRooms = [];
     // for (i in socket.rooms) {
@@ -109,6 +110,7 @@ function onConnection(socket) {
     // // socket.broadcast.emit('broadcast', 'hello friends!');
   });
   socket.on("disconnect", function () {
+    // console.log("Sockeet disconnect", socket.id);
     // io.emit('user disconnected');
     // console.log("Disconnected :" , socket)
   });
