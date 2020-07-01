@@ -1,6 +1,6 @@
-'use strict';
+"use strict";
 const appName = "guessthewordapp";
-var socket = io({
+var socket = io("localhost:3000", {
   reconnection: false,
   autoConnect: false,
 });
@@ -14,37 +14,44 @@ var userId = undefined;
 var currentlyPlaying = false;
 var alreadyGuessed = false;
 
-// positioning exitRoom, clearnCanvas and colour selector element dynamically 
+// positioning exitRoom, clearnCanvas and colour selector element dynamically
 function positionButtonsInCanvasResponsively() {
   $(".leaveRoom").css({
     // "position": "relative",
-    "position": "absolute",
+    position: "absolute",
     // "display": "block",
-    "bottom": "0",
-    "left": document.getElementsByClassName("whiteboard")[0].offsetLeft - document.getElementsByClassName("whiteboard")[0].offsetWidth / 2 + "px",
-    "z-index": "10"
-  })
+    bottom: "0",
+    left:
+      document.getElementsByClassName("whiteboard")[0].offsetLeft -
+      document.getElementsByClassName("whiteboard")[0].offsetWidth / 2 +
+      "px",
+    "z-index": "10",
+  });
 
   $(".clearCanvas").css({
     // "position": "relative",
     // "display": "block",
-    "right": document.getElementsByClassName("whiteboard")[0].offsetLeft - document.getElementsByClassName("whiteboard")[0].offsetWidth / 2 + "px",
-    "z-index": "10"
-  })
+    right:
+      document.getElementsByClassName("whiteboard")[0].offsetLeft -
+      document.getElementsByClassName("whiteboard")[0].offsetWidth / 2 +
+      "px",
+    "z-index": "10",
+  });
 
   $(".colors").css({
-    "left": document.getElementsByClassName("whiteboard")[0].offsetLeft - document.getElementsByClassName("whiteboard")[0].offsetWidth / 2 + "px",
-    "bottom": "30px ",
+    left:
+      document.getElementsByClassName("whiteboard")[0].offsetLeft -
+      document.getElementsByClassName("whiteboard")[0].offsetWidth / 2 +
+      "px",
+    bottom: "30px ",
     // "display": "block",
-    "transform": "translate(-0%, 0%)"
-  })
+    transform: "translate(-0%, 0%)",
+  });
 
   $(".canvas-container").css({
     // "margin-top": $(".leaveRoom").outerHeight() + "px"
-  })
+  });
 }
-
-
 
 // Checking if the username field is valid
 function username() {
@@ -52,12 +59,14 @@ function username() {
     userName = document.getElementById("userName").value;
     return true;
   } else {
-    document.getElementById('userNameForm').style.border = "2px solid red";
+    document.getElementById("userNameForm").style.border = "2px solid red";
     setTimeout(function () {
-      document.getElementById('userNameForm').style.border = "0px solid transparent";
-    }, 3000)
+      document.getElementById("userNameForm").style.border =
+        "0px solid transparent";
+    }, 3000);
   }
-  return false;
+  // return false;
+  return true;
 }
 
 // user requesting to create a new room in the server.
@@ -81,36 +90,47 @@ function createRoom(e) {
     //   },
     //   error: function () {},
     // });
-    
+
     // TODO: Use this params to send token to server on new connection
     // check if socket is valid and within time limit
     socket.io.opts.query = {
-      token: alreadyPlayed()
-    }
+      token: alreadyPlayed(),
+    };
     socket.open();
+    // FIXME: Delet Test emit
+    socket.emit("newMessage", "lol", function (err, message) {
+      if (err) {
+        return console.error(err);
+      }
+      console.log(message);
+    });
+    socket.on("newMessage", function (data) {
+      console.log(data);
+    });
+
     // Asking to create a new room
-    socket.emit('createRoom', { username: userName });
+    socket.emit("createRoom", { username: userName });
     // socket replies back with created room name (which should be sent to other user who wants to play together)
     socket.on("roomNameIs", function (roomName) {
       // console.log(roomName);
-      document.getElementById('createdRoomName').innerHTML = "Room name : " + roomName;
+      document.getElementById("createdRoomName").innerHTML =
+        "Room name : " + roomName;
       $("#createdRoomName").show();
       currentRoom = roomName;
-      $(".joinRoom").hide()
-      $(".createRoom").hide()
+      $(".joinRoom").hide();
+      $(".createRoom").hide();
       showStartGameButton();
-      currentlyPlaying = true
-    })
+      currentlyPlaying = true;
+    });
+    console.log(socket);
   }
 }
-
 
 function triggerJoinRoomModal() {
   if (username()) {
-    MicroModal.show('joinRoomModal');
+    MicroModal.show("joinRoomModal");
   }
 }
-
 
 // User joining a existing room in server
 function joinRoom(e) {
@@ -118,18 +138,18 @@ function joinRoom(e) {
   if (username()) {
     socket.open();
     var enteredRoomName = document.getElementById("enteredRoomName").value;
-    userName = document.getElementById('userName').value;
-    socket.emit('joinRoom', enteredRoomName, userName);
+    userName = document.getElementById("userName").value;
+    socket.emit("joinRoom", enteredRoomName, userName);
     currentRoom = enteredRoomName;
   }
 }
 
-// exit room 
+// exit room
 function leaveRoom() {
   socket.emit("leaveRoom", currentRoom);
-  $(".createRoom , .joinRoom").show()
+  $(".createRoom , .joinRoom").show();
   // $(".joinRoom").hide()
-  $(".leaveRoom").hide()
+  $(".leaveRoom").hide();
 }
 
 // user starting game
@@ -146,19 +166,18 @@ function playGame() {
 
   console.log("Asking server to start game and words");
   if (username()) {
-    socket.emit('playGame', currentRoom);
+    socket.emit("playGame", currentRoom);
     // socket.on('word',function(word){
     //   console.log(word);
 
     // })
-
   }
 }
 
 function clearCanvasOnNewWord() {
-  var canvas = document.getElementsByClassName('whiteboard')[0];
-  var colors = document.getElementsByClassName('color');
-  var context = canvas.getContext('2d');
+  var canvas = document.getElementsByClassName("whiteboard")[0];
+  var colors = document.getElementsByClassName("color");
+  var context = canvas.getContext("2d");
   context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
@@ -169,21 +188,18 @@ function clearCanvas() {
     // var context = canvas.getContext('2d');
     // context.clearRect(0, 0, canvas.width, canvas.height);
     socket.emit("clearCanvas", {
-      gameInstanceIndex: roomInstance
+      gameInstanceIndex: roomInstance,
     });
   }
-
 }
-
 
 function initiateHandshake() {
-  console.log("Intiating handshake okay with new client")
-  socket.emit('handshakeIntialised', roomInstance);
+  console.log("Intiating handshake okay with new client");
+  socket.emit("handshakeIntialised", roomInstance);
 }
 
-
 // event delegation for dynamic content
-$('.words').on("click", '.options', function () {
+$(".words").on("click", ".options", function () {
   // console.log("TEXT clicked");
   console.log($(this).text());
   selectedWord = $(this).text();
@@ -191,8 +207,8 @@ $('.words').on("click", '.options', function () {
     alreadyGuessed = true;
     socket.emit("selectedAnswer", {
       gameInstanceIndex: roomInstance,
-      selectedAnswer: $(this).text()
-    })
+      selectedAnswer: $(this).text(),
+    });
   }
 });
 
@@ -200,10 +216,6 @@ $('.words').on("click", '.options', function () {
 // (function () {
 
 // var socket = io();
-
-
-
-
 
 // socket.on('handshake',function(data, ack){
 //   console.log("HANDSHAKE ALERT" , data);
@@ -217,14 +229,12 @@ $('.words').on("click", '.options', function () {
 //   ack();
 // }
 
-
 // setInterval(()=>{
 //   socket.emit('handshakeOkay', 'okay');
 // },5000)
 
 // window.addEventListener('resize', onResize, false);
 // onResize();
-
 
 // function drawLine(x0, y0, x1, y1, color, emit) {
 //   context.beginPath();

@@ -96,7 +96,6 @@ function onConnection(socket) {
     //   }
     //   // success
     // });
-
     // var joinedRooms = [];
     // for (i in socket.rooms) {
     //   joinedRooms.push(socket.rooms[i]);
