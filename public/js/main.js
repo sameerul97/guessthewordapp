@@ -13,7 +13,7 @@ var allUsers = undefined;
 var userId = undefined;
 var currentlyPlaying = false;
 var alreadyGuessed = false;
-
+const GAMEURLPARAMS = "g";
 // positioning exitRoom, clearnCanvas and colour selector element dynamically
 function positionButtonsInCanvasResponsively() {
   $(".leaveRoom").css({
@@ -211,6 +211,41 @@ $(".words").on("click", ".options", function () {
     });
   }
 });
+
+function checkURL(name, url) {
+  if (!url) url = location.href;
+  name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+  var regexS = "[\\?&]" + name + "=([^&#]*)";
+  var regex = new RegExp(regexS);
+  var results = regex.exec(url);
+  return results == null ? null : results[1];
+}
+console.log(checkURL(GAMEURLPARAMS));
+var isRoomGenerated = checkURL(GAMEURLPARAMS);
+// TODO: block the client while ajax call and straight ask
+// userto enter name and join room (open socket)
+
+if (isRoomGenerated) {
+  $.ajax({
+    url: "/api/game/"+isRoomGenerated,
+    type: "GET",
+    beforeSend: function (xhr) {
+      // if (localStorage.getItem(appName)) {
+      //   xhr.setRequestHeader("Authorization", localStorage.getItem(appName));
+      // }
+    },
+    data: {
+      // roomInstance: "asdad12232313",
+    },
+    success: function (token) {
+      console.log(token);
+      // localStorage.setItem(appName, token.token);
+    },
+    error: function (err) {
+      console.log(err)
+    },
+  });
+}
 
 // Init function
 // (function () {
