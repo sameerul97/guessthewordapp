@@ -47,6 +47,8 @@ roomService.setRClient(client);
 gameService.setRClient(client);
 GameClass.setRClient(client);
 
+
+var customRoom = require('./controllers/customRoomController')
 // rAdapter.pubClient.on('error', function () {
 //   console.log("Redis Labs Error for Pub");
 // });
@@ -55,6 +57,8 @@ GameClass.setRClient(client);
 // });
 
 // Setting view
+app.use('/api/game', customRoom)
+
 app.use(express.static(__dirname + "/public"));
 
 // socket use middleware to check the token
