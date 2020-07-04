@@ -1,0 +1,29 @@
+version: "3.4"
+
+services:
+  guessthewordapp:
+    build: .
+    restart: always
+    working_dir: /home/node/app
+    volumes:
+      - ./ :/home/node/app
+    environment:
+      NODE_ENV: production
+    ports:
+      - 3000:3000
+    command: "npm start"
+
+# version: "3.4"
+
+# services:
+#   guessthewordapp:
+#     image: node:12.18-alpine
+#     restart: always
+#     working_dir: /home/node/app
+#     volumes:
+#       - ./ :/home/node/app
+#     environment:
+#       NODE_ENV: production
+#     ports:
+#       - 3000:3000
+#   command: "npm start"

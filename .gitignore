@@ -1,5 +1,5 @@
 node_modules
 trials
-docker-compose.yml
-docker-compose.debug.yml
-Dockerfile
+# docker-compose.yml
+# docker-compose.debug.yml
+# Dockerfile
