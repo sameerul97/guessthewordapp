@@ -3,7 +3,7 @@ var obj = JSON.parse(fs.readFileSync('./data/data.json', 'utf8'));
 var roomNames = obj.roomNames;
 var createRoom = []
 
-var rClient;
+var rClient, pgClient;
 var AppErr = require("../errors/AppError")
 const { ErrorMessage, SuccessMessage } = require("../config");
 var roomName = "Rain";
@@ -11,10 +11,18 @@ var count = 0;
 module.exports = {
   /**
    * Sets Redis client service for Roomservice module. 
-   * @param {Redis} RedisClientInstance - Redis client instance from node index
+   * @param {object} RedisClientInstance - Redis client instance from node index
    */
   setRClient: function (client) { rClient = client },
   getRClient: function () { return rClient },
+  
+  /**
+   * Sets Redis client service for Roomservice module. 
+   * @param {object} PGClientInstance - postgres client instance from node index
+   */
+  setPgClient: function (client) { pgClient = client },
+  getPgClient: function () { return pgClient },
+  
   /**
    * Creates a new room by setting the roomname as key in Redis DB.
    * Redis set method has additional params to check whether the room doesnt exist already 

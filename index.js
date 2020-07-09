@@ -25,48 +25,6 @@ const jwtService = require("./services/jwtService");
 // var GameClass = require('./entity/game2');
 var GameClass = require("./entity/game3");
 
-// Postgres
-// var pg = require('./pg')
-const { Sequelize } = require("sequelize");
-
-const sequelize = new Sequelize(
-  "guessthewordapp_db",
-  "guessthewordappPgAdmin",
-  "guessthewordappPgAdminPassword",
-  {
-    host: "db",
-    dialect: "postgres",
-    // logging: false, 
-  }
-);
-(async () => {
-  try {
-    await sequelize.authenticate();
-    console.log("Connection has been established successfully.");
-  } catch (error) {
-    console.error("Unable to connect to the database:", error);
-  }
-})();
-
-const { DataTypes } = require("sequelize");
-const User = sequelize.define("user", {
-  name: DataTypes.TEXT,
-  favoriteColor: {
-    type: DataTypes.TEXT,
-    defaultValue: "red",
-  },
-  age: DataTypes.INTEGER,
-  cash: DataTypes.INTEGER,
-});
-
-(async () => {
-  await sequelize.sync({ force: false });
-  // await sequelize.sync();
-  const jane = await User.create({ name: "Sameer", lastName: "Sameerul" });
-  const users = await User.findAll();
-  console.log("All users:", JSON.stringify(users, null, 2));
-})();
-
 // Redis Config
 const { Redis } = require("./config");
 const { randomBytes } = require("crypto");
@@ -88,7 +46,6 @@ client.auth(Redis.password);
 roomService.setRClient(client);
 gameService.setRClient(client);
 GameClass.setRClient(client);
-
 
 var customRoom = require('./controllers/customRoomController')
 // rAdapter.pubClient.on('error', function () {
