@@ -1,8 +1,26 @@
 version: "3.4"
 
 services:
-  guessthewordapp:
+  db:
+    image: postgres
+    container_name: guessthewordapp_pgDb
+    restart: always
+    environment:
+      - POSTGRES_USER=guessthewordappPgAdmin
+      - POSTGRES_PASSWORD=guessthewordappPgAdminPassword
+      - POSTGRES_DB=guessthewordapp_db
+    volumes: 
+      - pgdata:/var/lib/postgresql/data
+      - pgconf:/etc/postgresql
+      - pglog:/var/log/postgresql
+    ports:
+      - "5433:5432"
+
+  server:
     build: .
+    depends_on:
+      - db
+    container_name: guessthewordapp_servers
     restart: always
     working_dir: /home/node/app
     volumes:
@@ -13,6 +31,25 @@ services:
       - 3000:3000
     command: "npm start"
 
+volumes:
+  pgdata:
+    driver: local
+  pgconf:
+    driver: local
+  pglog: 
+    driver: local
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    # volumes:
+  #   dbdata:
 # version: "3.4"
 
 # services:
