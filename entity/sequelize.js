@@ -2,11 +2,11 @@ const Sequelize = require("sequelize");
 const GameRoomLinkModel = require("./gameRoomLink");
 
 const sequelize = new Sequelize(
-  "guessthewordapp_db",
-  "guessthewordappPgAdmin",
-  "guessthewordappPgAdminPassword",
+  process.env.PG_DB_NAME || "guessthewordapp_db",
+  process.env.PG_DB_USERNAME || "guessthewordappPgAdmin",
+  process.env.PG_DB_PASSWORD || "guessthewordappPgAdminPassword",
   {
-    host: "db",
+    host: process.env.PG_HOST || "db",
     dialect: "postgres",
     // logging: false,
   }
