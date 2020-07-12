@@ -33,7 +33,7 @@ services:
       # - ./pgadmin/pgadmin-data:/var/lib/pgadmin
       - pgadmin-data:/var/lib/pgadmin
       - ./pgadmin/server.json:/pgadmin4/servers.json
-    # command: sh -c "/usr/local/bin/init.sh && exec test"
+      
   server:
     build: .
     depends_on:
@@ -58,19 +58,3 @@ volumes:
     driver: local
   pgadmin-data:
     driver: local
-    # volumes:
-  #   dbdata:
-# version: "3.4"
-
-# services:
-#   guessthewordapp:
-#     image: node:12.18-alpine
-#     restart: always
-#     working_dir: /home/node/app
-#     volumes:
-#       - ./ :/home/node/app
-#     environment:
-#       NODE_ENV: production
-#     ports:
-#       - 3000:3000
-#   command: "npm start"

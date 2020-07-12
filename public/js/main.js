@@ -227,7 +227,7 @@ var isRoomGenerated = checkURL(GAMEURLPARAMS);
 
 if (isRoomGenerated) {
   $.ajax({
-    url: "/api/game/"+isRoomGenerated,
+    url: "/api/game/" + isRoomGenerated,
     type: "GET",
     beforeSend: function (xhr) {
       // if (localStorage.getItem(appName)) {
@@ -242,7 +242,28 @@ if (isRoomGenerated) {
       // localStorage.setItem(appName, token.token);
     },
     error: function (err) {
-      console.log(err)
+      console.log(err);
+    },
+  });
+}
+
+// User get shareable Room Link
+function generatRoomLink() {
+  MicroModal.show("generateShareableRoomLinkModal");
+  $.ajax({
+    url: "/api/game/generateroom",
+    type: "GET",
+    beforeSend: function (xhr) {
+      // TODO: Send user IP ? for throttling purpose
+    },
+    data: {},
+    success: function (roomId) {
+      console.log(roomId);
+      localStorage.setItem(appName+"GENERATED_ROOM_ID", roomId.message);
+      $("#shareableRoomLink").val(roomId.message);
+    },
+    error: function (err) {
+      console.log(err);
     },
   });
 }

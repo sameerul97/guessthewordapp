@@ -77,6 +77,7 @@
   overflow: visible;
   line-height: 1.15;
   margin: 0;
+  margin: 5px;
   will-change: transform;
   -moz-osx-font-smoothing: grayscale;
   -webkit-backface-visibility: hidden;
@@ -89,8 +90,8 @@
 }
 
 .modal__btn:focus, .modal__btn:hover {
-  -webkit-transform: scale(1.05);
-  transform: scale(1.05);
+  /* -webkit-transform: scale(1.1); */
+  /* transform: scale(1.1); */
 }
 
 .modal__btn-primary {
