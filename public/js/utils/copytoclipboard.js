@@ -1,40 +1,16 @@
-// Source: https://codepen.io/RevCred/pen/vxXrww
-// functionality to copy text from inviteCode to clipboard
+// Source: https://codepen.io/ishaanvarma/pen/eYpxVBx
+const textElement = document.getElementById("shareableRoomLink");
+const copyButton = document.getElementById("copy");
 
-// trigger copy event on click
-$('#copy').on('click', function(event) {
-    console.log(event);
-    copyToClipboard(event);
-  });
-  
-  // event handler
-  function copyToClipboard(e) {
-    // alert('this function was triggered');
-    // find target element
-    var
-      t = e.target, 
-      c = t.dataset.copytarget,
-      inp = (c ? document.querySelector(c) : null);
-    console.log(inp);
-    // check if input element exist and if it's selectable
-    if (inp && inp.select) {
-      // select text
-      inp.select();
-      try {
-        // copy text
-        document.execCommand('copy');
-        inp.blur();
-  
-        // copied animation
-        t.classList.add('copied');
-        setTimeout(function() {
-          t.classList.remove('copied');
-        }, 1500);
-      } catch (err) {
-        //fallback in case exexCommand doesnt work
-        alert('please press Ctrl/Cmd+C to copy');
-      }
-  
-    }
-  
-  }
+const copyText = (e) => {
+  window.getSelection().selectAllChildren(textElement);
+  document.execCommand("copy");
+  e.target.setAttribute("tooltip", "Copied! ✅");
+};
+
+const resetTooltip = (e) => {
+  e.target.setAttribute("tooltip", "Copy to clipboard");
+};
+
+copyButton.addEventListener("click", (e) => copyText(e));
+copyButton.addEventListener("mouseover", (e) => resetTooltip(e));

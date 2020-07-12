@@ -260,7 +260,7 @@ function generatRoomLink() {
     success: function (roomId) {
       console.log(roomId);
       localStorage.setItem(appName+"GENERATED_ROOM_ID", roomId.message);
-      $("#shareableRoomLink").val(roomId.message);
+      $("#shareableRoomLink").text(roomId.message);
     },
     error: function (err) {
       console.log(err);
