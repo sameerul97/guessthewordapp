@@ -42,9 +42,10 @@ router.get("/:roomInstance", async function (req, res) {
     if(moment(currentTime).isBefore(moment(roomExpiryTime))){
       res.status(200).json({ message: response });
     } else {
+      console.log("Linked Expired")
       throw new Error("Link Expired!")
     }
-    
+
     // res.status(200).json({ message: response });
   } catch (err) {
     responsBe = err;

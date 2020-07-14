@@ -148,7 +148,7 @@
           <h3 class="modal__title" id="modal-2-title"> Shareable Room Link </h3> <button class="modal__close"
             aria-label="Close modal" data-custom-close="" aria-label="Close modal" data-micromodal-close></button>
         </header>
-        <div id="shareableRoomLinkcontainer">
+        <div class="shareableRoomLinkcontainer">
           <span id="shareableRoomLink">
             Click COPY button to copy this text to clipboard.
           </span>
@@ -166,7 +166,7 @@
           <h3 class="modal__title" id="modal-2-title"> Join Room </h3> <button class="modal__close"
             aria-label="Close modal" data-custom-close="" aria-label="Close modal" data-micromodal-close></button>
         </header>
-        <form class="black-80" onsubmit="joinRoom(event,true)">
+        <form class="black-80 shareableRoomForm" onsubmit="joinRoom(event,true)">
           <div class="modal__content" id="modal-2-content">
             <div class="measure">
               <label for="demoname" class="f6 b db mb2 js-name">Enter name:</label>
@@ -183,6 +183,13 @@
             <a class="f6 ml2 dark-blue no-underline underline-hover js-modal-close-trigger" href="#"
               aria-label="Close this dialog window" aria-label="Close modal" data-micromodal-close>Cancel</a> </footer>
         </form>
+
+        <div class="shareableRoomLinkcontainer" id="shareableRoomLinkMessageContainer">
+          <span id="shareableRoomLinkMessage">
+            
+          </span>
+        </div>
+
       </div>
     </div>
   </div>

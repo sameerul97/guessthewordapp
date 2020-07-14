@@ -261,9 +261,15 @@ if (isRoomGenerated) {
       console.log(token);
       MicroModal.show("shareableRoomCreatedModal");
       $("#roomToJoin").val(token.message.roomName);
+      $("#shareableRoomLinkMessageContainer").hide();
+
       // localStorage.setItem(appName, token.token);
     },
     error: function (err) {
+      MicroModal.show("shareableRoomCreatedModal");
+      $(".shareableRoomForm").hide();
+      $("#shareableRoomLinkMessageContainer").show();
+      $("#shareableRoomLinkMessage").text(err.responseJSON.message)
       console.log(err);
     },
   });
