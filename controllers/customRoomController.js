@@ -4,7 +4,6 @@ var express = require("express");
 var path = require("path");
 var router = express.Router();
 var moment = require("moment-timezone");
-var utils = require("../utils/getroomexpirytime");
 const RoomService = require("../services/roomService");
 const RoomLinkService = require("../services/roomLinkService");
 const { GameRoomLink } = require("../entity/sequelize");

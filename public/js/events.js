@@ -9,7 +9,13 @@ socket.on("roomVerified", function (data) {
         MicroModal.close('joinRoomModal');
         $(".createRoom").hide()
         $(".joinRoom").hide()
-        $(".game").hide();
+        if(localStorage.getItem(appName + "_GENERATED_ROOM_ID")){
+            // $(".game").hide();
+            showStartGameButton();
+            currentlyPlaying = true;
+        }else{
+            $(".game").hide();
+        }
         positionButtonsInCanvasResponsively();
         showScores();
         hideUsernameForm();
