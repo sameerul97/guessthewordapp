@@ -13,7 +13,7 @@ var allUsers = undefined;
 var userId = undefined;
 var currentlyPlaying = false;
 var alreadyGuessed = false;
-const GAMEURLPARAMS = "g";
+const GAMEURLPARAMS = "game";
 // positioning exitRoom, clearnCanvas and colour selector element dynamically
 function positionButtonsInCanvasResponsively() {
   $(".leaveRoom").css({
@@ -133,14 +133,33 @@ function triggerJoinRoomModal() {
 }
 
 // User joining a existing room in server
-function joinRoom(e) {
+function joinRoom(e, roomAlreadyCreated) {
   e.preventDefault();
-  if (username()) {
-    socket.open();
-    var enteredRoomName = document.getElementById("enteredRoomName").value;
-    userName = document.getElementById("userName").value;
-    socket.emit("joinRoom", enteredRoomName, userName);
-    currentRoom = enteredRoomName;
+  if (roomAlreadyCreated) {
+    if (!document.getElementById("username_shareableRoom").value.length < 1) {
+      userName = document.getElementById("username_shareableRoom").value;
+      socket.open();
+      var enteredRoomName = document.getElementById("roomToJoin").value;
+      userName = document.getElementById("username_shareableRoom").value;
+      socket.emit("joinRoom", enteredRoomName, userName);
+      currentRoom = enteredRoomName;
+      MicroModal.close("shareableRoomCreatedModal");
+    } else {
+      document.getElementById("username_shareableRoom").style.border =
+        "2px solid red";
+      setTimeout(function () {
+        document.getElementById("username_shareableRoom").style.border =
+          "2px solid black";
+      }, 3000);
+    }
+  } else {
+    if (username()) {
+      socket.open();
+      var enteredRoomName = document.getElementById("enteredRoomName").value;
+      userName = document.getElementById("userName").value;
+      socket.emit("joinRoom", enteredRoomName, userName);
+      currentRoom = enteredRoomName;
+    }
   }
 }
 
@@ -239,6 +258,8 @@ if (isRoomGenerated) {
     },
     success: function (token) {
       console.log(token);
+      MicroModal.show("shareableRoomCreatedModal");
+      $("#roomToJoin").val(token.message[0].roomName);
       // localStorage.setItem(appName, token.token);
     },
     error: function (err) {
@@ -250,22 +271,36 @@ if (isRoomGenerated) {
 // User get shareable Room Link
 function generatRoomLink() {
   MicroModal.show("generateShareableRoomLinkModal");
-  $.ajax({
-    url: "/api/game/generateroom",
-    type: "GET",
-    beforeSend: function (xhr) {
-      // TODO: Send user IP ? for throttling purpose
-    },
-    data: {},
-    success: function (roomId) {
-      console.log(roomId);
-      localStorage.setItem(appName+"GENERATED_ROOM_ID", roomId.message);
-      $("#shareableRoomLink").text(roomId.message);
-    },
-    error: function (err) {
-      console.log(err);
-    },
-  });
+
+  if (true) {
+    // if (!shareableRoomLinkAlreadyGenerated()) {
+    $.ajax({
+      url: "/api/game/generateroom",
+      type: "GET",
+      beforeSend: function (xhr) {
+        // TODO: Send user IP ? for throttling purpose
+      },
+      data: {},
+      success: function (roomId) {
+        console.log(roomId);
+        localStorage.setItem(appName + "GENERATED_ROOM_ID", roomId.message);
+        $("#shareableRoomLink").text(
+          window.location.host + "/?" + GAMEURLPARAMS + "=" + roomId.message
+        );
+      },
+      error: function (err) {
+        console.log(err);
+      },
+    });
+  } else {
+    $("#shareableRoomLink").text(
+      window.location.host +
+        "/?" +
+        GAMEURLPARAMS +
+        "=" +
+        localStorage.getItem(appName + "GENERATED_ROOM_ID")
+    );
+  }
 }
 
 // Init function

@@ -9,6 +9,8 @@ services:
       - POSTGRES_USER=${PG_DB_USERNAME}
       - POSTGRES_PASSWORD=${PG_DB_PASSWORD}
       - POSTGRES_DB=${PG_DB_NAME}
+      - TZ=Europe/Lisbon
+      - PGTZ=Europe/Lisbon
     volumes:
       - pgdata:/var/lib/postgresql/data
       - pgconf:/etc/postgresql
@@ -33,7 +35,7 @@ services:
       # - ./pgadmin/pgadmin-data:/var/lib/pgadmin
       - pgadmin-data:/var/lib/pgadmin
       - ./pgadmin/server.json:/pgadmin4/servers.json
-      
+
   server:
     build: .
     depends_on:
@@ -45,6 +47,7 @@ services:
       - ./ :/home/node/app
     environment:
       NODE_ENV: production
+      TZ: Europe/Lisbon
     ports:
       - 3000:3000
     command: "npm start"

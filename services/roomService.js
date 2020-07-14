@@ -34,7 +34,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       var found = false
       var roomName = roomNames[Math.floor(Math.random() * roomNames.length)]
-      rClient.set(roomName, roomName, 'NX', 'EX', 50, (err, reply) => {
+      rClient.set(roomName, roomName, 'NX', 'EX', 3600, (err, reply) => {
         if (err) console.log('ERR', err)
         if (reply === 'OK') {
           found = true;

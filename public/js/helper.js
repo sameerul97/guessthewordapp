@@ -78,3 +78,11 @@ function alreadyPlayed() {
     return null;
 }
 
+function shareableRoomLinkAlreadyGenerated() {
+    if (localStorage.getItem(appName + "GENERATED_ROOM_ID")) {
+        return localStorage.getItem(appName + "GENERATED_ROOM_ID");
+    }
+    return null;
+}
+
+
