@@ -260,7 +260,7 @@ if (isRoomGenerated) {
     success: function (token) {
       console.log(token);
       MicroModal.show("shareableRoomCreatedModal");
-      $("#roomToJoin").val(token.message[0].roomName);
+      $("#roomToJoin").val(token.message.roomName);
       // localStorage.setItem(appName, token.token);
     },
     error: function (err) {

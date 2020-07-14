@@ -7,7 +7,10 @@ module.exports = {
           gameKey: gameKey,
         },
       });
-      if (room.length > 0) resolve(room);
+      if (room.length > 1) {
+        console.warn("Shouldn't have happened, Look into this bug");
+      }
+      if (room.length > 0) resolve(room[0]);
       else reject(new Error("Invalid Room link"));
     });
   },

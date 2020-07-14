@@ -17,19 +17,17 @@ router.get("/", function (req, res) {
 // Generate room link.
 router.get("/generateRoom", async function (req, res) {
   var roomName = await RoomService.createRoom();
-  console.log(new Date())
+  
   console.log(moment().tz("Europe/Lisbon").format());
   var expireT = moment().add(1, "hours").format();
-  console.log(expireT)
+  console.log(expireT);
   var { gameKey } = await GameRoomLink.create({
     roomName: roomName,
     expiryTime: expireT,
+    gameStarted: false,
+    gameFinished: false,
   });
   res.status(200).json({ message: gameKey });
-});
-
-router.get("/test", function (req, res) {
-  res.sendFile(path.resolve("public/index.html"));
 });
 
 router.get("/:roomInstance", async function (req, res) {
@@ -37,7 +35,17 @@ router.get("/:roomInstance", async function (req, res) {
     var response = await RoomLinkService.gameRoomLinkValid(
       req.params.roomInstance
     );
-    res.status(200).json({ message: response });
+
+    var currentTime = moment().tz("Europe/Lisbon").format();
+    var roomExpiryTime = moment(response.expiryTime);
+    console.log(moment(currentTime).isBefore(moment(roomExpiryTime)));
+    if(moment(currentTime).isBefore(moment(roomExpiryTime))){
+      res.status(200).json({ message: response });
+    } else {
+      throw new Error("Link Expired!")
+    }
+    
+    // res.status(200).json({ message: response });
   } catch (err) {
     responsBe = err;
     console.log(err);

@@ -12,6 +12,12 @@ module.exports = (sequelize, type) => {
     },
     expiryTime: {
       type: type.DATE,
-    }
+    },
+    gameStarted: {
+      type: type.BOOLEAN,
+    },
+    gameFinished: {
+      type: type.BOOLEAN,
+    },
   });
 };

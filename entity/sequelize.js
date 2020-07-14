@@ -23,7 +23,7 @@ const sequelize = new Sequelize(
 
 const GameRoomLink = GameRoomLinkModel(sequelize, Sequelize);
 
-sequelize.sync({ force: false }).then(() => {
+sequelize.sync({ alter: true  }).then(() => {
   console.log(`Database & tables created!`);
 });
 
