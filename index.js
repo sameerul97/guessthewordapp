@@ -48,6 +48,7 @@ gameService.setRClient(client);
 GameClass.setRClient(client);
 
 var customRoom = require('./controllers/customRoomController')
+var singleplayer = require('./controllers/singleplayer')
 // rAdapter.pubClient.on('error', function () {
 //   console.log("Redis Labs Error for Pub");
 // });
@@ -57,6 +58,8 @@ var customRoom = require('./controllers/customRoomController')
 
 // Setting view
 app.use('/api/game', customRoom)
+
+app.use('/api/singleplayer', singleplayer)
 
 app.use(express.static(__dirname + "/public"));
 
