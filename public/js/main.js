@@ -269,7 +269,7 @@ if (isRoomGenerated) {
       MicroModal.show("shareableRoomCreatedModal");
       $(".shareableRoomForm").hide();
       $("#shareableRoomLinkMessageContainer").show();
-      $("#shareableRoomLinkMessage").text(err.responseJSON.message)
+      $("#shareableRoomLinkMessage").text(err.responseJSON.message);
       console.log(err);
     },
   });
@@ -308,6 +308,30 @@ function generatRoomLink() {
         localStorage.getItem(appName + "_GENERATED_ROOM_ID")
     );
   }
+}
+
+function singleplayer() {
+  // if(username()){
+  hideUsernameForm();
+  hideTitle();
+  $.ajax({
+    url: "/api/singleplayer/word",
+    type: "GET",
+    beforeSend: function (xhr) {
+     },
+    data: {},
+    success: function (data) {
+      parseDrawingDataSet(data, function(){
+        drawLines()
+      })
+      // drawLines(data);
+    },
+    error: function (err) {
+      console.log(err);
+    },
+  });
+  
+  // }
 }
 
 // Init function
