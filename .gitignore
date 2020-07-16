@@ -2,6 +2,10 @@ node_modules
 trials
 .env
 bash.exe.stackdump
+*.ndjson
+# !.googleduickdrawdatasets/
+# !/googleduickdrawdatasets/.gitkeep
+# googleduickdrawdatasets
 # docker-compose.yml
 # docker-compose.debug.yml
 # Dockerfile
