@@ -9,30 +9,32 @@ var canvas = document.getElementsByClassName("whiteboard")[0];
 // canvas.height = 500;
 var context = canvas.getContext("2d");
 
-function parseDrawingDataSet(points,callback){
-    var testTemp = [];
-    var points = points.message.drawing;
-    console.log(points)
-    for (i in points) {
-        // console.log(`ctx.beginPath();`);
-        var local = [];
-        for (j = 0; j < points[i][0].length; j++) {
-        // console.log(points[i][0].length)
-        console.log(points[i][0][j], points[i][1][j]);
-        local.push({ x: points[i][0][j], y: points[i][1][j] });
-        // data.push(`ctx.lineTo( ${points[i][0][j]}, ${points[i][1][j]})`);
-        // console.log(`ctx.lineTo( ${points[i][0][j]}, ${points[i][1][j]})`);
-        }
-        testTemp.push({ line: { color: "#96c23b", points: local } });
-        console.log(`ctx.stroke()`);
+function parseDrawingDataSet(points, callback) {
+  var testTemp = [];
+  var points = points.message.drawing;
+  console.log(points);
+  for (i in points) {
+    // console.log(`ctx.beginPath();`);
+    var local = [];
+    for (j = 0; j < points[i][0].length; j++) {
+      // console.log(points[i][0].length)
+      console.log(points[i][0][j], points[i][1][j]);
+      local.push({
+        x: (points[i][0][j] / 256) * canvas.width,
+        y: ((points[i][1][j] / 256) * canvas.height) / 1.5,
+      });
+      // data.push(`ctx.lineTo( ${points[i][0][j]}, ${points[i][1][j]})`);
+      // console.log(`ctx.lineTo( ${points[i][0][j]}, ${points[i][1][j]})`);
     }
-    console.log(testTemp)
-    points_list["data"]=testTemp;
-    callback();
+    testTemp.push({ line: { color: "#96c23b", points: local } });
+    console.log(`ctx.stroke()`);
+  }
+  console.log(testTemp);
+  points_list["data"] = testTemp;
+  callback();
 }
 
 function drawLines() {
-
   var value = points_list.data[lineIndexB];
   var info = value.line;
   var color = info.color;
@@ -40,24 +42,22 @@ function drawLines() {
   var points = info.points;
 
   context.beginPath();
-  context.moveTo(points[lineIndexA-1].x, points[lineIndexA-1].y);
+  context.moveTo(points[lineIndexA - 1].x, points[lineIndexA - 1].y);
   context.lineWidth = width;
   context.strokeStyle = color;
   context.fillStyle = color;
   context.lineTo(points[lineIndexA].x, points[lineIndexA].y);
   context.stroke();
-
   lineIndexA = lineIndexA + 1;
-  if (lineIndexA>points.length-1) {
-  	lineIndexA = 1;
+  if (lineIndexA > points.length - 1) {
+    lineIndexA = 1;
     lineIndexB = lineIndexB + 1;
   }
 
   //stop the animation if the last line is exhausted...
-  if (lineIndexB>points_list.data.length-1) return;
+  if (lineIndexB > points_list.data.length - 1) return;
 
-  setTimeout(function() {
-  	drawLines()
-  },80);
+  setTimeout(function () {
+    drawLines();
+  }, 80);
 }
-
