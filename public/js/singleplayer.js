@@ -33,7 +33,7 @@ function parseDrawingDataSet(points, callback) {
   points_list["data"] = testTemp;
   callback();
 }
-
+ 
 function drawLines() {
   var value = points_list.data[lineIndexB];
   var info = value.line;
@@ -59,5 +59,5 @@ function drawLines() {
 
   setTimeout(function () {
     drawLines();
-  }, 80);
+  }, 250);
 }
