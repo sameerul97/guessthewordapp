@@ -44,7 +44,7 @@ function drawLines() {
   context.beginPath();
   context.moveTo(points[lineIndexA - 1].x, points[lineIndexA - 1].y);
   context.lineWidth = width;
-  context.strokeStyle = color;
+  context.strokeStyle = "black";
   context.fillStyle = color;
   context.lineTo(points[lineIndexA].x, points[lineIndexA].y);
   context.stroke();

@@ -1,7 +1,7 @@
 var express = require("express");
 var path = require("path");
 var router = express.Router();
-var { drawing } = require("../data/googledrawings.json");
+var { drawing } = require("../data/googledrawing_processed_raw_data.json");
 
 router.get("/", function (req, res) {
   res.json({ message: "Guesstheword app singleplayer Api" });

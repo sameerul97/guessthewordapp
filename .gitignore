@@ -2,6 +2,7 @@ node_modules
 trials
 .env
 bash.exe.stackdump
+# googleduickdrawdatasets/*
 *.ndjson
 # !.googleduickdrawdatasets/
 # !/googleduickdrawdatasets/.gitkeep
