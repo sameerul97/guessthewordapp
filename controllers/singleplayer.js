@@ -3,14 +3,17 @@ var path = require("path");
 var router = express.Router();
 // var { drawing } = require("../data/googledrawing_processed_raw_data.json");
 var { drawing } = require("../data/googledrawings.json");
+const WordService = require("../services/wordService");
 
 router.get("/", function (req, res) {
   res.json({ message: "Guesstheword app singleplayer Api" });
 });
 
 router.get("/word", function (req, res) {
+  var drawingData = drawing[Math.floor(Math.random() * (drawing.length - 1))];
   res.json({
-    message: drawing[Math.floor(Math.random() * (drawing.length - 1))],
+    message: drawingData,
+    words: WordService.getWord(drawingData.word),
   });
 });
 
