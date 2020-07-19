@@ -18,22 +18,22 @@ function parseDrawingDataSet(points, callback) {
     var local = [];
     for (j = 0; j < points[i][0].length; j++) {
       // console.log(points[i][0].length)
-      console.log(points[i][0][j], points[i][1][j]);
+      // console.log(points[i][0][j], points[i][1][j]);
       local.push({
-        x: (points[i][0][j] / 256) * canvas.width,
+        x: (points[i][0][j] / 256) * canvas.width ,
         y: ((points[i][1][j] / 256) * canvas.height) / 1.5,
       });
       // data.push(`ctx.lineTo( ${points[i][0][j]}, ${points[i][1][j]})`);
       // console.log(`ctx.lineTo( ${points[i][0][j]}, ${points[i][1][j]})`);
     }
     testTemp.push({ line: { color: "#96c23b", points: local } });
-    console.log(`ctx.stroke()`);
+    // console.log(`ctx.stroke()`);
   }
-  console.log(testTemp);
+  // console.log(testTemp);
   points_list["data"] = testTemp;
   callback();
 }
- 
+
 function drawLines() {
   var value = points_list.data[lineIndexB];
   var info = value.line;
@@ -58,6 +58,7 @@ function drawLines() {
   if (lineIndexB > points_list.data.length - 1) return;
 
   setTimeout(function () {
-    drawLines();
+    // drawLines();
+    window.requestAnimationFrame(drawLines);
   }, 250);
 }

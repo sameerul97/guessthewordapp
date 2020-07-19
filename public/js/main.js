@@ -317,20 +317,19 @@ function singleplayer() {
   $.ajax({
     url: "/api/singleplayer/word",
     type: "GET",
-    beforeSend: function (xhr) {
-     },
+    beforeSend: function (xhr) {},
     data: {},
     success: function (data) {
-      parseDrawingDataSet(data, function(){
-        drawLines()
-      })
+      parseDrawingDataSet(data, function () {
+        window.requestAnimationFrame(drawLines);
+      });
       // drawLines(data);
     },
     error: function (err) {
       console.log(err);
     },
   });
-  
+
   // }
 }
 
