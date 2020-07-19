@@ -322,6 +322,17 @@ function singleplayer() {
     success: function (data) {
       parseDrawingDataSet(data, function () {
         window.requestAnimationFrame(drawLines);
+        $(".wordToGuess_options").empty();
+        $(".wordToGuess").empty();
+        // disableCanvasDrawing();
+        // clearCanvasOnNewWord();
+        currentlyPlaying = false;
+        alreadyGuessed = false;
+    
+        for (i in data.words.options) {
+            $(".wordToGuess_options").append("<button class='options modal__btn modal__btn-primary '>" + data.words.options[i] + "</button>")
+        }
+        $(".wordToGuess_options").append("<br>")
       });
       // drawLines(data);
     },
