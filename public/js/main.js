@@ -119,6 +119,8 @@ function createRoom(e) {
       currentRoom = roomName;
       $(".joinRoom").hide();
       $(".createRoom").hide();
+      $(".generatRoomLink").hide();
+      $(".singleplayerMode").hide();
       showStartGameButton();
       currentlyPlaying = true;
     });
