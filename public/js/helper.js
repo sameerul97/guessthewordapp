@@ -1,88 +1,95 @@
 function hideTitle() {
-    $(".gameTite").hide();
+  $(".gameTite").hide();
 }
 
 function showRoomName() {
-    $("#createdRoomName").show();
+  $("#createdRoomName").show();
 }
 
 function hideStartGameButton() {
-    $(".startGame").hide();
+  $(".startGame").hide();
 }
 function showStartGameButton() {
-    $(".startGame").show();
+  $(".startGame").show();
 }
 
 function hideUsernameForm() {
-    $(".roomOptions").hide();
+  $(".roomOptions").hide();
 }
 
 function showScores() {
-    $(".scores").show();
+  $(".scores").show();
 }
 
 function enableCanvasDrawing() {
-    // show leaveRoom button on canvas
-    $(".whiteboard").css({
-        "z-index": "9"
-    })
+  // show leaveRoom button on canvas
+  $(".whiteboard").css({
+    "z-index": "9",
+  });
 }
 
 function disableCanvasDrawing() {
-    $(".whiteboard").css({
-        "z-index": "-9"
-    })
+  $(".whiteboard").css({
+    "z-index": "-9",
+  });
 }
 
-
 function showClearCanvasButton() {
-    $(".clearCanvas").css({
-        "display": "block"
-    });
+  $(".clearCanvas").css({
+    display: "block",
+  });
 }
 
 function showExitRoomButton() {
-    $(".leaveRoom").css({
-        "display": "block"
-    });
+  $(".leaveRoom").css({
+    display: "block",
+  });
 }
 
 function showColorSelector() {
-    $(".colors").css({
-        "display": "block"
-    });
+  $(".colors").css({
+    display: "block",
+  });
 }
 
 function hideClearCanvasButton() {
-    $(".clearCanvas").css({
-        "display": "none"
-    });
+  $(".clearCanvas").css({
+    display: "none",
+  });
 }
 
 function hideExitRoomButton() {
-    $(".leaveRoom").css({
-        "display": "none"
-    });
+  $(".leaveRoom").css({
+    display: "none",
+  });
 }
 
 function hideColorSelector() {
-    $(".colors").css({
-        "display": "none"
-    });
+  $(".colors").css({
+    display: "none",
+  });
 }
 
 function alreadyPlayed() {
-    if (localStorage.getItem(appName)) {
-        return localStorage.getItem(appName);
-    }
-    return null;
+  if (localStorage.getItem(appName)) {
+    return localStorage.getItem(appName);
+  }
+  return null;
 }
 
 function shareableRoomLinkAlreadyGenerated() {
-    if (localStorage.getItem(appName + "GENERATED_ROOM_ID")) {
-        return localStorage.getItem(appName + "GENERATED_ROOM_ID");
+  if (localStorage.getItem(appName + "GENERATED_ROOM_ID")) {
+    if (RoomLinkNotExpired()) {
+      return localStorage.getItem(appName + "GENERATED_ROOM_ID");
     }
     return null;
+  }
+  return null;
 }
 
-
+function RoomLinkNotExpired() {
+  var expiryTime = JSON.parse(
+    localStorage.getItem("guessthewordapp_GENERATED_ROOM_ID")
+  ).expiryTime;
+  return moment().format() < expiryTime ? true : false;
+}

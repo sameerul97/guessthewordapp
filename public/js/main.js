@@ -281,8 +281,8 @@ if (isRoomGenerated) {
 function generatRoomLink() {
   MicroModal.show("generateShareableRoomLinkModal");
 
-  // if (true) {
-  if (!shareableRoomLinkAlreadyGenerated()) {
+  if (true) {
+    // if (!shareableRoomLinkAlreadyGenerated()) {
     $.ajax({
       url: "/api/game/generateroom",
       type: "GET",
@@ -290,11 +290,11 @@ function generatRoomLink() {
         // TODO: Send user IP ? for throttling purpose
       },
       data: {},
-      success: function (roomId) {
-        console.log(roomId);
-        localStorage.setItem(appName + "_GENERATED_ROOM_ID", roomId.message);
+      success: function (data) {
+        console.log(data);
+        localStorage.setItem(appName + "_GENERATED_ROOM_ID", JSON.stringify(data));
         $("#shareableRoomLink").text(
-          window.location.host + "/?" + GAMEURLPARAMS + "=" + roomId.message
+          window.location.host + "/?" + GAMEURLPARAMS + "=" + data.gameKey
         );
       },
       error: function (err) {
@@ -330,11 +330,15 @@ function singleplayer() {
         // clearCanvasOnNewWord();
         currentlyPlaying = false;
         alreadyGuessed = false;
-    
+
         for (i in data.words.options) {
-            $(".wordToGuess_options").append("<button class='options modal__btn modal__btn-primary '>" + data.words.options[i] + "</button>")
+          $(".wordToGuess_options").append(
+            "<button class='options modal__btn modal__btn-primary '>" +
+              data.words.options[i] +
+              "</button>"
+          );
         }
-        $(".wordToGuess_options").append("<br>")
+        $(".wordToGuess_options").append("<br>");
       });
       // drawLines(data);
     },

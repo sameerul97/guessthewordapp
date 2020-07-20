@@ -17,17 +17,19 @@ router.get("/", function (req, res) {
 // Generate room link.
 router.get("/generateRoom", async function (req, res) {
   var roomName = await RoomService.createRoom();
-  
+
   console.log(moment().tz("Europe/Lisbon").format());
-  var expireT = moment().add(1, "hours").format();
-  console.log(expireT);
-  var { gameKey } = await GameRoomLink.create({
+  var expiryTime = moment().add(1, "hours").format();
+  console.log(expiryTime);
+  let { gameKey } = await GameRoomLink.create({
     roomName: roomName,
-    expiryTime: expireT,
+    expiryTime: expiryTime,
     gameStarted: false,
     gameFinished: false,
   });
-  res.status(200).json({ message: gameKey });
+  // console.log(createdRoomLink.dataValues);
+  //  = createdRoomLink.dataValues;
+  res.status(200).json({ gameKey, expiryTime });
 });
 
 router.get("/:roomInstance", async function (req, res) {
@@ -39,11 +41,11 @@ router.get("/:roomInstance", async function (req, res) {
     var currentTime = moment().tz("Europe/Lisbon").format();
     var roomExpiryTime = moment(response.expiryTime);
     console.log(moment(currentTime).isBefore(moment(roomExpiryTime)));
-    if(moment(currentTime).isBefore(moment(roomExpiryTime))){
+    if (moment(currentTime).isBefore(moment(roomExpiryTime))) {
       res.status(200).json({ message: response });
     } else {
-      console.log("Linked Expired")
-      throw new Error("Link Expired!")
+      console.log("Linked Expired");
+      throw new Error("Link Expired!");
     }
 
     // res.status(200).json({ message: response });
