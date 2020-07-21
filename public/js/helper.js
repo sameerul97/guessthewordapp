@@ -78,18 +78,21 @@ function alreadyPlayed() {
 }
 
 function shareableRoomLinkAlreadyGenerated() {
-  if (localStorage.getItem(appName + "GENERATED_ROOM_ID")) {
+  console.log(moment().format());
+  if (localStorage.getItem(appName + "_GENERATED_ROOM_ID") != null) {
     if (RoomLinkNotExpired()) {
-      return localStorage.getItem(appName + "GENERATED_ROOM_ID");
+      return JSON.parse(localStorage.getItem(appName + "_GENERATED_ROOM_ID"))
+        .gameKey;
+    } else {
+      return null;
     }
-    return null;
   }
   return null;
 }
 
 function RoomLinkNotExpired() {
   var expiryTime = JSON.parse(
-    localStorage.getItem("guessthewordapp_GENERATED_ROOM_ID")
+    localStorage.getItem(appName + "_GENERATED_ROOM_ID")
   ).expiryTime;
   return moment().format() < expiryTime ? true : false;
 }

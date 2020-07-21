@@ -281,8 +281,8 @@ if (isRoomGenerated) {
 function generatRoomLink() {
   MicroModal.show("generateShareableRoomLinkModal");
 
-  if (true) {
-    // if (!shareableRoomLinkAlreadyGenerated()) {
+  // if (true) {
+  if (!shareableRoomLinkAlreadyGenerated()) {
     $.ajax({
       url: "/api/game/generateroom",
       type: "GET",
@@ -292,7 +292,10 @@ function generatRoomLink() {
       data: {},
       success: function (data) {
         console.log(data);
-        localStorage.setItem(appName + "_GENERATED_ROOM_ID", JSON.stringify(data));
+        localStorage.setItem(
+          appName + "_GENERATED_ROOM_ID",
+          JSON.stringify(data)
+        );
         $("#shareableRoomLink").text(
           window.location.host + "/?" + GAMEURLPARAMS + "=" + data.gameKey
         );
@@ -307,7 +310,7 @@ function generatRoomLink() {
         "/?" +
         GAMEURLPARAMS +
         "=" +
-        localStorage.getItem(appName + "_GENERATED_ROOM_ID")
+        JSON.parse(localStorage.getItem(appName + "_GENERATED_ROOM_ID")).gameKey
     );
   }
 }
