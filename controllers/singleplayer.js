@@ -10,10 +10,11 @@ router.get("/", function (req, res) {
 });
 
 router.get("/word", function (req, res) {
-  var {drawing} = drawing[Math.floor(Math.random() * (drawing.length - 1))];
+  var selectedDrawing =
+    drawing[Math.floor(Math.random() * (drawing.length - 1))];
   res.json({
-    drawing: drawing,
-    words: WordService.getWord(drawingData.word),
+    drawing: selectedDrawing.drawing,
+    words: WordService.getWord(selectedDrawing.word),
   });
 });
 

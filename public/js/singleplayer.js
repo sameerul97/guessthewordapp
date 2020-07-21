@@ -11,7 +11,7 @@ var context = canvas.getContext("2d");
 
 function parseDrawingDataSet(points, callback) {
   var testTemp = [];
-  var points = points.message.drawing;
+  var points = points.drawing;
   console.log(points);
   for (i in points) {
     // console.log(`ctx.beginPath();`);
