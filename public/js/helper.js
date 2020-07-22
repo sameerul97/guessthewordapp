@@ -70,6 +70,14 @@ function hideColorSelector() {
   });
 }
 
+function showLoader(){
+  $("#loading").show();
+}
+
+function hideLoader(){
+  $("#loading").hide();
+}
+
 function alreadyPlayed() {
   if (localStorage.getItem(appName)) {
     return localStorage.getItem(appName);

@@ -10,7 +10,7 @@ module.exports = {
     while (words.length !== 5) {
       var selectedDrawing =
         drawing[Math.floor(Math.random() * (drawing.length - 1))];
-      var { word } = selectedDrawing;
+      var { word, key_id } = selectedDrawing;
       var selectedDrawing2 = selectedDrawing.drawing;
       var found = false;
       for (var drawings in words) {
@@ -20,7 +20,7 @@ module.exports = {
         }
       }
       if (!found) {
-        words.push({ word, drawing: selectedDrawing2 });
+        words.push({ word, drawing: selectedDrawing2, drawingId: key_id });
       }
     }
     // var words = [];

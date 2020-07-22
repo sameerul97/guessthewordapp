@@ -29,9 +29,10 @@ router.get("/word", async function (req, res) {
     word: item.word,
     options: item.options,
   }));
-  forClient = drawingAndWords.filter((item) => delete item.word);
-  // console.log(forClient);
+  words = drawingAndWords;
+  //  drawingAndWords.filter((item) => delete item.word);
 
+  
   var createdSinglePlayerGame = await Singleplayer_GuestMode.create(
     {
       username: "sameer",
@@ -43,7 +44,7 @@ router.get("/word", async function (req, res) {
   );
 
   res.json({
-    forClient,
+    message: words,
     // drawing: selectedDrawing.drawing,
     // words: WordService.getWord(selectedDrawing.word),
     // game: createdSinglePlayerGame,
