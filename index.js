@@ -115,5 +115,5 @@ function onConnection(socket) {
 }
 
 io.on("connection", onConnection);
-
+console.log("ENV", process.env.DATABASE_USER)
 http.listen(port, () => console.log("listening on port " + port));
