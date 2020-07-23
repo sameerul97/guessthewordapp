@@ -42,8 +42,8 @@ Singleplayer_GuestMode_Words.belongsTo(Singleplayer_GuestMode, {
   targetKey: "uuid",
 });
 
-// sequelize.sync({ alter: true }).then(() => {
-sequelize.sync({ force: true }).then(() => {
+sequelize.sync({ alter: true }).then(() => {
+// sequelize.sync({ force: true }).then(() => {
   console.log(`Database & tables created!`);
 });
 

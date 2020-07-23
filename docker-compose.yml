@@ -46,7 +46,7 @@ services:
     volumes:
       - ./ :/home/node/app
     environment:
-      NODE_ENV: production
+      NODE_ENV: development
       TZ: Europe/Lisbon
     ports:
       - 3000:3000

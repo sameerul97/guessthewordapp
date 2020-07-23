@@ -3,6 +3,9 @@ module.exports = (sequelize, type) => {
     // word_id: {
     //   type: type.INTEGER,
     // },
+    round_id:{
+      type: type.INTEGER,
+    },
     word: {
       type: type.STRING,
     },

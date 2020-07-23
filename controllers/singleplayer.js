@@ -18,21 +18,23 @@ router.get("/", function (req, res) {
 router.get("/word", async function (req, res) {
   const drawingAndWords = await singleplayerService.drawingWords();
   for (i in drawingAndWords) {
-    drawingAndWords[i]["word_id"] = i;
+    drawingAndWords[i]["round_id"] = i;
     drawingAndWords[i]["options"] = WordService.getWord(
       drawingAndWords[i].word
     ).options;
     console.log(drawingAndWords[i]);
   }
   forDb = drawingAndWords.map((item) => ({
-    word_id: item.word_id,
+    round_id: item.round_id,
     word: item.word,
     options: item.options,
   }));
-  words = drawingAndWords;
+  words =
+    process.env.NODE_ENV === "production"
+      ? drawingAndWords.filter((item) => delete item.word)
+      : drawingAndWords;
   //  drawingAndWords.filter((item) => delete item.word);
 
-  
   var createdSinglePlayerGame = await Singleplayer_GuestMode.create(
     {
       username: "sameer",
@@ -44,7 +46,7 @@ router.get("/word", async function (req, res) {
   );
 
   res.json({
-    message: words,
+    message: { game: { id: createdSinglePlayerGame.uuid, words } },
     // drawing: selectedDrawing.drawing,
     // words: WordService.getWord(selectedDrawing.word),
     // game: createdSinglePlayerGame,
