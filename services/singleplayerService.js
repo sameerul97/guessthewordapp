@@ -27,10 +27,10 @@ module.exports = {
     }
     return words;
   },
-  createGame: async function (words) {
+  createGame: async function (username, words) {
     return Singleplayer_GuestMode.create(
       {
-        username: "sameer",
+        username: username,
         words: words,
       },
       {
@@ -45,11 +45,12 @@ module.exports = {
 
       include: [
         {
-          attributes: ["word", "alreadyGuessed", "round_id"],
+          attributes: ["word", "alreadyGuessed", "round_id", "fk_gameid"],
           model: Singleplayer_GuestMode_Words,
           as: "words",
           where: {
             round_id: round_id,
+            // fk_gameid : game_id
             // alreadyGuessed: false,
             // word: selected_answer,
             // options: options,
@@ -83,10 +84,19 @@ module.exports = {
   },
   updateAlreadyGuessed: async function (
     Singleplayer_GuestMode_Record,
-    round_id
+    round_id,
+    game_id
   ) {
     Singleplayer_GuestMode_Record.words.forEach((word) => {
-      word.update({ alreadyGuessed: true }, { where: { round_id: round_id } });
+      word.update(
+        { alreadyGuessed: true },
+        {
+          where: {
+            fk_gameid: game_id, // alreadyGuessed: false,
+            round_id: round_id,
+          },
+        }
+      );
     });
   },
 };

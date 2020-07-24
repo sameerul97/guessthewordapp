@@ -5,6 +5,7 @@ var { drawing } = require("../data/googledrawings.json");
 const WordService = require("../services/wordService");
 const SingleplayerService = require("../services/singleplayerService");
 const { ValidationError } = require("sequelize");
+const { use } = require("./customRoomController");
 
 require("../errors/singleplayerError");
 
@@ -13,31 +14,48 @@ router.get("/", function (req, res) {
 });
 
 router.get("/word", async function (req, res) {
-  const drawingAndWords = await SingleplayerService.drawingWords();
+  try {
+    var username = req.query.username;
+    console.log(username)
+    if (username === undefined) {
+      throw new NoUsernameError();
+    }
+    const drawingAndWords = await SingleplayerService.drawingWords();
 
-  for (i in drawingAndWords) {
-    drawingAndWords[i]["round_id"] = i;
-    drawingAndWords[i]["options"] = WordService.getWord(
-      drawingAndWords[i].word
-    ).options;
+    for (i in drawingAndWords) {
+      // drawingAndWords[i]["round_id"] = i;
+      drawingAndWords[i]["options"] = WordService.getWord(
+        drawingAndWords[i].word
+      ).options;
+    }
+
+    forDb = drawingAndWords.map((item) => ({
+      // round_id: item.round_id,
+      word: item.word,
+      options: item.options,
+    }));
+
+    words =
+      process.env.NODE_ENV === "production"
+        ? drawingAndWords.filter((item) => delete item.word)
+        : drawingAndWords;
+
+    var createdSinglePlayerGame = await SingleplayerService.createGame(
+      username,
+      forDb
+    );
+
+    res.json({
+      message: { game: { id: createdSinglePlayerGame.uuid, words } },
+    });
+  } catch (error) {
+    console.error(error)
+    if (error instanceof NoUsernameError) {
+      res.json({
+        game: { success: false, message: error.message },
+      });
+    }
   }
-
-  forDb = drawingAndWords.map((item) => ({
-    round_id: item.round_id,
-    word: item.word,
-    options: item.options,
-  }));
-
-  words =
-    process.env.NODE_ENV === "production"
-      ? drawingAndWords.filter((item) => delete item.word)
-      : drawingAndWords;
-
-  var createdSinglePlayerGame = await SingleplayerService.createGame(forDb);
-
-  res.json({
-    message: { game: { id: createdSinglePlayerGame.uuid, words } },
-  });
 });
 
 router.post("/word", async function (req, res) {
@@ -50,21 +68,22 @@ router.post("/word", async function (req, res) {
       selected_answer,
       options
     );
-
+    console.log(Singleplayer_GuestMode_Record)
     if (Singleplayer_GuestMode_Record === null) {
       response = {
         success: false,
         message: "Invalid data",
         game: Singleplayer_GuestMode_Record,
       };
-      new InvalidGameIdError();
+      throw new InvalidGameDataError();
     }
 
     if (!Singleplayer_GuestMode_Record.words[0].alreadyGuessed) {
-      console.log(Singleplayer_GuestMode_Record);
+      // console.log(Singleplayer_GuestMode_Record);
       await SingleplayerService.updateAlreadyGuessed(
         Singleplayer_GuestMode_Record,
-        round_id
+        round_id,
+        game_id
       );
       if (Singleplayer_GuestMode_Record.words[0].word === selected_answer) {
         var game = {
@@ -97,7 +116,7 @@ router.post("/word", async function (req, res) {
         game: { success: false, message: error },
       });
     }
-    if (error instanceof InvalidGameIdError) {
+    if (error instanceof InvalidGameDataError) {
       res.json({
         game: { success: false, message: error.message },
       });

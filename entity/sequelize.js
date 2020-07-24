@@ -35,7 +35,7 @@ const Singleplayer_GuestMode_Words = Singleplayer_GuestMode_Words_Model(
 Singleplayer_GuestMode.hasMany(Singleplayer_GuestMode_Words, {
   as: "words",
   foreignKey: "fk_gameid",
-  targetKey: "uuid",
+  // targetKey: "uuid",
 });
 Singleplayer_GuestMode_Words.belongsTo(Singleplayer_GuestMode, {
   foreignKey: "fk_gameid",

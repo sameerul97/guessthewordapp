@@ -320,7 +320,7 @@ function singleplayer() {
   hideUsernameForm();
   hideTitle();
   $.ajax({
-    url: "/api/singleplayer/word",
+    url: "/api/singleplayer/word?username=sam",
     type: "GET",
     beforeSend: function (xhr) {
       showLoader()

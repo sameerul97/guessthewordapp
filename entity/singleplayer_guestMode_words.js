@@ -5,6 +5,7 @@ module.exports = (sequelize, type) => {
     // },
     round_id: {
       type: type.INTEGER,
+      autoIncrement: true,
       primaryKey: true,
     },
     word: {
