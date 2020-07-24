@@ -1,11 +1,13 @@
 const WordService = require("./wordService");
+const {
+  Singleplayer_GuestMode,
+  Singleplayer_GuestMode_Words,
+} = require("../entity/sequelize");
 
 var { drawing } = require("../data/googledrawings.json");
 
 module.exports = {
   drawingWords: async function () {
-    // var selectedDrawing =
-    //   drawing[Math.floor(Math.random() * (drawing.length - 1))];
     var words = [];
     while (words.length !== 5) {
       var selectedDrawing =
@@ -23,21 +25,68 @@ module.exports = {
         words.push({ word, drawing: selectedDrawing2, drawingId: key_id });
       }
     }
-    // var words = [];
-    // while (words.length !== 5) {
-    //   var givenword = WordService.getWord();
-    //   var { chosenWord } = givenword;
-    //   var found = false;
-    //   for (var word in words) {
-    //     if (words[word].chosenWord === chosenWord) {
-    //       found = true;
-    //       break;
-    //     }
-    //   }
-    //   if (!found) {
-    //     words.push(givenword);
-    //   }
-    // }
     return words;
+  },
+  createGame: async function (words) {
+    return Singleplayer_GuestMode.create(
+      {
+        username: "sameer",
+        words: words,
+      },
+      {
+        include: ["words"],
+      }
+    );
+  },
+  verifyAnswer: async function (game_id, round_id, selected_answer, options) {
+    return Singleplayer_GuestMode.findByPk(game_id, {
+      attributes: ["username", "score", "uuid"],
+      // where: { uuid: game_id },
+
+      include: [
+        {
+          attributes: ["word", "alreadyGuessed", "round_id"],
+          model: Singleplayer_GuestMode_Words,
+          as: "words",
+          where: {
+            round_id: round_id,
+            // alreadyGuessed: false,
+            // word: selected_answer,
+            // options: options,
+          },
+        },
+      ],
+    });
+    // .then(function (d) {
+    //   console.log(
+    //     d.updateAttributes({
+    //       alreadyGuessed: true,
+    //     })
+    //     // [0].updateAttributes({
+    //     //   alreadyGuessed: true,
+    //     // })
+    //   );
+    //   // return filter.filteredContent[0].updateAttributes({
+    //   //   content: "crap",
+    //   // });
+    // })
+    // .then(function () {
+    //   // DONE! :)
+    // });
+  },
+  updateScore: async function (Singleplayer_GuestMode_Record, game_id) {
+    var score_holder = Singleplayer_GuestMode_Record.score;
+    return Singleplayer_GuestMode_Record.update(
+      { score: score_holder + 1 },
+      { where: { uuid: game_id } }
+    );
+  },
+  updateAlreadyGuessed: async function (
+    Singleplayer_GuestMode_Record,
+    round_id
+  ) {
+    Singleplayer_GuestMode_Record.words.forEach((word) => {
+      word.update({ alreadyGuessed: true }, { where: { round_id: round_id } });
+    });
   },
 };

@@ -7,9 +7,15 @@ const express = require("express"),
   http = require("http").Server(app),
   port = process.env.PORT || 3000,
   privateKey = fs.readFileSync("private.key"),
+  bodyParser = require('body-parser')
   rAdapter = require("socket.io-redis");
 
 global.io = require("socket.io")(http);
+
+app.use(bodyParser.json()); // to support JSON-encoded bodies
+app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
+    extended: true
+}));
 
 // controller
 var roomController = require("./controllers/roomController");
@@ -22,7 +28,6 @@ const gameService = require("./services/gameService");
 const jwtService = require("./services/jwtService");
 
 // Game module
-// var GameClass = require('./entity/game2');
 var GameClass = require("./entity/game3");
 
 // Redis Config
@@ -56,11 +61,12 @@ var singleplayer = require('./controllers/singleplayer')
 //   console.log("Redis Labs Error for Sub");
 // });
 
-// Setting view
+// Game Api
 app.use('/api/game', customRoom)
 
 app.use('/api/singleplayer', singleplayer)
 
+// Setting view
 app.use(express.static(__dirname + "/public"));
 
 // socket use middleware to check the token

@@ -5,8 +5,8 @@
 var points_list = {};
 var lineIndexA = 1;
 var lineIndexB = 0;
-var singleplayerGameId;
-var round_id;
+var singleplayer_game_id;
+var singleplayer_round_id;
 var canvas = document.getElementsByClassName("whiteboard")[0];
 // canvas.width = 500;
 // canvas.height = 500;
@@ -14,7 +14,7 @@ var context = canvas.getContext("2d");
 
 function parseDrawingDataSet(data, callback) {
   var testTemp = [];
-  round_id = data.round_id;
+  singleplayer_round_id = data.round_id;
   // console.log(data);
   // console.log(data)
   var points = data.drawing;
@@ -73,7 +73,7 @@ function drawLines() {
 function singleplayerStartGame(data) {
   var handlerIndex = 0;
   var game = data.game;
-  singleplayerGameId = game.id;
+  singleplayer_game_id = game.id;
   var words = game.words;
   singleplayerPlayRound(words[handlerIndex]);
   handlerIndex++;
