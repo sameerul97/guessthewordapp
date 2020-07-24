@@ -1,11 +1,12 @@
 var express = require("express");
 var path = require("path");
 var router = express.Router();
-// var { drawing } = require("../data/googledrawing_processed_raw_data.json");
 var { drawing } = require("../data/googledrawings.json");
 const WordService = require("../services/wordService");
 const SingleplayerService = require("../services/singleplayerService");
 const { ValidationError } = require("sequelize");
+
+require("../errors/singleplayerError");
 
 router.get("/", function (req, res) {
   res.json({ message: "Guesstheword app singleplayer Api" });
@@ -56,7 +57,7 @@ router.post("/word", async function (req, res) {
         message: "Invalid data",
         game: Singleplayer_GuestMode_Record,
       };
-      throw new Error(response.message);
+      new InvalidGameIdError();
     }
 
     if (!Singleplayer_GuestMode_Record.words[0].alreadyGuessed) {
@@ -66,40 +67,39 @@ router.post("/word", async function (req, res) {
         round_id
       );
       if (Singleplayer_GuestMode_Record.words[0].word === selected_answer) {
-        var response = {
+        var game = {
           success: true,
           message: "Valid answer",
-          game: await SingleplayerService.updateScore(
+          data: await SingleplayerService.updateScore(
             Singleplayer_GuestMode_Record,
             game_id
           ),
         };
       } else {
-        response = {
+        game = {
           success: false,
           message: "Invalid answer",
-          game: Singleplayer_GuestMode_Record,
+          data: Singleplayer_GuestMode_Record,
         };
       }
     } else {
-      response = {
+      game = {
         success: false,
         message: "Already Guessed",
-        game: Singleplayer_GuestMode_Record,
+        data: Singleplayer_GuestMode_Record,
       };
     }
 
-    res.json({
-      message: { game: response },
-    });
+    res.json({ game });
   } catch (error) {
     if (error instanceof ValidationError) {
       res.json({
-        message: { success: false, game: error },
+        game: { success: false, message: error },
       });
-    } else {
+    }
+    if (error instanceof InvalidGameIdError) {
       res.json({
-        message: { success: false, game: error.message },
+        game: { success: false, message: error.message },
       });
     }
   }
