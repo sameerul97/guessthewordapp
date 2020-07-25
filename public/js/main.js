@@ -328,7 +328,7 @@ function singleplayer() {
     data: {},
     success: function (data) {
       // drawLines()
-      singleplayerStartGame(data.message)
+      singleplayerStartGame(data)
 
       // parseDrawingDataSet(data, function () {
       //   hideLoader()

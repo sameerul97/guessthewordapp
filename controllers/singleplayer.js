@@ -5,7 +5,6 @@ var { drawing } = require("../data/googledrawings.json");
 const WordService = require("../services/wordService");
 const SingleplayerService = require("../services/singleplayerService");
 const { ValidationError } = require("sequelize");
-const { use } = require("./customRoomController");
 
 require("../errors/singleplayerError");
 
@@ -16,21 +15,20 @@ router.get("/", function (req, res) {
 router.get("/word", async function (req, res) {
   try {
     var username = req.query.username;
-    console.log(username)
+
     if (username === undefined) {
       throw new NoUsernameError();
     }
+
     const drawingAndWords = await SingleplayerService.drawingWords();
 
     for (i in drawingAndWords) {
-      // drawingAndWords[i]["round_id"] = i;
       drawingAndWords[i]["options"] = WordService.getWord(
         drawingAndWords[i].word
       ).options;
     }
 
     forDb = drawingAndWords.map((item) => ({
-      // round_id: item.round_id,
       word: item.word,
       options: item.options,
     }));
@@ -45,11 +43,21 @@ router.get("/word", async function (req, res) {
       forDb
     );
 
+    var optionsAndWords = createdSinglePlayerGame.words;
+    for (var i = 0, len = words.length; i < len; i++) {
+      if (optionsAndWords[i].word === words[i].word) {
+        words[i]["round_id"] = optionsAndWords[i].round_id;
+      }
+    }
+
     res.json({
-      message: { game: { id: createdSinglePlayerGame.uuid, words } },
+      game: {
+        id: createdSinglePlayerGame.uuid,
+        words,
+        // test: optionsAndWords,
+      },
     });
   } catch (error) {
-    console.error(error)
     if (error instanceof NoUsernameError) {
       res.json({
         game: { success: false, message: error.message },
@@ -68,13 +76,13 @@ router.post("/word", async function (req, res) {
       selected_answer,
       options
     );
-    console.log(Singleplayer_GuestMode_Record)
+
     if (Singleplayer_GuestMode_Record === null) {
-      response = {
-        success: false,
-        message: "Invalid data",
-        game: Singleplayer_GuestMode_Record,
-      };
+      // response = {
+      //   success: false,
+      //   message: "Invalid data",
+      //   game: Singleplayer_GuestMode_Record,
+      // };
       throw new InvalidGameDataError();
     }
 
