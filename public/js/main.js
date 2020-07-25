@@ -13,6 +13,8 @@ var allUsers = undefined;
 var userId = undefined;
 var currentlyPlaying = false;
 var alreadyGuessed = false;
+var singleplayer_mode = false;
+var multiplayer_mode = false;
 const GAMEURLPARAMS = "game";
 // positioning exitRoom, clearnCanvas and colour selector element dynamically
 function positionButtonsInCanvasResponsively() {
@@ -65,8 +67,8 @@ function username() {
         "0px solid transparent";
     }, 3000);
   }
-  // return false;
-  return true;
+  return false;
+  // return true;
 }
 
 // user requesting to create a new room in the server.
@@ -222,15 +224,18 @@ function initiateHandshake() {
 
 // event delegation for dynamic content
 $(".words").on("click", ".options", function () {
-  // console.log("TEXT clicked");
-  console.log($(this).text());
+  // console.log($(this).text());
   selectedWord = $(this).text();
-  if (!alreadyGuessed) {
-    alreadyGuessed = true;
-    socket.emit("selectedAnswer", {
-      gameInstanceIndex: roomInstance,
-      selectedAnswer: $(this).text(),
-    });
+  if (singleplayer_mode) {
+    singleplayerVerifyAnswer(selectedWord);
+  } else {
+    if (!alreadyGuessed) {
+      alreadyGuessed = true;
+      socket.emit("selectedAnswer", {
+        gameInstanceIndex: roomInstance,
+        selectedAnswer: $(this).text(),
+      });
+    }
   }
 });
 
@@ -316,49 +321,49 @@ function generatRoomLink() {
 }
 
 function singleplayer() {
-  // if(username()){
-  hideUsernameForm();
-  hideTitle();
-  $.ajax({
-    url: "/api/singleplayer/word?username=sam",
-    type: "GET",
-    beforeSend: function (xhr) {
-      showLoader()
-    },
-    data: {},
-    success: function (data) {
-      // drawLines()
-      singleplayerStartGame(data)
+  if (username()) {
+    hideUsernameForm();
+    hideTitle();
+    $.ajax({
+      url: "/api/singleplayer/word?username="+userName,
+      type: "GET",
+      beforeSend: function (xhr) {
+        showLoader();
+      },
+      data: {},
+      success: function (data) {
+        // drawLines()
+        singleplayerStartGame(data);
+        singleplayer_mode = true;
 
-      // parseDrawingDataSet(data, function () {
-      //   hideLoader()
-      //   window.requestAnimationFrame(drawLines);
-      //   $(".wordToGuess_options").empty();
-      //   $(".wordToGuess").empty();
-      //   // disableCanvasDrawing();
-      //   // clearCanvasOnNewWord();
-      //   currentlyPlaying = false;
-      //   alreadyGuessed = false;
+        // parseDrawingDataSet(data, function () {
+        //   hideLoader()
+        //   window.requestAnimationFrame(drawLines);
+        //   $(".wordToGuess_options").empty();
+        //   $(".wordToGuess").empty();
+        //   // disableCanvasDrawing();
+        //   // clearCanvasOnNewWord();
+        //   currentlyPlaying = false;
+        //   alreadyGuessed = false;
 
-      //   for (i in data.words.options) {
-      //     $(".wordToGuess_options").append(
-      //       "<button class='options modal__btn modal__btn-primary '>" +
-      //         data.words.options[i] +
-      //         "</button>"
-      //     );
-      //   }
-      //   $(".wordToGuess_options").append("<br>");
-      // });
-      // drawLines(data);
-    },
-    error: function (err) {
-      console.log(err);
-      hideLoader()
-      $(".gameOver").append("Some error")
-    },
-  });
-
-  // }
+        //   for (i in data.words.options) {
+        //     $(".wordToGuess_options").append(
+        //       "<button class='options modal__btn modal__btn-primary '>" +
+        //         data.words.options[i] +
+        //         "</button>"
+        //     );
+        //   }
+        //   $(".wordToGuess_options").append("<br>");
+        // });
+        // drawLines(data);
+      },
+      error: function (err) {
+        console.log(err);
+        hideLoader();
+        $(".gameOver").append("Some error");
+      },
+    });
+  }
 }
 
 // Init function

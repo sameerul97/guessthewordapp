@@ -7,6 +7,8 @@ var lineIndexA = 1;
 var lineIndexB = 0;
 var singleplayer_game_id;
 var singleplayer_round_id;
+var singleplayer_game_options;
+var singleplayer_already_guessed = false;
 var canvas = document.getElementsByClassName("whiteboard")[0];
 // canvas.width = 500;
 // canvas.height = 500;
@@ -14,7 +16,6 @@ var context = canvas.getContext("2d");
 
 function parseDrawingDataSet(data, callback) {
   var testTemp = [];
-  singleplayer_round_id = data.round_id;
   // console.log(data);
   // console.log(data)
   var points = data.drawing;
@@ -71,6 +72,7 @@ function drawLines() {
 }
 
 function singleplayerStartGame(data) {
+  showScores();
   var handlerIndex = 0;
   var game = data.game;
   singleplayer_game_id = game.id;
@@ -84,16 +86,18 @@ function singleplayerStartGame(data) {
     if (handlerIndex < words.length) {
       singleplayerPlayRound(words[handlerIndex]);
       clearCanvasOnNewWord();
-
     } else {
       clearInterval(singleplayerIntervalHandler);
-      $(".gameOver").append("<h1>Gameover</h1>")
+      $(".gameOver").append("<h1>Gameover</h1>");
     }
     handlerIndex++;
   }, 20000);
 }
 
 function singleplayerPlayRound(data) {
+  singleplayer_round_id = data.round_id;
+  singleplayer_already_guessed = false;
+  singleplayer_game_options = [];
   parseDrawingDataSet(data, function () {
     hideLoader();
     window.requestAnimationFrame(drawLines);
@@ -110,7 +114,70 @@ function singleplayerPlayRound(data) {
           data.options[i] +
           "</button>"
       );
+      singleplayer_game_options.push(data.options[i]);
     }
     $(".wordToGuess_options").append("<br>");
   });
+}
+
+function singleplayerVerifyAnswer(selected_answer) {
+  // console.log(
+  //   "Singleplayer",
+  //   selected_answer,
+  //   singleplayer_game_id,
+  //   singleplayer_round_id
+  // );
+  if (!singleplayer_already_guessed) {
+    singleplayer_already_guessed = true;
+    $.ajax({
+      url: "/api/singleplayer/word",
+      type: "POST",
+      beforeSend: function (xhr) {},
+      data: {
+        game_id: singleplayer_game_id,
+        round_id: singleplayer_round_id,
+        selected_answer: selected_answer,
+        options: undefined,
+      },
+      success: function (response) {
+        // console.log(response);
+        var game_success = response.game.success;
+        var game_message = response.game.message;
+        var single_player_game_data = response.game.data;
+        var single_player_correct_word = single_player_game_data.words[0].word;
+        $(".user_scores").empty();
+
+        if (game_success) {
+          $(".wordToGuess_options")
+            .children("button")
+            .each(function (i, el) {
+              if (single_player_correct_word === $(this).text()) {
+                $(this).css({
+                  "background-color": "green",
+                });
+              }
+            });
+        } else {
+          $(".wordToGuess_options")
+            .children("button")
+            .each(function (i, el) {
+              if ($(this).text() === selected_answer) {
+                $(this).css({
+                  "background-color": "red",
+                });
+              }
+              if ($(this).text() === single_player_correct_word) {
+                $(this).css({
+                  "background-color": "green",
+                });
+              }
+            });
+        }
+        $(".user_scores").append(single_player_game_data.score);
+      },
+      error: function (error) {
+        console.error("Got error response", error);
+      },
+    });
+  }
 }

@@ -1,7 +1,15 @@
 // Processing Google quick draw preproccessed dataset and creating json file with 10 drawing for each word
-var fs = require("fs");
 const ndjsonParser = require("ndjson-parse");
-const googleDatasetFolder = "../googleduickdrawdatasets/preprocessed/";
+var fs = require("fs");
+const path = require("path");
+const googleDatasetFolder = path.resolve(
+  __dirname,
+  "../googleduickdrawdatasets/preprocessed/"
+);
+
+var dataFolder = path.resolve(__dirname,"../data/googledrawing_pre_processed_data_2.json")
+
+// const googleDatasetFolder = "../googleduickdrawdatasets/preprocessed/";
 
 var files = [];
 fs.readdirSync(googleDatasetFolder).forEach((file) => {
@@ -12,7 +20,7 @@ fs.readdirSync(googleDatasetFolder).forEach((file) => {
 var drawings = [];
 for (file in files) {
   const ndjsonString = fs.readFileSync(
-    googleDatasetFolder + files[file],
+    googleDatasetFolder + "/" + files[file],
     "utf8"
   );
   const parsedNdjson = ndjsonParser(ndjsonString);
@@ -20,7 +28,7 @@ for (file in files) {
   let tempC = 0;
   for (i = 0; i < parsedNdjson.length; i++) {
     if (parsedNdjson[i].recognized) {
-      if (tempC < 10) {
+      if (tempC < 15) {
         drawings.push(parsedNdjson[i]);
       }
       tempC++;
@@ -29,7 +37,7 @@ for (file in files) {
 }
 
 var json = JSON.stringify({ drawing: drawings });
-fs.writeFileSync("../data/googledrawing_pre_processeddata.json", json);
+fs.writeFileSync(dataFolder, json);
 
 // var obj = JSON.parse(fs.readFileSync("./final.json", "utf8"));
 // console.log(Math.floor(Math.random() * obj.drawing.length));
