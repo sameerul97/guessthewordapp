@@ -1,6 +1,6 @@
 "use strict";
 const appName = "guessthewordapp";
-var socket = io("localhost:3000", {
+var socket = io({
   reconnection: false,
   autoConnect: false,
 });
@@ -325,7 +325,7 @@ function singleplayer() {
     hideUsernameForm();
     hideTitle();
     $.ajax({
-      url: "/api/singleplayer/word?username="+userName,
+      url: "/api/singleplayer/word?username=" + userName,
       type: "GET",
       beforeSend: function (xhr) {
         showLoader();
