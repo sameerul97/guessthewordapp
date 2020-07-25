@@ -200,6 +200,28 @@ socket.on("clearCanvas", function (data) {
 
 socket.on("gameOver", function (data) {
   $(".gameOver").append("<h1>Gameover</h1>");
+  // FIXME:Update generated room record with gamefinished
+  if (localStorage.getItem(appName + "_GENERATED_ROOM_ID")) {
+    var gameKey = JSON.parse(
+      localStorage.getItem(appName + "_GENERATED_ROOM_ID")
+    ).gameKey;
+    $.ajax({
+      url: "/api/game/gameover",
+      type: "POST",
+      beforeSend: function (xhr) {},
+      data: {
+        game_id: gameKey,
+      },
+      success: function (response) {
+        console.log(response);
+        //   Update local storage with game finshed object
+        //  so next time user loads up the link check if game already finshed
+      },
+      error: function (error) {
+        console.error("Got error response", error);
+      },
+    });
+  }
 });
 
 socket.on("verifiedAnswer", function (data) {
@@ -235,27 +257,4 @@ socket.on("verifiedAnswer", function (data) {
 
 socket.on("loadingMessage", function (data) {
   $(".gameOver").append("<h1>Wait until admin starts the game</h1>");
-  // FIXME:Update generated room record with gamefinished
-  if (localStorage.getItem(appName + "_GENERATED_ROOM_ID")) {
-    var gameKey = JSON.parse(
-      localStorage.getItem(appName + "_GENERATED_ROOM_ID")
-    ).gameKey;
-    $.ajax({
-      url: "/api/game/gameover",
-      type: "POST",
-      beforeSend: function (xhr) {},
-      data: {
-        game_id: gameKey,
-      },
-      success: function (response) {
-        console.log(response);
-        //   Update local storage with game finshed object
-        //  so next time user loads up the link check if game already finshed 
-        $(".user_scores").append(single_player_game_data.score);
-      },
-      error: function (error) {
-        console.error("Got error response", error);
-      },
-    });
-  }
 });

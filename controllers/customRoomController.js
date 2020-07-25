@@ -56,6 +56,20 @@ router.get("/:roomInstance", async function (req, res) {
   }
 });
 
+router.post("/gameover", async function (req, res) {
+  try {
+    var response = await RoomLinkService.expireGameRoomLink(req.body.game_id);
+
+    res.status(200).json({ message: response });
+
+    // res.status(200).json({ message: response });
+  } catch (err) {
+    responsBe = err;
+    console.log(err);
+    res.status(400).json({ message: err.message });
+  }
+});
+
 router.get("*", function (req, res) {
   res.status(404).json({ message: "Not valid endpoint" });
 });
