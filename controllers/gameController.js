@@ -1,12 +1,18 @@
 var GameService = require("../services/gameService");
 var RoomService = require("../services/roomService");
+const e = require("express");
 // const Game = require("../entity/game2");
 
 const playGame = (socket) => async (roomName) => {
   try {
+    console.log("Socket admin", socket._admin);
+    // if(socket._admin){
     var clientsInRoom = await RoomService.getAllClientIdsInRoom(roomName);
     await GameService.generateGameEnvironment(clientsInRoom);
     await GameService.gameInit(roomName, clientsInRoom, socket);
+    // } else{
+    //   socket.emit("loadingMessage")
+    // }
   } catch (err) {
     console.log(err);
   }
@@ -14,7 +20,7 @@ const playGame = (socket) => async (roomName) => {
 
 const handShakeListerner = (socket) => async (gameInstanceKey) => {
   try {
-    var gameObject       = await GameService.getGameObject(gameInstanceKey);
+    var gameObject = await GameService.getGameObject(gameInstanceKey);
     var parsedGameObject = await GameService.gameParser(gameObject);
     await GameService.handShakeVerify(socket, parsedGameObject);
   } catch (err) {
@@ -31,7 +37,7 @@ const verifyAnswer = (socket) => async (data) => {
       GameService.getGameObject(gameInstanceIndex),
     ]);
 
-    var parsedGameObject   = await GameService.gameParser(gameObject);
+    var parsedGameObject = await GameService.gameParser(gameObject);
     var userAlreadyGuessed = await GameService.userAlreadyGuessed(
       socket.id,
       parsedGameObject
@@ -46,11 +52,11 @@ const verifyAnswer = (socket) => async (data) => {
 };
 
 const clearCanvas = (socket) => async (data) => {
-  const { roomName }          = data;
+  const { roomName } = data;
   const { gameInstanceIndex } = data;
 
   try {
-    var gameObject       = await GameService.getGameObject(gameInstanceIndex);
+    var gameObject = await GameService.getGameObject(gameInstanceIndex);
     var parsedGameObject = await GameService.gameParser(gameObject);
     io.in(parsedGameObject.roomName).emit("clearCanvas", true);
   } catch (err) {

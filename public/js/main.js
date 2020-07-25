@@ -189,13 +189,13 @@ function playGame() {
   showScores();
 
   console.log("Asking server to start game and words");
-  if (username()) {
-    socket.emit("playGame", currentRoom);
-    // socket.on('word',function(word){
-    //   console.log(word);
+  // if (username()) {
+  socket.emit("playGame", currentRoom);
+  // socket.on('word',function(word){
+  //   console.log(word);
 
-    // })
-  }
+  // })
+  // }
 }
 
 function clearCanvasOnNewWord() {
