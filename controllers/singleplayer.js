@@ -33,10 +33,12 @@ router.get("/word", async function (req, res) {
       options: item.options,
     }));
 
-    words =
-      process.env.NODE_ENV === "production"
-        ? drawingAndWords.filter((item) => delete item.word)
-        : drawingAndWords;
+    // words =
+    //   process.env.NODE_ENV === "production"
+    //     ? drawingAndWords.filter((item) => delete item.word)
+    //     : drawingAndWords;
+
+    words = drawingAndWords;
 
     var createdSinglePlayerGame = await SingleplayerService.createGame(
       username,
@@ -53,7 +55,7 @@ router.get("/word", async function (req, res) {
     res.json({
       game: {
         id: createdSinglePlayerGame.uuid,
-        words,
+        words : words,
         // test: optionsAndWords,
       },
     });
