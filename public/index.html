@@ -9,11 +9,13 @@
 
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
-
   <link rel="stylesheet" href="css/micromodal.css">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/utils/copytoclipboard.css">
+  <link rel="stylesheet" href="css/utils/loader.css">
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
   <script src="https://code.jquery.com/jquery-3.4.1.min.js"
     integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
   <!-- <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
@@ -46,6 +48,8 @@
       <div class="roomButtonsWrapper">
         <button class="modal__btn modal__btn-primary createRoom" onclick="createRoom(event)">Create Room</button>
         <button class="modal__btn modal__btn-primary joinRoom" onclick="triggerJoinRoomModal()">Join Room</button>
+        <button class="modal__btn modal__btn-primary generatRoomLink" onclick="generatRoomLink()">Get shareable Room Link</button>
+        <button class="modal__btn modal__btn-primary singleplayerMode" onclick="singleplayer()">Single player</button>
       </div>
     </div>
 
@@ -133,20 +137,66 @@
             <a class="f6 ml2 dark-blue no-underline underline-hover js-modal-close-trigger" href="#"
               aria-label="Close this dialog window" aria-label="Close modal" data-micromodal-close>Cancel</a> </footer>
         </form>
+      </div>
+    </div>
+  </div>
 
-        <!-- <form action="" onsubmit="joinRoom(event)" class="joinRoom">
-          <p>Join room</p>
-          <input id="enteredRoomName" type="text" value="" autocomplete="off" />
-          <button>Join</button>
-        </form> -->
+  <!-- Generate Room link Modal -->
+  <div class="modal micromodal-slide" id="generateShareableRoomLinkModal" aria-hidden="true">
+    <div class="modal__overlay" tabindex="-1" >
+      <div class="modal__container w-90 w-40-ns" role="dialog" aria-modal="true" aria-labelledby="modal-2-title">
+        <header class="modal__header">
+          <h3 class="modal__title" id="modal-2-title"> Shareable Room Link </h3> <button class="modal__close"
+            aria-label="Close modal" data-custom-close="" aria-label="Close modal" data-micromodal-close></button>
+        </header>
+        <div class="shareableRoomLinkcontainer">
+          <span id="shareableRoomLink">
+            Click COPY button to copy this text to clipboard.
+          </span>
+          <button id="copy" tooltip="Copy to clipboard">Copy</button>
+        </div>
+        
+      </div>
+    </div>
+  </div>
 
+  <div class="modal micromodal-slide" id="shareableRoomCreatedModal" aria-hidden="true">
+    <div class="modal__overlay" tabindex="-1">
+      <div class="modal__container w-90 w-40-ns" role="dialog" aria-modal="true" aria-labelledby="modal-2-title">
+        <header class="modal__header">
+          <h3 class="modal__title" id="modal-2-title"> Join Room </h3> <button class="modal__close"
+            aria-label="Close modal" data-custom-close="" aria-label="Close modal" data-micromodal-close></button>
+        </header>
+        <form class="black-80 shareableRoomForm" onsubmit="joinRoom(event,true)">
+          <div class="modal__content" id="modal-2-content">
+            <div class="measure">
+              <label for="demoname" class="f6 b db mb2 js-name">Enter name:</label>
+              <input id="username_shareableRoom" type="text" value="" autocomplete="off" />
+              <br>
+              <label for="demoname" class="f6 b db mb2 js-name">Joining room name:</label>
+              <input id="roomToJoin" type="text" value="" autocomplete="off" readonly />
 
+            </div>
+          </div>
+          <footer class="modal__footer">
+            <input type="submit" class="modal__btn modal__btn-primary" value="Join">
+            <!-- <button type="submit" class="modal__btn modal__btn-primary" value="Create">Join</button> -->
+            <a class="f6 ml2 dark-blue no-underline underline-hover js-modal-close-trigger" href="#"
+              aria-label="Close this dialog window" aria-label="Close modal" data-micromodal-close>Cancel</a> </footer>
+        </form>
+
+        <div class="shareableRoomLinkcontainer" id="shareableRoomLinkMessageContainer">
+          <span id="shareableRoomLinkMessage">
+            
+          </span>
+        </div>
 
       </div>
     </div>
   </div>
 
 
+  <div id="loaderWrapper"> <div id="loading"> </div>  </div> 
   <div class="gameOver">
     <!-- <h1>GAMEOVER</h1> -->
   </div>
@@ -170,13 +220,17 @@
 
   <!-- <script src="https://unpkg.com/micromodal/dist/micromodal.min.js"></script> -->
   <script src="js/libs/socket.io.js"></script>
+  <script src="js/utils/copytoclipboard.js"></script>
   <script src="./js/helper.js"></script>
   <script src="./js/main.js"></script>
   <script src="./js/canvas.js"></script>
   <script src="./js/events.js"></script>
-
+  <script src="./js/singleplayer.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.js"></script>
   <script>
-    MicroModal.init();  
+    MicroModal.init({
+      disableFocus: true, 
+    });  
     // Some randome comment
   </script>
   <!-- <script type="text/babel">

@@ -7,9 +7,15 @@ const express = require("express"),
   http = require("http").Server(app),
   port = process.env.PORT || 3000,
   privateKey = fs.readFileSync("private.key"),
+  bodyParser = require('body-parser')
   rAdapter = require("socket.io-redis");
 
 global.io = require("socket.io")(http);
+
+app.use(bodyParser.json()); // to support JSON-encoded bodies
+app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
+    extended: true
+}));
 
 // controller
 var roomController = require("./controllers/roomController");
@@ -22,7 +28,6 @@ const gameService = require("./services/gameService");
 const jwtService = require("./services/jwtService");
 
 // Game module
-// var GameClass = require('./entity/game2');
 var GameClass = require("./entity/game3");
 
 // Redis Config
@@ -47,12 +52,19 @@ roomService.setRClient(client);
 gameService.setRClient(client);
 GameClass.setRClient(client);
 
+var customRoom = require('./controllers/customRoomController')
+var singleplayer = require('./controllers/singleplayer')
 // rAdapter.pubClient.on('error', function () {
 //   console.log("Redis Labs Error for Pub");
 // });
 // rAdapter.subClient.on('error', function () {
 //   console.log("Redis Labs Error for Sub");
 // });
+
+// Game Api
+app.use('/api/game', customRoom)
+
+app.use('/api/singleplayer', singleplayer)
 
 // Setting view
 app.use(express.static(__dirname + "/public"));
@@ -89,13 +101,13 @@ function onConnection(socket) {
   });
 
   socket.on("disconnecting", function () {
-    io.of("/").adapter.remoteDisconnect(socket.id, true, (err) => {
-      if (err) {
-        /* unknown id */
-      }
-      // success
-    });
-
+    // console.log("Sockeet disconnecting", socket.id);
+    // io.of("/").adapter.remoteDisconnect(socket.id, true, (err) => {
+    //   if (err) {
+    //     /* unknown id */
+    //   }
+    //   // success
+    // });
     // var joinedRooms = [];
     // for (i in socket.rooms) {
     //   joinedRooms.push(socket.rooms[i]);
@@ -109,6 +121,7 @@ function onConnection(socket) {
     // // socket.broadcast.emit('broadcast', 'hello friends!');
   });
   socket.on("disconnect", function () {
+    // console.log("Sockeet disconnect", socket.id);
     // io.emit('user disconnected');
     // console.log("Disconnected :" , socket)
   });

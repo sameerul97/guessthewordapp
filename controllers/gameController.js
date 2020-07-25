@@ -14,7 +14,7 @@ const playGame = (socket) => async (roomName) => {
 
 const handShakeListerner = (socket) => async (gameInstanceKey) => {
   try {
-    var gameObject = await GameService.getGameObject(gameInstanceKey);
+    var gameObject       = await GameService.getGameObject(gameInstanceKey);
     var parsedGameObject = await GameService.gameParser(gameObject);
     await GameService.handShakeVerify(socket, parsedGameObject);
   } catch (err) {
@@ -31,7 +31,7 @@ const verifyAnswer = (socket) => async (data) => {
       GameService.getGameObject(gameInstanceIndex),
     ]);
 
-    var parsedGameObject = await GameService.gameParser(gameObject);
+    var parsedGameObject   = await GameService.gameParser(gameObject);
     var userAlreadyGuessed = await GameService.userAlreadyGuessed(
       socket.id,
       parsedGameObject
@@ -46,11 +46,11 @@ const verifyAnswer = (socket) => async (data) => {
 };
 
 const clearCanvas = (socket) => async (data) => {
-  const { roomName } = data;
+  const { roomName }          = data;
   const { gameInstanceIndex } = data;
 
   try {
-    var gameObject = await GameService.getGameObject(gameInstanceIndex);
+    var gameObject       = await GameService.getGameObject(gameInstanceIndex);
     var parsedGameObject = await GameService.gameParser(gameObject);
     io.in(parsedGameObject.roomName).emit("clearCanvas", true);
   } catch (err) {
