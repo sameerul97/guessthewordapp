@@ -45,7 +45,7 @@ module.exports = {
 
       include: [
         {
-          attributes: ["word", "alreadyGuessed", "round_id", "fk_gameid"],
+          attributes: ["word", "alreadyGuessed", "round_id", "gameid"],
           model: Singleplayer_GuestMode_Words,
           as: "words",
           where: {
@@ -92,7 +92,7 @@ module.exports = {
         { alreadyGuessed: true },
         {
           where: {
-            fk_gameid: game_id, // alreadyGuessed: false,
+            game_id: game_id, // alreadyGuessed: false,
             round_id: round_id,
           },
         }
