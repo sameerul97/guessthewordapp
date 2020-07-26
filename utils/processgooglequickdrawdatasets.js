@@ -9,7 +9,7 @@ const googleDatasetFolder = path.resolve(
 
 var dataFolder = path.resolve(
   __dirname,
-  "../data/googledrawing_pre_processed_data_3.json"
+  "../data/googledrawing_pre_processed_data_4.json"
 );
 
 // const googleDatasetFolder = "../googleduickdrawdatasets/preprocessed/";
@@ -30,7 +30,7 @@ for (file in files) {
   console.log(parsedNdjson.length);
   let tempC = 0;
   for (i = 0; i < parsedNdjson.length; i++) {
-    if (parsedNdjson[i].drawing.length > 3) {
+    if (parsedNdjson[i].drawing.length > 5) {
       if (parsedNdjson[i].recognized) {
         if (tempC < 15) {
           drawings.push(parsedNdjson[i]);

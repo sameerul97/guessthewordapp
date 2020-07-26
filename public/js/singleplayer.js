@@ -28,7 +28,7 @@ function singleplayerStartGame(data) {
   singleplayerGameLoop();
 }
 
-// Function runs for
+// Function runs for each new round
 function singleplayerGameLoop() {
   lineIndexA = 1;
   lineIndexB = 0;
@@ -85,7 +85,7 @@ function parseDrawingDataSet(data, callback) {
   // console.log(data);
   // console.log(data)
   var points = data.drawing;
-  // console.log(points);
+  console.log(points.length);
   for (i in points) {
     // console.log(`ctx.beginPath();`);
     var local = [];
@@ -138,12 +138,6 @@ function drawLines() {
     );
   }, 250);
 }
-
-
-
-
-
-
 
 function singleplayerVerifyAnswer(selected_answer) {
   if (!singleplayer_already_guessed) {
@@ -211,8 +205,8 @@ function singleplayerVerifyAnswer(selected_answer) {
   }
 }
 
-function gameOverHandler(){
-  clearSingleplayerGameLoop()
+function gameOverHandler() {
+  clearSingleplayerGameLoop();
   showSingleplayerPlayAgainButton();
   singleplayer_round_id = 0;
   singleplayer_already_guessed = false;
