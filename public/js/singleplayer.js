@@ -9,6 +9,7 @@ var singleplayer_game_id;
 var singleplayer_round_id;
 var singleplayer_game_options;
 var singleplayer_already_guessed = false;
+var singleplayerIntervalHandler;
 var canvas = document.getElementsByClassName("whiteboard")[0];
 // canvas.width = 500;
 // canvas.height = 500;
@@ -27,8 +28,8 @@ function parseDrawingDataSet(data, callback) {
       // console.log(points[i][0].length)
       // console.log(points[i][0][j], points[i][1][j]);
       local.push({
-        x: (points[i][0][j] / 256) * canvas.width,
-        y: ((points[i][1][j] / 256) * canvas.height) / 1.5,
+        x: (points[i][0][j] / 256) * canvas.width + 5,
+        y: ((points[i][1][j] / 256) * canvas.height + 30) / 1.75,
       });
       // data.push(`ctx.lineTo( ${points[i][0][j]}, ${points[i][1][j]})`);
       // console.log(`ctx.lineTo( ${points[i][0][j]}, ${points[i][1][j]})`);
