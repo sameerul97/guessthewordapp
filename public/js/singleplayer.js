@@ -11,6 +11,10 @@ var singleplayer_game_options;
 var singleplayer_already_guessed = false;
 var singleplayerIntervalHandler;
 var canvas = document.getElementsByClassName("whiteboard")[0];
+var singleplayer_rounds_word_index = 0;
+var singleplayer_game_words;
+var singleplayer_window_animation_handler;
+
 // canvas.width = 500;
 // canvas.height = 500;
 var context = canvas.getContext("2d");
@@ -68,30 +72,43 @@ function drawLines() {
 
   setTimeout(function () {
     // drawLines();
-    window.requestAnimationFrame(drawLines);
+    singleplayer_window_animation_handler = window.requestAnimationFrame(
+      drawLines
+    );
   }, 250);
 }
 
 function singleplayerStartGame(data) {
   showScores();
-  var handlerIndex = 0;
   var game = data.game;
   singleplayer_game_id = game.id;
-  var words = game.words;
-  singleplayerPlayRound(words[handlerIndex]);
-  handlerIndex++;
+  singleplayer_game_words = game.words;
+  singleplayerGameLoop();
+}
+
+function singleplayerGameLoop() {
+  lineIndexA = 1;
+  lineIndexB = 0;
+  points_list = {};
+  console.log(singleplayer_game_words[singleplayer_rounds_word_index]);
+  singleplayerPlayRound(
+    singleplayer_game_words[singleplayer_rounds_word_index]
+  );
+  singleplayer_rounds_word_index++;
   singleplayerIntervalHandler = setInterval(function () {
     lineIndexA = 1;
     lineIndexB = 0;
     points_list = {};
-    if (handlerIndex < words.length) {
-      singleplayerPlayRound(words[handlerIndex]);
+    if (singleplayer_rounds_word_index < singleplayer_game_words.length) {
+      singleplayerPlayRound(
+        singleplayer_game_words[singleplayer_rounds_word_index]
+      );
       clearCanvasOnNewWord();
     } else {
-      clearInterval(singleplayerIntervalHandler);
-      $(".gameOver").append("<h1>Gameover</h1>");
+      clearSingleplayerGameLoop();
+      showGameOver();
     }
-    handlerIndex++;
+    singleplayer_rounds_word_index++;
   }, 20000);
 }
 
@@ -122,12 +139,6 @@ function singleplayerPlayRound(data) {
 }
 
 function singleplayerVerifyAnswer(selected_answer) {
-  // console.log(
-  //   "Singleplayer",
-  //   selected_answer,
-  //   singleplayer_game_id,
-  //   singleplayer_round_id
-  // );
   if (!singleplayer_already_guessed) {
     singleplayer_already_guessed = true;
     $.ajax({
@@ -158,6 +169,18 @@ function singleplayerVerifyAnswer(selected_answer) {
                 });
               }
             });
+          clearSingleplayerGameLoop();
+          setTimeout(function () {
+            if (
+              singleplayer_rounds_word_index < singleplayer_game_words.length
+            ) {
+              clearWindowAnimation();
+              clearCanvasOnNewWord();
+              singleplayerGameLoop();
+            } else {
+              showGameOver();
+            }
+          }, 2000);
         } else {
           $(".wordToGuess_options")
             .children("button")
@@ -181,4 +204,16 @@ function singleplayerVerifyAnswer(selected_answer) {
       },
     });
   }
+}
+
+function clearSingleplayerGameLoop() {
+  clearInterval(singleplayerIntervalHandler);
+}
+
+function clearWindowAnimation() {
+  cancelAnimationFrame(singleplayer_window_animation_handler);
+}
+
+function showGameOver() {
+  $(".gameOver").append("<h1>Gameover</h1>");
 }
