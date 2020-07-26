@@ -55,7 +55,7 @@ router.get("/word", async function (req, res) {
     res.json({
       game: {
         id: createdSinglePlayerGame.uuid,
-        words : words,
+        words: words,
         // test: optionsAndWords,
       },
     });
@@ -71,6 +71,9 @@ router.get("/word", async function (req, res) {
 router.post("/word", async function (req, res) {
   try {
     const { game_id, round_id, selected_answer, options } = req.body;
+    if (round_id != parseInt(round_id)) {
+      throw new InvalidGameDataError();
+    }
 
     const Singleplayer_GuestMode_Record = await SingleplayerService.verifyAnswer(
       game_id,
@@ -80,16 +83,12 @@ router.post("/word", async function (req, res) {
     );
 
     if (Singleplayer_GuestMode_Record === null) {
-      // response = {
-      //   success: false,
-      //   message: "Invalid data",
-      //   game: Singleplayer_GuestMode_Record,
-      // };
       throw new InvalidGameDataError();
     }
 
     if (!Singleplayer_GuestMode_Record.words[0].alreadyGuessed) {
       // console.log(Singleplayer_GuestMode_Record);
+
       await SingleplayerService.updateAlreadyGuessed(
         Singleplayer_GuestMode_Record,
         round_id,

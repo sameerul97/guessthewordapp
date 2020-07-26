@@ -328,6 +328,10 @@ p.errorMessage {
   color: white;
 }
 
+button#singleplayer_playAgain {
+  display: none;
+}
+
 @media only screen and (max-width: 500px) {
   .whiteboard {
     height: 100vh !important;

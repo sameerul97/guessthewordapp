@@ -37,6 +37,9 @@
     <div class="game">
       <h1 class="gameTite">Guess the Word</h1>
       <button class="modal__btn modal__btn-primary startGame" onclick="playGame()">Start</button>
+      <button class="modal__btn modal__btn-primary " id="singleplayer_playAgain" onclick="singleplayer_playagain()">Play
+        again</button>
+
     </div>
 
     <div class="roomOptions">
@@ -48,7 +51,8 @@
       <div class="roomButtonsWrapper">
         <button class="modal__btn modal__btn-primary createRoom" onclick="createRoom(event)">Create Room</button>
         <button class="modal__btn modal__btn-primary joinRoom" onclick="triggerJoinRoomModal()">Join Room</button>
-        <button class="modal__btn modal__btn-primary generatRoomLink" onclick="generatRoomLink()">Get shareable Room Link</button>
+        <button class="modal__btn modal__btn-primary generatRoomLink" onclick="generatRoomLink()">Get shareable Room
+          Link</button>
         <button class="modal__btn modal__btn-primary singleplayerMode" onclick="singleplayer()">Single player</button>
       </div>
     </div>
@@ -143,7 +147,7 @@
 
   <!-- Generate Room link Modal -->
   <div class="modal micromodal-slide" id="generateShareableRoomLinkModal" aria-hidden="true">
-    <div class="modal__overlay" tabindex="-1" >
+    <div class="modal__overlay" tabindex="-1">
       <div class="modal__container w-90 w-40-ns" role="dialog" aria-modal="true" aria-labelledby="modal-2-title">
         <header class="modal__header">
           <h3 class="modal__title" id="modal-2-title"> Shareable Room Link </h3> <button class="modal__close"
@@ -155,7 +159,7 @@
           </span>
           <button id="copy" tooltip="Copy to clipboard">Copy</button>
         </div>
-        
+
       </div>
     </div>
   </div>
@@ -187,7 +191,7 @@
 
         <div class="shareableRoomLinkcontainer" id="shareableRoomLinkMessageContainer">
           <span id="shareableRoomLinkMessage">
-            
+
           </span>
         </div>
 
@@ -196,7 +200,9 @@
   </div>
 
 
-  <div id="loaderWrapper"> <div id="loading"> </div>  </div> 
+  <div id="loaderWrapper">
+    <div id="loading"> </div>
+  </div>
   <div class="gameOver">
     <!-- <h1>GAMEOVER</h1> -->
   </div>
@@ -229,8 +235,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.js"></script>
   <script>
     MicroModal.init({
-      disableFocus: true, 
-    });  
+      disableFocus: true,
+    });
     // Some randome comment
   </script>
   <!-- <script type="text/babel">
