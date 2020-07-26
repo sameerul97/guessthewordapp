@@ -4,7 +4,8 @@ const {
   Singleplayer_GuestMode_Words,
 } = require("../entity/sequelize");
 
-var { drawing } = require("../data/googledrawing_pre_processed_data_2.json");
+var { drawing } = require("../data/googledrawing_pre_processed_data_3.json");
+// var { drawing } = require("../data/googledrawing_pre_processed_data_2.json");
 // var { drawing } = require("../data/googledrawings.json");
 
 module.exports = {

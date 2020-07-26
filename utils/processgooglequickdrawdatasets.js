@@ -7,7 +7,10 @@ const googleDatasetFolder = path.resolve(
   "../googleduickdrawdatasets/preprocessed/"
 );
 
-var dataFolder = path.resolve(__dirname,"../data/googledrawing_pre_processed_data_2.json")
+var dataFolder = path.resolve(
+  __dirname,
+  "../data/googledrawing_pre_processed_data_3.json"
+);
 
 // const googleDatasetFolder = "../googleduickdrawdatasets/preprocessed/";
 
@@ -27,11 +30,13 @@ for (file in files) {
   console.log(parsedNdjson.length);
   let tempC = 0;
   for (i = 0; i < parsedNdjson.length; i++) {
-    if (parsedNdjson[i].recognized) {
-      if (tempC < 15) {
-        drawings.push(parsedNdjson[i]);
+    if (parsedNdjson[i].drawing.length > 3) {
+      if (parsedNdjson[i].recognized) {
+        if (tempC < 15) {
+          drawings.push(parsedNdjson[i]);
+        }
+        tempC++;
       }
-      tempC++;
     }
   }
 }
