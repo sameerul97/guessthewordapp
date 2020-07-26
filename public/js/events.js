@@ -201,6 +201,7 @@ socket.on("clearCanvas", function (data) {
 socket.on("gameOver", function (data) {
   $(".gameOver").append("<h1>Gameover</h1>");
   // FIXME:Update generated room record with gamefinished
+//   This event should trigger on game3 entity.js once the gameover is triggererd
   if (localStorage.getItem(appName + "_GENERATED_ROOM_ID")) {
     var gameKey = JSON.parse(
       localStorage.getItem(appName + "_GENERATED_ROOM_ID")
