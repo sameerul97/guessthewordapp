@@ -106,11 +106,10 @@ function RoomLinkNotExpired() {
 }
 
 function showWarningMessage(gameErrorType) {
-  $(".gameOver").show();
   $(".gameOver").append(
     "<h1>" + AppError.gameErrorType[gameErrorType] + "</h1>"
   );
   setTimeout(function () {
-    $(".gameOver").hide();
+    $(".gameOver").empty();
   }, 3000);
 }

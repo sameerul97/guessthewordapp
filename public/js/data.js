@@ -1,6 +1,6 @@
 var AppError = {
   gameErrorType: {
-    error_NoOfUser: "Need minimum 2 users!",
-    error_OnlyAdminCanStartGame: "Error, only admin can start the game",
+    NoOfUserNotMet: "Need minimum 2 users!",
+    OnlyAdminCanStartGame: "Error, only admin can start the game",
   },
 };
