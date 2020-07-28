@@ -20,14 +20,13 @@ const joinRoom = (socket) => async (roomToJoin, userName) => {
       clientIdsInRoom,
       getAllUsersInRoom
     );
-    
+
     socket.emit("roomVerified", {
       success: true,
       message: null,
     });
     socket.emit("userId", User.getUserId(socket));
     io.in(roomToJoin).emit("aUserJoined", arr);
-  
   } catch (err) {
     if (err instanceof RoomNotInDbError) {
       console.error(err);
@@ -35,7 +34,6 @@ const joinRoom = (socket) => async (roomToJoin, userName) => {
         success: false,
         message: err.message,
       });
-  
     }
   }
 };
@@ -59,29 +57,25 @@ const createRoom = (socket) => async (socketData) => {
       clientIdsInRoom,
       getAllUsersInRoom
     );
-      console.log(roomName)
+
     io.to(roomName).emit("roomNameIs", roomName);
     socket.emit("userId", User.getUserId(socket));
     io.in(roomName).emit("aUserJoined", arr);
-  
   } catch (err) {
     if (err instanceof InvalidUsernameError) {
       // TODO: Send invalid username error to client with socket.emit
       socket.emit("invalidUsername", new InvalidUsernameError());
     }
-  
   }
 };
 
-
 // Implement express pattern (req,res,next) next will be callback
 // https://stackoverflow.com/questions/61834610/how-to-write-a-unit-test-an-express-controller-using-jest
-const dummyController = async (socket,username) => {
+const dummyController = async (socket, username) => {
   try {
     let user = await User.dummyUserServiceMethod1();
     let finalUser = await User.dummyUserServiceMethod2(user);
     return finalUser;
-
   } catch (err) {
     return err;
   }

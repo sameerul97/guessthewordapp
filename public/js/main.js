@@ -178,19 +178,33 @@ function leaveRoom() {
 
 // user starting game
 function playGame() {
-  $(".game").hide();
   // enableCanvasDrawing();
-  enableCanvasDrawing();
-  positionButtonsInCanvasResponsively();
-  showExitRoomButton();
-  showClearCanvasButton();
-  showColorSelector();
-  hideUsernameForm();
-  showScores();
 
   console.log("Asking server to start game and words");
   // if (username()) {
-  socket.emit("playGame", currentRoom);
+  socket.emit("playGame", currentRoom, function (playGame) {
+    if (playGame.error) {
+      if (playGame.errorType === "error_NoOfUser") {
+        $(".gameOver").append("<h1>Need minimum 2 users!</h1>");
+      }
+      if (playGame.errorType === "error_OnlyAdminCanStartGame") {
+        $(".gameOver").append("<h1>Error, only admin can start the game</h1>");
+      }
+    }
+    if (playGame.success) {
+      $(".game").hide();
+      enableCanvasDrawing();
+      positionButtonsInCanvasResponsively();
+      showExitRoomButton();
+      showClearCanvasButton();
+      showColorSelector();
+      hideUsernameForm();
+      showScores();
+    }
+  });
+  // socket.emit('question', 'do you think so?', function (answer) {
+  //   console.log(answer)
+  // });
   // socket.on('word',function(word){
   //   console.log(word);
 

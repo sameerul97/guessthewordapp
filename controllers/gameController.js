@@ -3,16 +3,22 @@ var RoomService = require("../services/roomService");
 const e = require("express");
 // const Game = require("../entity/game2");
 
-const playGame = (socket) => async (roomName) => {
+const playGame = (socket) => async (roomName, ack) => {
   try {
     console.log("Socket admin", socket._admin);
-    // if(socket._admin){
-    var clientsInRoom = await RoomService.getAllClientIdsInRoom(roomName);
-    await GameService.generateGameEnvironment(clientsInRoom);
-    await GameService.gameInit(roomName, clientsInRoom, socket);
-    // } else{
-    //   socket.emit("loadingMessage")
-    // }
+    if (socket._admin) {
+      var clientsInRoom = await RoomService.getAllClientIdsInRoom(roomName);
+      if (clientsInRoom.length > 1) {
+        ack({ success: true });
+        await GameService.generateGameEnvironment(clientsInRoom);
+        await GameService.gameInit(roomName, clientsInRoom, socket);
+      } else {
+        ack({ error: true, errorType: "error_NoOfUser" });
+      }
+    } else {
+      ack({ error: true, errorType: "error_OnlyAdminCanStartGame" });
+      // socket.emit("error_OnlyAdminCanStartGame");
+    }
   } catch (err) {
     console.log(err);
   }

@@ -4,15 +4,15 @@ var rClient;
 
 class Game {
   constructor(roomName, users, index = 0, userIndex = 0, tempIndex = 0) {
-    this.roomName           = roomName;
-    this.users              = users;
-    this.index              = index;
-    this.userIndex          = userIndex;
-    this.roundsIndex        = 0;
+    this.roomName = roomName;
+    this.users = users;
+    this.index = index;
+    this.userIndex = userIndex;
+    this.roundsIndex = 0;
     this.currentPlayerIndex = null;
-    this.gameInstanceKey    = null;
-    this.chosenWord         = null;
-    this.timerSeconds       = 20000;
+    this.gameInstanceKey = null;
+    this.chosenWord = null;
+    this.timerSeconds = 20000;
   }
 }
 
@@ -48,8 +48,8 @@ Game.prototype.userRoundsFinished = function (game) {
 Game.prototype.sendWords = async function (socket, fn) {
   var data = wordService.getWord();
   // multiple destructuring
-  var        { chosenWord }                           = ({ options } = data);
-             this.chosenWord                          = chosenWord;
+  var { chosenWord } = ({ options } = data);
+  this.chosenWord = chosenWord;
   this.users[this.userIndex].rounds[this.roundsIndex] = true;
   this.roundsIndex++;
   socket.emit("word", chosenWord);
@@ -62,7 +62,7 @@ Game.prototype.sendWords = async function (socket, fn) {
 Game.prototype.nextPlayerAlert = function (socket, socketId, game, io) {
   io.in(game.roomName).emit("nextPlayerAlert", {
     userGoingToPlay: socketId,
-    timerSeconds   : game.timerSeconds,
+    timerSeconds: game.timerSeconds,
     // gameInstanceIndex: this.gameInstanceIndex
   });
   io.to(socketId).emit("youArePlayingNext", {
@@ -90,7 +90,7 @@ Game.prototype.updateAlreadyGuessedProperty = function (socketId) {
 
 Game.prototype.wrongAnswer = function (socketId) {
   io.sockets.connected[socketId].emit("verifiedAnswer", {
-    correct      : false,
+    correct: false,
     correctAnswer: this.chosenWord,
   });
 };
@@ -107,13 +107,13 @@ Game.prototype.correctAnswer = function (socketId, game) {
   io.in(this.roomName).emit("scoresUpdated", {
     data: this.users.map(function (val) {
       return {
-        id   : val.id,
+        id: val.id,
         score: val.scores,
       };
     }),
   });
   io.sockets.connected[socketId].emit("verifiedAnswer", {
-    correct      : true,
+    correct: true,
     correctAnswer: this.chosenWord,
   });
 };
@@ -181,8 +181,8 @@ function getCurrentInstanceDataFromRedis(game) {
     rClient.get("Game:" + game.gameInstanceKey, (err, reply) => {
       // TODO: error handle if get gameInstance fails
       if (err) console.log("ERR", err);
-      var tempGame           = JSON.parse(reply);
-          tempGame.__proto__ = Game.prototype;
+      var tempGame = JSON.parse(reply);
+      tempGame.__proto__ = Game.prototype;
       // return tempGame;
       resolve(tempGame);
     });
