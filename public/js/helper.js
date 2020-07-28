@@ -70,11 +70,11 @@ function hideColorSelector() {
   });
 }
 
-function showLoader(){
+function showLoader() {
   $("#loading").show();
 }
 
-function hideLoader(){
+function hideLoader() {
   $("#loading").hide();
 }
 
@@ -103,4 +103,14 @@ function RoomLinkNotExpired() {
     localStorage.getItem(appName + "_GENERATED_ROOM_ID")
   ).expiryTime;
   return moment().format() < expiryTime ? true : false;
+}
+
+function showWarningMessage(gameErrorType) {
+  $(".gameOver").show();
+  $(".gameOver").append(
+    "<h1>" + AppError.gameErrorType[gameErrorType] + "</h1>"
+  );
+  setTimeout(function () {
+    $(".gameOver").hide();
+  }, 3000);
 }

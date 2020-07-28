@@ -184,12 +184,7 @@ function playGame() {
   // if (username()) {
   socket.emit("playGame", currentRoom, function (playGame) {
     if (playGame.error) {
-      if (playGame.errorType === "error_NoOfUser") {
-        $(".gameOver").append("<h1>Need minimum 2 users!</h1>");
-      }
-      if (playGame.errorType === "error_OnlyAdminCanStartGame") {
-        $(".gameOver").append("<h1>Error, only admin can start the game</h1>");
-      }
+      showWarningMessage(playGame.errorType)
     }
     if (playGame.success) {
       $(".game").hide();
