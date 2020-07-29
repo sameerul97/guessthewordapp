@@ -106,6 +106,7 @@ function RoomLinkNotExpired() {
 }
 
 function showWarningMessage(gameErrorType) {
+  $(".gameOver").empty();
   $(".gameOver").append(
     "<h1>" + AppError.gameErrorType[gameErrorType] + "</h1>"
   );

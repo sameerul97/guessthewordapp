@@ -57,7 +57,6 @@ const createRoom = (socket) => async (socketData) => {
       clientIdsInRoom,
       getAllUsersInRoom
     );
-
     io.to(roomName).emit("roomNameIs", roomName);
     socket.emit("userId", User.getUserId(socket));
     io.in(roomName).emit("aUserJoined", arr);
@@ -66,6 +65,7 @@ const createRoom = (socket) => async (socketData) => {
       // TODO: Send invalid username error to client with socket.emit
       socket.emit("invalidUsername", new InvalidUsernameError());
     }
+    console.error(err)
   }
 };
 

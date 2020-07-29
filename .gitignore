@@ -4,6 +4,7 @@ trials
 bash.exe.stackdump
 # googleduickdrawdatasets/*
 *.ndjson
+*.aof
 # !.googleduickdrawdatasets/
 # !/googleduickdrawdatasets/.gitkeep
 # googleduickdrawdatasets

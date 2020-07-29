@@ -36,10 +36,20 @@ services:
       - pgadmin-data:/var/lib/pgadmin
       - ./pgadmin/server.json:/pgadmin4/servers.json
 
+  redis:
+    image: redis
+    ports:
+    - "6379:6379"
+    command: redis-server --requirepass RedisPassword
+    volumes:
+    - ~/db/data:/data
+    - ~/db/redis.conf:/usr/local/etc/redis/redis.conf
+
   server:
     build: .
     depends_on:
       - db
+      - redis
     container_name: guessthewordapp_servers
     restart: always
     working_dir: /home/node/app

@@ -4,7 +4,7 @@ const e = require("express");
 // const Game = require("../entity/game2");
 require("../errors/gameError");
 
-const playGame = (socket) => async (roomName, ack) => {
+const playGame = (socket) => async (roomName, reply) => {
   try {
     console.log("Socket admin", socket._admin);
     if (!socket._admin) {
@@ -14,15 +14,15 @@ const playGame = (socket) => async (roomName, ack) => {
     if (clientsInRoom.length < 2) {
       throw new NoOfUserNotMetError();
     }
-    ack({ success: true });
+    reply({ success: true });
     await GameService.generateGameEnvironment(clientsInRoom);
     await GameService.gameInit(roomName, clientsInRoom, socket);
   } catch (err) {
     if (err instanceof OnlyAdminCanStartGameError) {
-      ack({ error: true, errorType: err.name });
+      reply({ error: true, errorType: err.name });
     }
     if (err instanceof NoOfUserNotMetError) {
-      ack({ error: true, errorType: err.name });
+      reply({ error: true, errorType: err.name });
     }
     console.log(err);
   }

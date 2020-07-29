@@ -170,10 +170,11 @@ function joinRoom(e, roomAlreadyCreated) {
 
 // exit room
 function leaveRoom() {
-  socket.emit("leaveRoom", currentRoom);
+  // socket.emit("leaveRoom", currentRoom);
   $(".createRoom , .joinRoom").show();
   // $(".joinRoom").hide()
   $(".leaveRoom").hide();
+  socket.close();
 }
 
 // user starting game
@@ -184,7 +185,7 @@ function playGame() {
   // if (username()) {
   socket.emit("playGame", currentRoom, function (playGame) {
     if (playGame.error) {
-      showWarningMessage(playGame.errorType)
+      showWarningMessage(playGame.errorType);
     }
     if (playGame.success) {
       $(".game").hide();
