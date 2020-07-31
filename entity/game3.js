@@ -138,11 +138,35 @@ Game.prototype.startGame = function (socket, gameInstanceKey) {
   }, this.timerSeconds);
 };
 
+Game.prototype.storeInDatabase = async function (game) {};
+
+Game.prototype.deleteGameInstanceFromRedis = async function (game) {
+  rClient.DEL(Redis.KeyNames.GameInstanceKey + game.gameInstanceKey);
+  rClient.DEL(
+    Redis.KeyNames.GameInstanceKey +
+      game.gameInstanceKey +
+      Redis.KeyNames.GameInstanceChosenWord
+  );
+};
+
+Game.prototype.deleteRoomnameFromRedis = async function (game) {
+  rClient.DEL(Redis.KeyNames.Roomname + game.roomName);
+};
+
+Game.prototype.deleteSocketIdUsernameFromRedis = async function (game) {
+  for (i in game.users) {
+    rClient.DEL(Redis.KeyNames.SocketIdUsername + game.users[i].id);
+  }
+};
+
 async function intervalHandler(socket, thisGameIntance, thisInterval) {
   let self = await getCurrentInstanceDataFromRedis(thisGameIntance);
   if (self.gameOver(self)) {
     io.in(self.roomName).emit("gameOver", "score");
     clearInterval(thisInterval);
+    self.deleteGameInstanceFromRedis(self);
+    self.deleteRoomnameFromRedis(self);
+    self.deleteSocketIdUsernameFromRedis(self);
   } else {
     self.sendWords(socket, async () => {
       if (self.userRoundsFinished(self)) {
