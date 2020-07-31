@@ -8,8 +8,10 @@ module.exports = {
     password: "RedisPassword",
     KeyNames: {
       SocketIdUsername: "SocIdUsername:",
-      Roomname: "Roomname:"
-    }
+      Roomname: "Roomname:",
+      GameInstanceKey: "Game:",
+      GameInstanceChosenWord: ":Chosenword:",
+    },
   },
   "Redis[Prod]": {
     host: "redis-15252.c232.us-east-1-2.ec2.cloud.redislabs.com",

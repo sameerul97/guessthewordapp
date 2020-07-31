@@ -1,6 +1,7 @@
 // var fs = require("fs");
 var wordService = require("../services/wordService");
 var rClient;
+const { Redis } = require("../config");
 
 class Game {
   constructor(roomName, users, index = 0, userIndex = 0, tempIndex = 0) {
@@ -18,7 +19,9 @@ class Game {
 
 Game.prototype.updateGameInstanceChosenWord = function (chosenWord) {
   rClient.set(
-    "Game:" + this.gameInstanceKey + ":ChosenWord:",
+    Redis.KeyNames.GameInstanceKey +
+      this.gameInstanceKey +
+      Redis.KeyNames.GameInstanceChosenWord,
     this.chosenWord,
     (err, reply) => {
       // TODO: error handle if UPDATE gameInstance chosenWord fails
@@ -161,7 +164,7 @@ async function intervalHandler(socket, thisGameIntance, thisInterval) {
 function updateCurrentInstanceDataInRedis(game) {
   return new Promise((resolve, reject) => {
     rClient.set(
-      "Game:" + game.gameInstanceKey,
+      Redis.KeyNames.GameInstanceKey + game.gameInstanceKey,
       JSON.stringify(game),
       (err, reply) => {
         // TODO: error handle if SET / UPDATE gameInstance fails
@@ -178,14 +181,17 @@ function updateCurrentInstanceDataInRedis(game) {
 // FIXME:add this method within the gameclass ?
 function getCurrentInstanceDataFromRedis(game) {
   return new Promise((resolve, reject) => {
-    rClient.get("Game:" + game.gameInstanceKey, (err, reply) => {
-      // TODO: error handle if get gameInstance fails
-      if (err) console.log("ERR", err);
-      var tempGame = JSON.parse(reply);
-      tempGame.__proto__ = Game.prototype;
-      // return tempGame;
-      resolve(tempGame);
-    });
+    rClient.get(
+      Redis.KeyNames.GameInstanceKey + game.gameInstanceKey,
+      (err, reply) => {
+        // TODO: error handle if get gameInstance fails
+        if (err) console.log("ERR", err);
+        var tempGame = JSON.parse(reply);
+        tempGame.__proto__ = Game.prototype;
+        // return tempGame;
+        resolve(tempGame);
+      }
+    );
   });
 }
 
