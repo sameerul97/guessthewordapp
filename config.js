@@ -6,6 +6,10 @@ module.exports = {
     host: "redis",
     port: 6379,
     password: "RedisPassword",
+    KeyNames: {
+      SocketIdUsername: "SocIdUsername:",
+      Roomname: "Roomname:"
+    }
   },
   "Redis[Prod]": {
     host: "redis-15252.c232.us-east-1-2.ec2.cloud.redislabs.com",
