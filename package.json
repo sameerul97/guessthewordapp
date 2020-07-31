@@ -8,10 +8,7 @@
     "main": "index.js",
     "scripts": {
         "start": "node index.js",
-<<<<<<< HEAD
-=======
         "start-dev":"nodemon index.js" ,
->>>>>>> dev
         "test": "jest --detectOpenHandles"
     },
     "dependencies": {
