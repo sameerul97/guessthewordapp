@@ -7,15 +7,18 @@ const express = require("express"),
   http = require("http").Server(app),
   port = process.env.PORT || 3000,
   privateKey = fs.readFileSync("private.key"),
-  bodyParser = require('body-parser')
-  rAdapter = require("socket.io-redis");
+  bodyParser = require("body-parser");
+rAdapter = require("socket.io-redis");
 
 global.io = require("socket.io")(http);
 
 app.use(bodyParser.json()); // to support JSON-encoded bodies
-app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
-    extended: true
-}));
+app.use(
+  bodyParser.urlencoded({
+    // to support URL-encoded bodies
+    extended: true,
+  })
+);
 
 // controller
 var roomController = require("./controllers/roomController");
@@ -33,27 +36,32 @@ var GameClass = require("./entity/game3");
 // Redis Config
 const { Redis } = require("./config");
 const { randomBytes } = require("crypto");
-const pub = redis.createClient(Redis.port, Redis.host, {
-  auth_pass: Redis.password,
+const REDIS_STORE_PORT = process.env.REDIS_STORE_PORT || Redis.port;
+const REDIS_STORE_HOST = process.env.REDIS_STORE_HOST || Redis.host;
+const REDIS_STORE_PASSWORD = process.env.REDIS_STORE_PASSWORD || Redis.password;
+
+const pub = redis.createClient(REDIS_STORE_PORT, REDIS_STORE_HOST, {
+  auth_pass: REDIS_STORE_PASSWORD,
 });
-const sub = redis.createClient(Redis.port, Redis.host, {
-  auth_pass: Redis.password,
+
+const sub = redis.createClient(REDIS_STORE_PORT, REDIS_STORE_HOST, {
+  auth_pass: REDIS_STORE_PASSWORD,
 });
 io.adapter(
   rAdapter({ pubClient: pub, subClient: sub, requestsTimeout: 15000 })
 );
 const client = redis
-  .createClient(Redis.port, Redis.host)
+  .createClient(REDIS_STORE_PORT, REDIS_STORE_HOST)
   .on("error", (err) => console.error("Redis connection error ", err));
-client.auth(Redis.password);
+client.auth(REDIS_STORE_PASSWORD);
 
 // setting service DB connection
 roomService.setRClient(client);
 gameService.setRClient(client);
 GameClass.setRClient(client);
 
-var customRoom = require('./controllers/customRoomController')
-var singleplayer = require('./controllers/singleplayer')
+var customRoom = require("./controllers/customRoomController");
+var singleplayer = require("./controllers/singleplayer");
 // rAdapter.pubClient.on('error', function () {
 //   console.log("Redis Labs Error for Pub");
 // });
@@ -62,9 +70,9 @@ var singleplayer = require('./controllers/singleplayer')
 // });
 
 // Game Api
-app.use('/api/game', customRoom)
+app.use("/api/game", customRoom);
 
-app.use('/api/singleplayer', singleplayer)
+app.use("/api/singleplayer", singleplayer);
 
 // Setting view
 app.use(express.static(__dirname + "/public"));
@@ -96,27 +104,27 @@ function onConnection(socket) {
 
   // Need to rewrite the following methods
   // remove socket from the room
-  socket.on("leaveRoom", (data) => {
-    console.log(data);
-  });
+  // socket.on("leaveRoom", (data) => {
+  //   console.log(data);
+  // });
 
   socket.on("disconnecting", function () {
-    // console.log("Sockeet disconnecting", socket.id);
+    console.log("Sockeet disconnecting", socket.id);
     // io.of("/").adapter.remoteDisconnect(socket.id, true, (err) => {
     //   if (err) {
     //     /* unknown id */
     //   }
     //   // success
     // });
-    // var joinedRooms = [];
-    // for (i in socket.rooms) {
-    //   joinedRooms.push(socket.rooms[i]);
-    // }
-    // // socket.emit('aUserLeft')
-    // // emitting events to all the rooms user were in.
-    // for (i in joinedRooms) {
-    //   // io.in(joinedRooms[i]).emit('aUserLeft', socket.id);
-    // }
+    var joinedRooms = [];
+    for (i in socket.rooms) {
+      joinedRooms.push(socket.rooms[i]);
+    }
+    // socket.emit('aUserLeft')
+    // emitting events to all the rooms user were in.
+    for (i in joinedRooms) {
+      io.in(joinedRooms[i]).emit("aUserLeft", socket.id);
+    }
     // // emitting events to all except sender
     // // socket.broadcast.emit('broadcast', 'hello friends!');
   });
@@ -128,5 +136,5 @@ function onConnection(socket) {
 }
 
 io.on("connection", onConnection);
-console.log("ENV", process.env.DATABASE_USER, process.env.DATABASE_URL)
+console.log("ENV", process.env.DATABASE_USER, process.env.DATABASE_URL);
 http.listen(port, () => console.log("listening on port " + port));

@@ -36,10 +36,34 @@ services:
       - pgadmin-data:/var/lib/pgadmin
       - ./pgadmin/server.json:/pgadmin4/servers.json
 
+  redis:
+    image: redis
+    container_name: guessthewordapp_redis
+    ports:
+    - "6379:6379"
+    command: redis-server --requirepass RedisPassword
+    volumes:
+    - ~/db/data:/data
+    - ~/db/redis.conf:/usr/local/etc/redis/redis.conf
+
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis-commander
+    depends_on:
+      - redis
+    restart: always
+    environment:
+      - REDIS_PASSWORD=RedisPassword
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - "8081:8081"
+
   server:
     build: .
     depends_on:
       - db
+      - redis
     container_name: guessthewordapp_servers
     restart: always
     working_dir: /home/node/app
@@ -50,7 +74,7 @@ services:
       TZ: Europe/Lisbon
     ports:
       - 3000:3000
-    command: "npm start"
+    command: "npm run start-dev"
 
 volumes:
   pgdata:

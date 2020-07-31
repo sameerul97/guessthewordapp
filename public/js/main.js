@@ -170,27 +170,37 @@ function joinRoom(e, roomAlreadyCreated) {
 
 // exit room
 function leaveRoom() {
-  socket.emit("leaveRoom", currentRoom);
+  // socket.emit("leaveRoom", currentRoom);
   $(".createRoom , .joinRoom").show();
   // $(".joinRoom").hide()
   $(".leaveRoom").hide();
+  socket.close();
 }
 
 // user starting game
 function playGame() {
-  $(".game").hide();
   // enableCanvasDrawing();
-  enableCanvasDrawing();
-  positionButtonsInCanvasResponsively();
-  showExitRoomButton();
-  showClearCanvasButton();
-  showColorSelector();
-  hideUsernameForm();
-  showScores();
 
   console.log("Asking server to start game and words");
   // if (username()) {
-  socket.emit("playGame", currentRoom);
+  socket.emit("playGame", currentRoom, function (playGame) {
+    if (playGame.error) {
+      showWarningMessage(playGame.errorType);
+    }
+    if (playGame.success) {
+      $(".game").hide();
+      enableCanvasDrawing();
+      positionButtonsInCanvasResponsively();
+      showExitRoomButton();
+      showClearCanvasButton();
+      showColorSelector();
+      hideUsernameForm();
+      showScores();
+    }
+  });
+  // socket.emit('question', 'do you think so?', function (answer) {
+  //   console.log(answer)
+  // });
   // socket.on('word',function(word){
   //   console.log(word);
 

@@ -27,6 +27,7 @@ for raw_file in range(len(raw_files)):
 
 print(found_counter, matching_files)
 
+
 def writeInTemporaryArray(data):
     drawings["drawing"].append(data)
 

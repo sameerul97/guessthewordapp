@@ -1,6 +1,6 @@
 const Room = require("../services/roomService");
 const User = require("../services/userService");
-let { NameSpace } = require("../config");
+const { NameSpace, Redis } = require("../config");
 
 const joinRoom = (socket) => async (roomToJoin, userName) => {
   // let { username } = userName;
@@ -15,19 +15,21 @@ const joinRoom = (socket) => async (roomToJoin, userName) => {
       User.getUsername(socket)
     );
     var clientIdsInRoom = await Room.getAllClientIdsInRoom(roomToJoin);
-    var getAllUsersInRoom = await Room.getAllUsersInRoom(clientIdsInRoom);
+    var usersInRoom = clientIdsInRoom.map(
+      (id) => Redis.KeyNames.SocketIdUsername + id
+    );
+    var getAllUsersInRoom = await Room.getAllUsersInRoom(usersInRoom);
     let arr = await Room.mapUserIdWithUsername(
       clientIdsInRoom,
       getAllUsersInRoom
     );
-    
+
     socket.emit("roomVerified", {
       success: true,
       message: null,
     });
     socket.emit("userId", User.getUserId(socket));
     io.in(roomToJoin).emit("aUserJoined", arr);
-  
   } catch (err) {
     if (err instanceof RoomNotInDbError) {
       console.error(err);
@@ -35,7 +37,6 @@ const joinRoom = (socket) => async (roomToJoin, userName) => {
         success: false,
         message: err.message,
       });
-  
     }
   }
 };
@@ -54,34 +55,30 @@ const createRoom = (socket) => async (socketData) => {
       User.getUsername(socket)
     );
     var clientIdsInRoom = await Room.getAllClientIdsInRoom(roomName);
-    var getAllUsersInRoom = await Room.getAllUsersInRoom(clientIdsInRoom);
-    let arr = await Room.mapUserIdWithUsername(
-      clientIdsInRoom,
-      getAllUsersInRoom
+    var usersInRoom = clientIdsInRoom.map(
+      (id) => Redis.KeyNames.SocketIdUsername + id
     );
-      console.log(roomName)
+    var getAllUsersInRoom = await Room.getAllUsersInRoom(usersInRoom);
+    let arr = await Room.mapUserIdWithUsername(usersInRoom, getAllUsersInRoom);
     io.to(roomName).emit("roomNameIs", roomName);
     socket.emit("userId", User.getUserId(socket));
     io.in(roomName).emit("aUserJoined", arr);
-  
   } catch (err) {
     if (err instanceof InvalidUsernameError) {
       // TODO: Send invalid username error to client with socket.emit
       socket.emit("invalidUsername", new InvalidUsernameError());
     }
-  
+    console.error(err);
   }
 };
 
-
 // Implement express pattern (req,res,next) next will be callback
 // https://stackoverflow.com/questions/61834610/how-to-write-a-unit-test-an-express-controller-using-jest
-const dummyController = async (socket,username) => {
+const dummyController = async (socket, username) => {
   try {
     let user = await User.dummyUserServiceMethod1();
     let finalUser = await User.dummyUserServiceMethod2(user);
     return finalUser;
-
   } catch (err) {
     return err;
   }

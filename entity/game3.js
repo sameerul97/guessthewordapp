@@ -1,24 +1,27 @@
 // var fs = require("fs");
 var wordService = require("../services/wordService");
 var rClient;
+const { Redis } = require("../config");
 
 class Game {
   constructor(roomName, users, index = 0, userIndex = 0, tempIndex = 0) {
-    this.roomName           = roomName;
-    this.users              = users;
-    this.index              = index;
-    this.userIndex          = userIndex;
-    this.roundsIndex        = 0;
+    this.roomName = roomName;
+    this.users = users;
+    this.index = index;
+    this.userIndex = userIndex;
+    this.roundsIndex = 0;
     this.currentPlayerIndex = null;
-    this.gameInstanceKey    = null;
-    this.chosenWord         = null;
-    this.timerSeconds       = 20000;
+    this.gameInstanceKey = null;
+    this.chosenWord = null;
+    this.timerSeconds = 20000;
   }
 }
 
 Game.prototype.updateGameInstanceChosenWord = function (chosenWord) {
   rClient.set(
-    "Game:" + this.gameInstanceKey + ":ChosenWord:",
+    Redis.KeyNames.GameInstanceKey +
+      this.gameInstanceKey +
+      Redis.KeyNames.GameInstanceChosenWord,
     this.chosenWord,
     (err, reply) => {
       // TODO: error handle if UPDATE gameInstance chosenWord fails
@@ -48,8 +51,8 @@ Game.prototype.userRoundsFinished = function (game) {
 Game.prototype.sendWords = async function (socket, fn) {
   var data = wordService.getWord();
   // multiple destructuring
-  var        { chosenWord }                           = ({ options } = data);
-             this.chosenWord                          = chosenWord;
+  var { chosenWord } = ({ options } = data);
+  this.chosenWord = chosenWord;
   this.users[this.userIndex].rounds[this.roundsIndex] = true;
   this.roundsIndex++;
   socket.emit("word", chosenWord);
@@ -62,7 +65,7 @@ Game.prototype.sendWords = async function (socket, fn) {
 Game.prototype.nextPlayerAlert = function (socket, socketId, game, io) {
   io.in(game.roomName).emit("nextPlayerAlert", {
     userGoingToPlay: socketId,
-    timerSeconds   : game.timerSeconds,
+    timerSeconds: game.timerSeconds,
     // gameInstanceIndex: this.gameInstanceIndex
   });
   io.to(socketId).emit("youArePlayingNext", {
@@ -90,7 +93,7 @@ Game.prototype.updateAlreadyGuessedProperty = function (socketId) {
 
 Game.prototype.wrongAnswer = function (socketId) {
   io.sockets.connected[socketId].emit("verifiedAnswer", {
-    correct      : false,
+    correct: false,
     correctAnswer: this.chosenWord,
   });
 };
@@ -107,13 +110,13 @@ Game.prototype.correctAnswer = function (socketId, game) {
   io.in(this.roomName).emit("scoresUpdated", {
     data: this.users.map(function (val) {
       return {
-        id   : val.id,
+        id: val.id,
         score: val.scores,
       };
     }),
   });
   io.sockets.connected[socketId].emit("verifiedAnswer", {
-    correct      : true,
+    correct: true,
     correctAnswer: this.chosenWord,
   });
 };
@@ -135,11 +138,35 @@ Game.prototype.startGame = function (socket, gameInstanceKey) {
   }, this.timerSeconds);
 };
 
+Game.prototype.storeInDatabase = async function (game) {};
+
+Game.prototype.deleteGameInstanceFromRedis = async function (game) {
+  rClient.DEL(Redis.KeyNames.GameInstanceKey + game.gameInstanceKey);
+  rClient.DEL(
+    Redis.KeyNames.GameInstanceKey +
+      game.gameInstanceKey +
+      Redis.KeyNames.GameInstanceChosenWord
+  );
+};
+
+Game.prototype.deleteRoomnameFromRedis = async function (game) {
+  rClient.DEL(Redis.KeyNames.Roomname + game.roomName);
+};
+
+Game.prototype.deleteSocketIdUsernameFromRedis = async function (game) {
+  for (i in game.users) {
+    rClient.DEL(Redis.KeyNames.SocketIdUsername + game.users[i].id);
+  }
+};
+
 async function intervalHandler(socket, thisGameIntance, thisInterval) {
   let self = await getCurrentInstanceDataFromRedis(thisGameIntance);
   if (self.gameOver(self)) {
     io.in(self.roomName).emit("gameOver", "score");
     clearInterval(thisInterval);
+    self.deleteGameInstanceFromRedis(self);
+    self.deleteRoomnameFromRedis(self);
+    self.deleteSocketIdUsernameFromRedis(self);
   } else {
     self.sendWords(socket, async () => {
       if (self.userRoundsFinished(self)) {
@@ -161,7 +188,7 @@ async function intervalHandler(socket, thisGameIntance, thisInterval) {
 function updateCurrentInstanceDataInRedis(game) {
   return new Promise((resolve, reject) => {
     rClient.set(
-      "Game:" + game.gameInstanceKey,
+      Redis.KeyNames.GameInstanceKey + game.gameInstanceKey,
       JSON.stringify(game),
       (err, reply) => {
         // TODO: error handle if SET / UPDATE gameInstance fails
@@ -178,14 +205,17 @@ function updateCurrentInstanceDataInRedis(game) {
 // FIXME:add this method within the gameclass ?
 function getCurrentInstanceDataFromRedis(game) {
   return new Promise((resolve, reject) => {
-    rClient.get("Game:" + game.gameInstanceKey, (err, reply) => {
-      // TODO: error handle if get gameInstance fails
-      if (err) console.log("ERR", err);
-      var tempGame           = JSON.parse(reply);
-          tempGame.__proto__ = Game.prototype;
-      // return tempGame;
-      resolve(tempGame);
-    });
+    rClient.get(
+      Redis.KeyNames.GameInstanceKey + game.gameInstanceKey,
+      (err, reply) => {
+        // TODO: error handle if get gameInstance fails
+        if (err) console.log("ERR", err);
+        var tempGame = JSON.parse(reply);
+        tempGame.__proto__ = Game.prototype;
+        // return tempGame;
+        resolve(tempGame);
+      }
+    );
   });
 }
 

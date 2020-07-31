@@ -14,7 +14,7 @@ var canvas = document.getElementsByClassName("whiteboard")[0];
 var singleplayer_rounds_word_index = 0;
 var singleplayer_game_words;
 var singleplayer_window_animation_handler;
-
+var word_animation_timer;
 // canvas.width = 500;
 // canvas.height = 500;
 var context = canvas.getContext("2d");
@@ -60,7 +60,10 @@ function singleplayerPlayRound(data) {
   singleplayer_game_options = [];
   parseDrawingDataSet(data, function () {
     hideLoader();
-    window.requestAnimationFrame(drawLines);
+    singleplayer_window_animation_handler = window.requestAnimationFrame(
+      drawLines
+    );
+    // window.requestAnimationFrame(drawLines);
     $(".wordToGuess_options").empty();
     $(".wordToGuess").empty();
     // disableCanvasDrawing();
@@ -82,10 +85,10 @@ function singleplayerPlayRound(data) {
 
 function parseDrawingDataSet(data, callback) {
   var testTemp = [];
+  var noOfEdges = 0;
   // console.log(data);
   // console.log(data)
   var points = data.drawing;
-  console.log(points.length);
   for (i in points) {
     // console.log(`ctx.beginPath();`);
     var local = [];
@@ -104,39 +107,70 @@ function parseDrawingDataSet(data, callback) {
   }
   // console.log(testTemp);
   points_list["data"] = testTemp;
+  for (i in points_list.data) {
+    // console.log(points_list.data[i].line.points.length);
+    noOfEdges += points_list.data[i].line.points.length;
+  }
+  console.log();
+  const DRAWING_SECONDS = 15;
+  word_animation_timer = 0;
+  word_animation_timer = DRAWING_SECONDS / (noOfEdges - 1);
+  // console.log(
+  //   "DATA LENGTH : " , points_list.data.length,
+  //   "word_animation_timer",
+  //   word_animation_timer,
+  //   "No of edges",
+  //   noOfEdges,
+  //   " -1 "
+  // );
+
+  if (parseInt(word_animation_timer) <= 0) {
+    word_animation_timer = parseInt(
+      String(word_animation_timer).substring(2, 5)
+    );
+    // console.log(word_animation_timer, "After 1");
+  } else {
+    a = String(word_animation_timer).substring(0, 5).split(".");
+    // console.log(String(word_animation_timer).substring(0, 5).split("."));
+    parseInt(a[0] + a[1]);
+    // console.log(word_animation_timer, "After 2");
+  }
   callback();
 }
 
 function drawLines() {
   var value = points_list.data[lineIndexB];
-  // console.log(value, points_list)
-  var info = value.line;
-  var color = info.color;
-  var width = info.width;
-  var cordinates = info.points;
+  // console.log(value);
+  // console.log(value.line == undefined);
+  if (value != undefined) {
+    var info = value.line;
+    var color = info.color;
+    var width = info.width;
+    var cordinates = info.points;
 
-  context.beginPath();
-  context.moveTo(cordinates[lineIndexA - 1].x, cordinates[lineIndexA - 1].y);
-  context.lineWidth = width;
-  context.strokeStyle = "black";
-  context.fillStyle = color;
-  context.lineTo(cordinates[lineIndexA].x, cordinates[lineIndexA].y);
-  context.stroke();
-  lineIndexA = lineIndexA + 1;
-  if (lineIndexA > cordinates.length - 1) {
-    lineIndexA = 1;
-    lineIndexB = lineIndexB + 1;
+    context.beginPath();
+    context.moveTo(cordinates[lineIndexA - 1].x, cordinates[lineIndexA - 1].y);
+    context.lineWidth = width;
+    context.strokeStyle = "black";
+    context.fillStyle = color;
+    context.lineTo(cordinates[lineIndexA].x, cordinates[lineIndexA].y);
+    context.stroke();
+    lineIndexA = lineIndexA + 1;
+    if (lineIndexA > cordinates.length - 1) {
+      lineIndexA = 1;
+      lineIndexB = lineIndexB + 1;
+    }
+
+    //stop the animation if the last line is exhausted...
+    if (lineIndexB > points_list.data.length - 1) return;
+
+    setTimeout(function () {
+      // drawLines();
+      singleplayer_window_animation_handler = window.requestAnimationFrame(
+        drawLines
+      );
+    }, 250);
   }
-
-  //stop the animation if the last line is exhausted...
-  if (lineIndexB > points_list.data.length - 1) return;
-
-  setTimeout(function () {
-    // drawLines();
-    singleplayer_window_animation_handler = window.requestAnimationFrame(
-      drawLines
-    );
-  }, 250);
 }
 
 function singleplayerVerifyAnswer(selected_answer) {
@@ -189,7 +223,7 @@ function singleplayerVerifyAnswer(selected_answer) {
         clearSingleplayerGameLoop();
         setTimeout(function () {
           if (singleplayer_rounds_word_index < singleplayer_game_words.length) {
-            clearWindowAnimation();
+            stopWindowAnimation();
             clearCanvasOnNewWord();
             singleplayerGameLoop();
           } else {
@@ -217,7 +251,7 @@ function clearSingleplayerGameLoop() {
   clearInterval(singleplayerIntervalHandler);
 }
 
-function clearWindowAnimation() {
+function stopWindowAnimation() {
   cancelAnimationFrame(singleplayer_window_animation_handler);
 }
 
