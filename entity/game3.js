@@ -4,14 +4,14 @@ var rClient;
 const { Redis } = require("../config");
 
 class Game {
-  constructor(roomName, users, index = 0, userIndex = 0, tempIndex = 0) {
+  constructor(roomName, users, gameInstanceKey, index = 0, userIndex = 0, tempIndex = 0) {
     this.room_name = roomName;
     this.users = users;
     this.index = index;
     this.user_index = userIndex;
     this.rounds_index = 0;
     this.currentPlayerIndex = null;
-    this.game_instance_key = null;
+    this.game_instance_key = gameInstanceKey;
     this.chosenWord = null;
     this.timer_seconds = 20000;
     this.game_over = false;
@@ -151,9 +151,10 @@ Game.prototype.deleteSocketIdUsernameFromRedis = async function (game) {
   }
 };
 
-Game.prototype.startGame = function (socket, gameInstanceKey) {
-  if (this.game_instance_key == null) {
-    this.game_instance_key = gameInstanceKey;
+Game.prototype.startGame = function (socket) {
+  // if (this.game_instance_key == null) {
+  if (this.user_index === 0) {
+    // this.game_instance_key = gameInstanceKey;
     this.game_started = true;
     this.sendWords(socket);
   }
@@ -171,6 +172,7 @@ async function intervalHandler(socket, thisGameIntance, thisInterval) {
     // self.deleteGameInstanceFromRedis(self);
     // self.deleteRoomnameFromRedis(self);
     // self.deleteSocketIdUsernameFromRedis(self);
+    await updateCurrentInstanceDataInRedis(self);
   } else {
     self.sendWords(socket, async () => {
       if (self.userRoundsFinished(self)) {
@@ -180,7 +182,12 @@ async function intervalHandler(socket, thisGameIntance, thisInterval) {
         if (self.user_index === self.users.length) {
         } else {
           self.users[self.user_index].playing = true;
-          self.nextPlayerAlert(socket, self.users[self.user_index].id, self, io);
+          self.nextPlayerAlert(
+            socket,
+            self.users[self.user_index].id,
+            self,
+            io
+          );
           clearInterval(thisInterval);
         }
       }

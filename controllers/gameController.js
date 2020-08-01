@@ -1,5 +1,5 @@
-var GameService = require("../services/gameService");
-var RoomService = require("../services/roomService");
+const GameService = require("../services/gameService");
+const RoomService = require("../services/roomService");
 const e = require("express");
 // const Game = require("../entity/game2");
 require("../errors/gameError");
@@ -10,19 +10,34 @@ const playGame = (socket) => async (roomName, reply) => {
     if (!socket._admin) {
       throw new OnlyAdminCanStartGameError();
     }
+    var roomExist = await RoomService.roomExist(roomName);
+    var gameInstanceKey = await RoomService.getRoomKey(roomName);
+    console.log(gameInstanceKey);
     var clientsInRoom = await RoomService.getAllClientIdsInRoom(roomName);
     if (clientsInRoom.length < 2) {
       throw new NoOfUserNotMetError();
     }
     reply({ success: true });
     await GameService.generateGameEnvironment(clientsInRoom);
-    await GameService.gameInit(roomName, clientsInRoom, socket);
+    await GameService.gameInit(
+      roomName,
+      clientsInRoom,
+      socket,
+      gameInstanceKey
+    );
   } catch (err) {
     if (err instanceof OnlyAdminCanStartGameError) {
       reply({ error: true, errorType: err.name });
     }
     if (err instanceof NoOfUserNotMetError) {
       reply({ error: true, errorType: err.name });
+    }
+    if (err instanceof RoomNotInDbError) {
+      console.error(err);
+      socket.emit("roomVerified", {
+        success: false,
+        message: err.message,
+      });
     }
     console.log(err);
   }
@@ -74,4 +89,23 @@ const clearCanvas = (socket) => async (data) => {
   }
 };
 
-module.exports = { playGame, handShakeListerner, verifyAnswer, clearCanvas };
+const disconnecting = (socket) => async (reason) => {
+  console.log("Disconnect", reason);
+  io.of("/").adapter.clientRooms(socket.id, async (err, rooms) => {
+    if (err) {
+      console.error(err);
+    } else {
+      let sid = socket.id;
+      console.log(rooms); // an array containing every room a given id has joined.
+
+    }
+  });
+};
+
+module.exports = {
+  playGame,
+  handShakeListerner,
+  verifyAnswer,
+  clearCanvas,
+  disconnecting,
+};

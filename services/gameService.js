@@ -22,11 +22,11 @@ module.exports = {
       );
     });
   },
-  gameInit: async (roomName, users, socket) => {
+  gameInit: async (roomName, users, socket, gameInstanceKey) => {
     return new Promise((resolve, reject) => {
-      const NewGame = new Game(roomName, users);
-      const gameInstanceKey = uuidv4();
-      NewGame.startGame(socket, gameInstanceKey);
+      const NewGame = new Game(roomName, users, gameInstanceKey);
+      // const gameInstanceKey = uuidv4();
+      NewGame.startGame(socket);
 
       io.in(roomName).emit("setGameInstance", gameInstanceKey);
       gameJson = JSON.stringify(NewGame);

@@ -108,26 +108,38 @@ function onConnection(socket) {
   //   console.log(data);
   // });
 
-  socket.on("disconnecting", function () {
-    console.log("Sockeet disconnecting", socket.id);
-    // io.of("/").adapter.remoteDisconnect(socket.id, true, (err) => {
-    //   if (err) {
-    //     /* unknown id */
-    //   }
-    //   // success
-    // });
-    var joinedRooms = [];
-    for (i in socket.rooms) {
-      joinedRooms.push(socket.rooms[i]);
-    }
-    // socket.emit('aUserLeft')
-    // emitting events to all the rooms user were in.
-    for (i in joinedRooms) {
-      io.in(joinedRooms[i]).emit("aUserLeft", socket.id);
-    }
-    // // emitting events to all except sender
-    // // socket.broadcast.emit('broadcast', 'hello friends!');
-  });
+  socket.on("disconnecting", gameController.disconnecting(socket));
+  // function (data) {
+  //   console.log("Sockeet disconnecting", socket.id);
+  //   // io.of("/").adapter.remoteDisconnect(socket.id, true, (err) => {
+  //   //   if (err) {
+  //   //     /* unknown id */
+  //   //   }
+  //   //   // success
+  //   // });
+  //   console.log(data);
+  //   // var joinedRooms = [];
+  //   // for (i in socket.rooms) {
+  //   //   joinedRooms.push(socket.rooms[i]);
+  //   // }
+  //   // socket.emit('aUserLeft')
+  //   // emitting events to all the rooms user were in.
+  //   // for (i in joinedRooms) {
+  //   //   io.in(joinedRooms[i]).emit("aUserLeft", socket.id);
+  //   // }
+  //   io.of("/").adapter.clientRooms(socket.id, (err, rooms) => {
+  //     if (err) {
+  //       console.error(err)
+  //     } else{
+  //       let roomname = rooms[1];
+
+  //       console.log(rooms); // an array containing every room a given id has joined.
+
+  //     }
+  //   });
+  //   // // emitting events to all except sender
+  //   // // socket.broadcast.emit('broadcast', 'hello friends!');
+  // });
   socket.on("disconnect", function () {
     // console.log("Sockeet disconnect", socket.id);
     // io.emit('user disconnected');

@@ -6,6 +6,8 @@ var createRoom = [];
 var rClient, pgClient;
 var AppErr = require("../errors/AppError");
 const { ErrorMessage, SuccessMessage, Redis } = require("../config");
+const { v4: uuidv4 } = require("uuid");
+
 var roomName = "Rain";
 var count = 0;
 module.exports = {
@@ -42,9 +44,10 @@ module.exports = {
     return new Promise((resolve, reject) => {
       var found = false;
       var roomName = roomNames[Math.floor(Math.random() * roomNames.length)];
+      let gameInstanceKey = uuidv4();
       rClient.set(
         Redis.KeyNames.Roomname + roomName,
-        roomName,
+        gameInstanceKey,
         "NX",
         "EX",
         3600,
@@ -185,6 +188,15 @@ module.exports = {
         err || data === null
           ? reject(new RoomNotInDbError())
           : resolve(SuccessMessage.roomExist);
+      });
+    });
+  },
+  getRoomKey: async (roomName) => {
+    return new Promise(function (resolve, reject) {
+      rClient.get(Redis.KeyNames.Roomname + roomName, (err, data) => {
+        err || data === null
+          ? reject(new RoomNotInDbError())
+          : resolve(data);
       });
     });
   },
