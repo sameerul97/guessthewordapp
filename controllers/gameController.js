@@ -97,7 +97,22 @@ const disconnecting = (socket) => async (reason) => {
     } else {
       let sid = socket.id;
       console.log(rooms); // an array containing every room a given id has joined.
+      let roomname = rooms[1];
+      let gameInstanceKey = await RoomService.getRoomKey(roomname);
+      console.log(gameInstanceKey);
+      let gameObject = await GameService.getGameObject(gameInstanceKey);
+      let game = await GameService.gameParser(gameObject);
+      let users = game.users;
+      let socketUserIndex = users.findIndex((user) => user.id === sid);
+      if (game.users.length === 2) {
+        console.log("its gameover");
+      }
+      // if(game.user_index === socketUserIndex){
 
+      // }
+      // if (socketUserIndex === game.users.length - 1) {
+      //   console.log("Gameover")
+      // }
     }
   });
 };
