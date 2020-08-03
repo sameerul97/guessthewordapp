@@ -1,7 +1,9 @@
 const GameService = require("../services/gameService");
 const RoomService = require("../services/roomService");
 const e = require("express");
-// const Game = require("../entity/game2");
+require("../entity/game3");
+
+const GameClass= require("../entity/game3");
 require("../errors/gameError");
 
 const playGame = (socket) => async (roomName, reply) => {
@@ -104,9 +106,21 @@ const disconnecting = (socket) => async (reason) => {
       let game = await GameService.gameParser(gameObject);
       let users = game.users;
       let socketUserIndex = users.findIndex((user) => user.id === sid);
-      if (game.users.length === 2) {
-        console.log("its gameover");
+      if (game.game_over === false) {
+        if (socketUserIndex === game.users.length - 1) {
+          game.game_over = true;
+          GameClass.updateCurrentInstanceDataInRedis(game);
+        }
+        // if (game.users.length === 2) {
+        //   console.log("its gameover");
+        // }
       }
+
+      /*
+        1) [p1,p2] p1 playing p2 leaving, should stop the game and show p1 is winner
+        2) [p1,p2] p2 playing p2 leaving, should stop the game and show p1 is winner
+        3) [p1,p2] p2 playing p2
+      */
       // if(game.user_index === socketUserIndex){
 
       // }

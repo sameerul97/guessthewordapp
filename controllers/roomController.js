@@ -14,7 +14,6 @@ const joinRoom = (socket) => async (roomToJoin, userName) => {
     if (gameObject != null) {
       throw new GameAlreadyStarted();
     }
-    console.log(gameObject);
     var setuserName = await User.setUsername(socket, userName);
     var setAdmin = await User.setAdmin(socket, false);
     var joinRoom = await RoomService.joinRoom(socket, roomToJoin);
@@ -27,7 +26,6 @@ const joinRoom = (socket) => async (roomToJoin, userName) => {
     var usersInRoom = clientIdsInRoom.map(
       (id) => Redis.KeyNames.SocketIdUsername + id
     );
-    console.log(usersInRoom);
     var getAllUsersInRoom = await RoomService.getAllUsersInRoom(usersInRoom);
     let arr = await RoomService.mapUserIdWithUsername(
       clientIdsInRoom,
@@ -42,6 +40,7 @@ const joinRoom = (socket) => async (roomToJoin, userName) => {
     io.in(roomToJoin).emit("aUserJoined", arr);
   } catch (err) {
     var message;
+
     if (err instanceof GameAlreadyStarted) {
       message = err.message;
     }
@@ -49,6 +48,7 @@ const joinRoom = (socket) => async (roomToJoin, userName) => {
     if (err instanceof RoomNotInDbError) {
       message = err.message;
     }
+
     socket.emit("roomVerified", {
       success: false,
       message: message,

@@ -4,7 +4,14 @@ var rClient;
 const { Redis } = require("../config");
 
 class Game {
-  constructor(roomName, users, gameInstanceKey, index = 0, userIndex = 0, tempIndex = 0) {
+  constructor(
+    roomName,
+    users,
+    gameInstanceKey,
+    index = 0,
+    userIndex = 0,
+    tempIndex = 0
+  ) {
     this.room_name = roomName;
     this.users = users;
     this.index = index;
@@ -16,6 +23,8 @@ class Game {
     this.timer_seconds = 20000;
     this.game_over = false;
     this.game_started = false;
+    // Pause game flag is checked on each interval execution
+    this.pause_game = false;
   }
 }
 
@@ -33,11 +42,11 @@ Game.prototype.updateGameInstanceChosenWord = function (chosenWord) {
 };
 
 Game.prototype.gameOver = function (game) {
-  if (game.user_index === game.users.length) {
-    game.game_over = true;
-    return game.gameOver;
-  }
-  return false;
+  // if (game.user_index === game.users.length) {
+  //   game.game_over = true;
+  //   return game.gameOver;
+  // }
+  return game.user_index === game.users.length || game.game_over;
 };
 
 Game.prototype.userRoundsFinished = function (game) {
@@ -60,7 +69,7 @@ Game.prototype.sendWords = async function (socket, fn) {
   this.rounds_index++;
   socket.emit("word", chosenWord);
   this.updateGameInstanceChosenWord();
-  await updateCurrentInstanceDataInRedis(this);
+  await this.constructor.updateCurrentInstanceDataInRedis(this);
   socket.to(this.room_name).emit("options", options);
   if (fn) fn();
 };
@@ -106,7 +115,7 @@ Game.prototype.correctAnswer = function (socketId, game) {
     if (user.id === socketId) {
       this.users[index].scores = this.users[index].scores + 1;
       // FIXME: Async neccessary ? need Testing
-      await updateCurrentInstanceDataInRedis(this);
+      await this.constructor.updateCurrentInstanceDataInRedis(this);
     }
   }, this);
 
@@ -165,20 +174,20 @@ Game.prototype.startGame = function (socket) {
 };
 
 async function intervalHandler(socket, thisGameIntance, thisInterval) {
-  let self = await getCurrentInstanceDataFromRedis(thisGameIntance);
+  let self = await Game.getCurrentInstanceDataFromRedis(thisGameIntance);
   if (self.gameOver(self)) {
     io.in(self.room_name).emit("gameOver", "score");
     clearInterval(thisInterval);
     // self.deleteGameInstanceFromRedis(self);
     // self.deleteRoomnameFromRedis(self);
     // self.deleteSocketIdUsernameFromRedis(self);
-    await updateCurrentInstanceDataInRedis(self);
+    await Game.updateCurrentInstanceDataInRedis(self);
   } else {
     self.sendWords(socket, async () => {
       if (self.userRoundsFinished(self)) {
         self.user_index++;
         self.rounds_index = 0;
-        await updateCurrentInstanceDataInRedis(self);
+        await Game.updateCurrentInstanceDataInRedis(self);
         if (self.user_index === self.users.length) {
         } else {
           self.users[self.user_index].playing = true;
@@ -195,8 +204,7 @@ async function intervalHandler(socket, thisGameIntance, thisInterval) {
   }
 }
 
-// FIXME:add this method within the gameclass ?
-function updateCurrentInstanceDataInRedis(game) {
+Game.updateCurrentInstanceDataInRedis = function (game) {
   return new Promise((resolve, reject) => {
     rClient.set(
       Redis.KeyNames.GameInstanceKey + game.game_instance_key,
@@ -211,10 +219,9 @@ function updateCurrentInstanceDataInRedis(game) {
       }
     );
   });
-}
+};
 
-// FIXME:add this method within the gameclass ?
-function getCurrentInstanceDataFromRedis(game) {
+Game.getCurrentInstanceDataFromRedis = function (game) {
   return new Promise((resolve, reject) => {
     rClient.get(
       Redis.KeyNames.GameInstanceKey + game.game_instance_key,
@@ -228,7 +235,7 @@ function getCurrentInstanceDataFromRedis(game) {
       }
     );
   });
-}
+};
 
 // static method for Game class
 Game.setRClient = (client) => {

@@ -4,9 +4,9 @@ socket.on("roomVerified", function (data) {
     $("#modal-2-content").prepend(
       '<p class="errorMessage">' + data.message + "</p>"
     );
-    // setTimeout(function () {
-    //   $("#modal-2-content p").remove();
-    // }, 3000);
+    setTimeout(function () {
+      $("#modal-2-content p").remove();
+    }, 3000);
   } else {
     MicroModal.close("joinRoomModal");
     $(".createRoom").hide();
