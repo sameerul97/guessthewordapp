@@ -198,8 +198,12 @@ socket.on("clearCanvas", function (data) {
   }
 });
 
-socket.on("gameOver", function (data) {
+socket.on("gameOver", function (score, reason) {
   $(".gameOver").append("<h1>Gameover</h1>");
+
+  if (reason != null) {
+    $(".gameOver").append("<h1>" + reason + " </h1>");
+  }
   // FIXME:Update generated room record with gamefinished
   //   This event should trigger on game3 entity.js once the gameover is triggererd
   if (localStorage.getItem(appName + "_GENERATED_ROOM_ID")) {

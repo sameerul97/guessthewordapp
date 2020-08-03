@@ -25,6 +25,7 @@ class Game {
     this.game_started = false;
     // Pause game flag is checked on each interval execution
     this.pause_game = false;
+    this.game_over_reason = null;
   }
 }
 
@@ -176,7 +177,7 @@ Game.prototype.startGame = function (socket) {
 async function intervalHandler(socket, thisGameIntance, thisInterval) {
   let self = await Game.getCurrentInstanceDataFromRedis(thisGameIntance);
   if (self.gameOver(self)) {
-    io.in(self.room_name).emit("gameOver", "score");
+    io.in(self.room_name).emit("gameOver", "score", self.game_over_reason);
     clearInterval(thisInterval);
     // self.deleteGameInstanceFromRedis(self);
     // self.deleteRoomnameFromRedis(self);

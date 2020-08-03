@@ -109,6 +109,7 @@ const disconnecting = (socket) => async (reason) => {
       if (game.game_over === false) {
         if (socketUserIndex === game.users.length - 1) {
           game.game_over = true;
+          game.game_over_reason =  "Other user left !"
           GameClass.updateCurrentInstanceDataInRedis(game);
         }
         // if (game.users.length === 2) {
