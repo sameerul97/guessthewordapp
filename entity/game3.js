@@ -21,10 +21,12 @@ class Game {
     this.game_instance_key = gameInstanceKey;
     this.chosenWord = null;
     this.timer_seconds = 20000;
-    this.game_over = false;
     this.game_started = false;
     // Pause game flag is checked on each interval execution
     this.pause_game = false;
+    this.pause_game_reason = null;
+    // Game over flag is checked on each interval execution
+    this.game_over = false;
     this.game_over_reason = null;
   }
 }
@@ -134,6 +136,26 @@ Game.prototype.correctAnswer = function (socketId, game) {
   });
 };
 
+Game.prototype.pauseGame = function (socketId, game) {
+  io.in(game.room_name).emit("PauseGameAlert", game.pause_game_reason);
+  io.in(game.room_name).emit("nextPlayerAlert", {
+    userGoingToPlay: socketId,
+    timerSeconds: game.timer_seconds,
+    // gameInstanceIndex: this.gameInstanceIndex
+  });
+  io.to(socketId).emit("switchingToNextPlayer", {
+    playing: true,
+    timerSeconds: game.timer_seconds * 2,
+
+    // gameInstanceIndex: this.gameInstanceIndex
+  });
+};
+
+Game.prototype.removeUser = async function (game, leavingUserId) {
+  let usersInGame = game.users;
+  return usersInGame.filter((user, index, arr) => user.id != leavingUserId);
+};
+
 Game.prototype.resetAlreadyGuessedProperty = function (game) {
   for (i in game.users) {
     game.users[i].alreadyGuessed = false;
@@ -176,7 +198,28 @@ Game.prototype.startGame = function (socket) {
 
 async function intervalHandler(socket, thisGameIntance, thisInterval) {
   let self = await Game.getCurrentInstanceDataFromRedis(thisGameIntance);
-  if (self.gameOver(self)) {
+  if (self.pause_game) {
+    // Pause game
+    clearInterval(thisInterval);
+    self.user_index++;
+    self.rounds_index = 0;
+    self.pause_game = false;
+    self.timer_seconds = 5000;
+    await self.pauseGame(self.users[self.user_index].id, self);
+    await Game.updateCurrentInstanceDataInRedis(self);
+    self.users[self.user_index].playing = true;
+    setTimeout(async () => {
+      self.user_index--;
+      console.log(self.timer_seconds);
+      var newUsers = await self.removeUser(self, self.pause_game_reason);
+      self.users = newUsers;
+      // self.nextPlayerAlert(socket, self.users[self.user_index].id, self, io);
+      self.timer_seconds = 20000;
+
+      await Game.updateCurrentInstanceDataInRedis(self);
+    }, self.timer_seconds);
+  } else if (self.gameOver(self)) {
+    self.game_over = true;
     io.in(self.room_name).emit("gameOver", "score", self.game_over_reason);
     clearInterval(thisInterval);
     // self.deleteGameInstanceFromRedis(self);

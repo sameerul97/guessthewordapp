@@ -3,7 +3,7 @@ const RoomService = require("../services/roomService");
 const e = require("express");
 require("../entity/game3");
 
-const GameClass= require("../entity/game3");
+const GameClass = require("../entity/game3");
 require("../errors/gameError");
 
 const playGame = (socket) => async (roomName, reply) => {
@@ -97,7 +97,7 @@ const disconnecting = (socket) => async (reason) => {
     if (err) {
       console.error(err);
     } else {
-      let sid = socket.id;
+      var sid = socket.id;
       console.log(rooms); // an array containing every room a given id has joined.
       let roomname = rooms[1];
       let gameInstanceKey = await RoomService.getRoomKey(roomname);
@@ -106,12 +106,49 @@ const disconnecting = (socket) => async (reason) => {
       let game = await GameService.gameParser(gameObject);
       let users = game.users;
       let socketUserIndex = users.findIndex((user) => user.id === sid);
+      let currentlyPlayingUser = game.user_index;
       if (game.game_over === false) {
-        if (socketUserIndex === game.users.length - 1) {
+        // If the user is last player and he is the last one within 2 player
+        // if (socketUserIndex === users.length - 1 && users.length === 2) {
+        if (users.length === 2) {
           game.game_over = true;
-          game.game_over_reason =  "Other user left !"
+          game.game_over_reason = "Other user left the game!";
           GameClass.updateCurrentInstanceDataInRedis(game);
         }
+
+        // If the user is last player and the user is currently playing then gameover
+        else if (
+          socketUserIndex === game.users.length - 1 &&
+          users[currentlyPlayingUser].id === sid
+        ) {
+          game.game_over = true;
+          game.game_over_reason = "User left !";
+          GameClass.updateCurrentInstanceDataInRedis(game);
+        }
+        //
+        else if (users[currentlyPlayingUser].id === sid) {
+          game.pause_game = true;
+          game.pause_game_reason = sid;
+          console.log("Need to switch next player");
+          GameClass.updateCurrentInstanceDataInRedis(game);
+        } else {
+          console.log("Need to remove this player from the game session");
+        }
+
+        // 2) [p1,p2,p3] p2 playing p2 leaving, should switch p3 as currently playing as p2 left
+        // Steps:
+        //    Hit pause and Clear interval loop and start Game interval
+        //    every seconds or 3
+        //    Emit handshake with p3
+        //    on success increment game user_index and let the room know p3 is playing
+
+        // [p1,p2,p3] p1 playing p2 leaving, should switch to p3 as next player and ignore p2
+        // Steps:
+        //    Hit pause (where to pause)
+        //    Run gameInterval every seconds or 3
+        //    Emit handshake with p3
+        //    on success increment game user_index and let the room know p3 is playing
+
         // if (game.users.length === 2) {
         //   console.log("its gameover");
         // }

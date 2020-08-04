@@ -153,6 +153,7 @@ socket.on("nextPlayerAlert", function (data) {
   // initiateHandshake(data.gameInstanceIndex);
 });
 
+// Triggered by server to let the socket know its sockets turn to play next
 socket.on("youArePlayingNext", function (data) {
   if (data.playing) {
     // roomInstance = data.gameInstanceIndex;
@@ -160,6 +161,40 @@ socket.on("youArePlayingNext", function (data) {
     // currentlyPlaying = true;
     // enableCanvasDrawing();
   }
+});
+
+// Game pause state when the currently drawing user leaves the game
+socket.on("PauseGameAlert", function (userId) {
+  var userLeft = undefined;
+  $(".connectedUsers")
+    .children("div")
+    .each(function (i, el) {
+      // console.log(i,el, $(this))
+      $(this).css({
+        border: "none",
+      });
+    });
+  $(".connectedUsers")
+    .children("div")
+    .each(function (i, el) {
+      // console.log(i,el, $(this))
+      if ($(this).attr("id") === userId) {
+        userLeft = $(this).text();
+      }
+    });
+  disableCanvasDrawing();
+  hideClearCanvasButton();
+  hideColorSelector();
+  $(".wordToGuess_options , .wordToGuess").empty();
+  $(".wordToGuess").append(
+    "<p>" + userLeft + " has left the game session </p>"
+  );
+});
+
+socket.on("switchingToNextPlayer", function (data) {
+  setTimeout(function () {
+    initiateHandshake();
+  }, data.timerSeconds);
 });
 
 socket.on("setGameInstance", function (data) {
