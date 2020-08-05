@@ -107,7 +107,6 @@ const disconnecting = (socket) => async (reason) => {
       console.log(rooms); // an array containing every room a given id has joined.
       let roomname = rooms[1];
       let gameInstanceKey = await RoomService.getRoomKey(roomname);
-      console.log(gameInstanceKey);
       let gameObject = await GameService.getGameObject(gameInstanceKey);
       let game = await GameService.gameParser(gameObject);
       let users = game.users;
@@ -143,37 +142,7 @@ const disconnecting = (socket) => async (reason) => {
           GameClass.updateCurrentInstanceDataInRedis(game);
           console.log("Need to remove this player from the game session");
         }
-
-        // 2) [p1,p2,p3] p2 playing p2 leaving, should switch p3 as currently playing as p2 left
-        // Steps:
-        //    Hit pause and Clear interval loop and start Game interval
-        //    every seconds or 3
-        //    Emit handshake with p3
-        //    on success increment game user_index and let the room know p3 is playing
-
-        // [p1,p2,p3] p1 playing p2 leaving, should switch to p3 as next player and ignore p2
-        // Steps:
-        //    Hit pause (where to pause)
-        //    Run gameInterval every seconds or 3
-        //    Emit handshake with p3
-        //    on success increment game user_index and let the room know p3 is playing
-
-        // if (game.users.length === 2) {
-        //   console.log("its gameover");
-        // }
       }
-
-      /*
-        1) [p1,p2] p1 playing p2 leaving, should stop the game and show p1 is winner
-        2) [p1,p2] p2 playing p2 leaving, should stop the game and show p1 is winner
-        3) [p1,p2] p2 playing p2
-      */
-      // if(game.user_index === socketUserIndex){
-
-      // }
-      // if (socketUserIndex === game.users.length - 1) {
-      //   console.log("Gameover")
-      // }
     }
   });
 };
