@@ -12,7 +12,8 @@ module.exports = {
         clients.forEach(
           (item, i) =>
             (clients[i] = {
-              id: item,
+              id: item.id,
+              name: item.name,
               rounds: [false, false, false],
               scores: 0,
               alreadyGuessed: false,

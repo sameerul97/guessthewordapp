@@ -23,8 +23,12 @@ class Game {
     this.timer_seconds = 20000;
     this.game_started = false;
     // Pause game flag is checked on each interval execution
+    // pause game flag is used to check if the currently drawing user exits the game
     this.pause_game = false;
     this.pause_game_reason = null;
+    // Users who is not drawing left the game
+    this.users_left = false;
+    this.users_left_the_game = [];
     // Game over flag is checked on each interval execution
     this.game_over = false;
     this.game_over_reason = null;
@@ -156,6 +160,21 @@ Game.prototype.removeUser = async function (game, leavingUserId) {
   return usersInGame.filter((user, index, arr) => user.id != leavingUserId);
 };
 
+Game.prototype.removeMultipleUser = async function (game) {
+  let usersLeavingGame = game.users_left_the_game;
+  var newUsers = [];
+  for (gameUser in game.users) {
+    var found = false;
+    for (j in usersLeavingGame) {
+      if (usersLeavingGame[j] === game.users[gameUser].id) {
+        found = true;
+      }
+    }
+    found === false ? newUsers.push(game.users[gameUser]) : null;
+  }
+  return newUsers;
+};
+
 Game.prototype.resetAlreadyGuessedProperty = function (game) {
   for (i in game.users) {
     game.users[i].alreadyGuessed = false;
@@ -198,8 +217,14 @@ Game.prototype.startGame = function (socket) {
 
 async function intervalHandler(socket, thisGameIntance, thisInterval) {
   let self = await Game.getCurrentInstanceDataFromRedis(thisGameIntance);
-  if (self.pause_game) {
-    // Pause game
+  if (self.users_left) {
+    self.users = await self.removeMultipleUser(self);
+    self.users_left = false;
+    self.users_left_the_game = [];
+    await Game.updateCurrentInstanceDataInRedis(self);
+  }
+  // Pause game
+  else if (self.pause_game) {
     clearInterval(thisInterval);
     self.user_index++;
     self.rounds_index = 0;

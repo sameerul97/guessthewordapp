@@ -1,6 +1,7 @@
 const GameService = require("../services/gameService");
 const RoomService = require("../services/roomService");
-const e = require("express");
+const { NameSpace, Redis } = require("../config");
+
 require("../entity/game3");
 
 const GameClass = require("../entity/game3");
@@ -8,25 +9,30 @@ require("../errors/gameError");
 
 const playGame = (socket) => async (roomName, reply) => {
   try {
-    console.log("Socket admin", socket._admin);
     if (!socket._admin) {
       throw new OnlyAdminCanStartGameError();
     }
     var roomExist = await RoomService.roomExist(roomName);
     var gameInstanceKey = await RoomService.getRoomKey(roomName);
-    console.log(gameInstanceKey);
-    var clientsInRoom = await RoomService.getAllClientIdsInRoom(roomName);
-    if (clientsInRoom.length < 2) {
+    // var clientsInRoom = await RoomService.getAllClientIdsInRoom(roomName);
+
+    var clientIdsInRoom = await RoomService.getAllClientIdsInRoom(roomName);
+    if (clientIdsInRoom.length < 2) {
       throw new NoOfUserNotMetError();
     }
-    reply({ success: true });
-    await GameService.generateGameEnvironment(clientsInRoom);
-    await GameService.gameInit(
-      roomName,
-      clientsInRoom,
-      socket,
-      gameInstanceKey
+    var usersInRoom = clientIdsInRoom.map(
+      (id) => Redis.KeyNames.SocketIdUsername + id
     );
+    var getAllUsersInRoom = await RoomService.getAllUsersInRoom(usersInRoom);
+    var arr = await RoomService.mapUserIdWithUsername(
+      clientIdsInRoom,
+      getAllUsersInRoom
+    );
+
+    reply({ success: true });
+    console.log(arr);
+    await GameService.generateGameEnvironment(arr);
+    await GameService.gameInit(roomName, arr, socket, gameInstanceKey);
   } catch (err) {
     if (err instanceof OnlyAdminCanStartGameError) {
       reply({ error: true, errorType: err.name });
@@ -108,7 +114,7 @@ const disconnecting = (socket) => async (reason) => {
       let socketUserIndex = users.findIndex((user) => user.id === sid);
       let currentlyPlayingUser = game.user_index;
       if (game.game_over === false) {
-        // If the user is last player and he is the last one within 2 player
+        // If the user is the last one within 2 player then gameover
         // if (socketUserIndex === users.length - 1 && users.length === 2) {
         if (users.length === 2) {
           game.game_over = true;
@@ -125,13 +131,16 @@ const disconnecting = (socket) => async (reason) => {
           game.game_over_reason = "User left !";
           GameClass.updateCurrentInstanceDataInRedis(game);
         }
-        //
+        // if currently playing user leaves then switch to next user in the array
         else if (users[currentlyPlayingUser].id === sid) {
           game.pause_game = true;
           game.pause_game_reason = sid;
           console.log("Need to switch next player");
           GameClass.updateCurrentInstanceDataInRedis(game);
         } else {
+          game.users_left = true;
+          game.users_left_the_game.push(sid);
+          GameClass.updateCurrentInstanceDataInRedis(game);
           console.log("Need to remove this player from the game session");
         }
 
