@@ -12,17 +12,19 @@ const playGame = (socket) => async (roomName, reply) => {
     if (!socket._admin) {
       throw new OnlyAdminCanStartGameError();
     }
+
     var roomExist = await RoomService.roomExist(roomName);
     var gameInstanceKey = await RoomService.getRoomKey(roomName);
-    // var clientsInRoom = await RoomService.getAllClientIdsInRoom(roomName);
-
     var clientIdsInRoom = await RoomService.getAllClientIdsInRoom(roomName);
+
     if (clientIdsInRoom.length < 2) {
       throw new NoOfUserNotMetError();
     }
+
     var usersInRoom = clientIdsInRoom.map(
       (id) => Redis.KeyNames.SocketIdUsername + id
     );
+
     var getAllUsersInRoom = await RoomService.getAllUsersInRoom(usersInRoom);
     var arr = await RoomService.mapUserIdWithUsername(
       clientIdsInRoom,
@@ -30,16 +32,18 @@ const playGame = (socket) => async (roomName, reply) => {
     );
 
     reply({ success: true });
-    console.log(arr);
+
     await GameService.generateGameEnvironment(arr);
     await GameService.gameInit(roomName, arr, socket, gameInstanceKey);
   } catch (err) {
     if (err instanceof OnlyAdminCanStartGameError) {
       reply({ error: true, errorType: err.name });
     }
+
     if (err instanceof NoOfUserNotMetError) {
       reply({ error: true, errorType: err.name });
     }
+
     if (err instanceof RoomNotInDbError) {
       console.error(err);
       socket.emit("roomVerified", {
@@ -47,6 +51,7 @@ const playGame = (socket) => async (roomName, reply) => {
         message: err.message,
       });
     }
+
     console.log(err);
   }
 };
@@ -55,7 +60,16 @@ const handShakeListerner = (socket) => async (gameInstanceKey) => {
   try {
     var gameObject = await GameService.getGameObject(gameInstanceKey);
     var parsedGameObject = await GameService.gameParser(gameObject);
-    await GameService.handShakeVerify(socket, parsedGameObject);
+
+    if (parsedGameObject.game_over === false) {
+      await GameService.handShakeVerify(socket, parsedGameObject);
+    } else {
+      io.in(parsedGameObject.room_name).emit(
+        "gameOver",
+        "score",
+        parsedGameObject.game_over_reason
+      );
+    }
   } catch (err) {
     console.log(err);
   }
@@ -91,6 +105,7 @@ const clearCanvas = (socket) => async (data) => {
   try {
     var gameObject = await GameService.getGameObject(gameInstanceIndex);
     var parsedGameObject = await GameService.gameParser(gameObject);
+
     io.in(parsedGameObject.roomName).emit("clearCanvas", true);
   } catch (err) {
     console.log("Wrong Game Key");
@@ -106,15 +121,17 @@ const disconnecting = (socket) => async (reason) => {
       var sid = socket.id;
       console.log(rooms); // an array containing every room a given id has joined.
       let roomname = rooms[1];
+
       let gameInstanceKey = await RoomService.getRoomKey(roomname);
       let gameObject = await GameService.getGameObject(gameInstanceKey);
       let game = await GameService.gameParser(gameObject);
+
       let users = game.users;
       let socketUserIndex = users.findIndex((user) => user.id === sid);
       let currentlyPlayingUser = game.user_index;
+
       if (game.game_over === false) {
         // If the user is the last one within 2 player then gameover
-        // if (socketUserIndex === users.length - 1 && users.length === 2) {
         if (users.length === 2) {
           game.game_over = true;
           game.game_over_reason = "Other user left the game!";
@@ -130,13 +147,17 @@ const disconnecting = (socket) => async (reason) => {
           game.game_over_reason = "User left !";
           GameClass.updateCurrentInstanceDataInRedis(game);
         }
-        // if currently playing user leaves then switch to next user in the array
+
+        // if currently playing user leaves then switch to next user in the room
         else if (users[currentlyPlayingUser].id === sid) {
           game.pause_game = true;
           game.pause_game_reason = sid;
           console.log("Need to switch next player");
           GameClass.updateCurrentInstanceDataInRedis(game);
-        } else {
+        }
+
+        // Users whos not drawing leaving
+        else {
           game.users_left = true;
           game.users_left_the_game.push(sid);
           GameClass.updateCurrentInstanceDataInRedis(game);

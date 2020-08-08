@@ -236,6 +236,8 @@ socket.on("clearCanvas", function (data) {
 socket.on("gameOver", function (score, reason) {
   $(".gameOver").append("<h1>Gameover</h1>");
 
+  
+
   if (reason != null) {
     $(".gameOver").append("<h1>" + reason + " </h1>");
   }
