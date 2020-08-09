@@ -235,26 +235,7 @@ Game.prototype.startGame = function (socket) {
 
 async function intervalHandler(socket, thisGameIntance, thisInterval) {
   let self = await Game.getCurrentInstanceDataFromRedis(thisGameIntance);
-
-  // if the drawing (playing) user left the game
-  if (self.pause_game) {
-    self.exitGameLoopInterval(thisInterval);
-
-    self.user_index++;
-    self.rounds_index = 0;
-    self.pause_game = false;
-    self.timer_seconds = 5000;
-
-    await self.pauseGame(self.users[self.user_index].id, self);
-    await Game.updateCurrentInstanceDataInRedis(self);
-
-    self.users[self.user_index].playing = true;
-    self.user_index--;
-
-    var newUsers = await self.removeUser(self, self.pause_game_reason);
-    self.users = newUsers;
-
-    // newly added
+  if (self.users_left) {
     self.users = await self.removeMultipleUser(self);
 
     io.in(self.room_name).emit("aUserJoined", self.users);
@@ -268,7 +249,45 @@ async function intervalHandler(socket, thisGameIntance, thisInterval) {
 
     self.users_left = false;
     self.users_left_the_game = [];
-    // newly end
+
+    await Game.updateCurrentInstanceDataInRedis(self);
+  }
+  // if the drawing (playing) user left the game
+  if (self.pause_game) {
+    let self = await Game.getCurrentInstanceDataFromRedis(thisGameIntance);
+
+    self.exitGameLoopInterval(thisInterval);
+
+    self.user_index++;
+    self.rounds_index = 0;
+    self.pause_game = false;
+    self.timer_seconds = 5000;
+
+    await Game.updateCurrentInstanceDataInRedis(self);
+
+    self.users[self.user_index].playing = true;
+    self.user_index--;
+
+    var newUsers = await self.removeUser(self, self.pause_game_reason);
+    self.users = newUsers;
+
+    // // newly added
+    // self.users = await self.removeMultipleUser(self);
+
+    // io.in(self.room_name).emit("aUserJoined", self.users);
+
+    if (self.users.length === 1) {
+      self.game_over = true;
+      self.game_over_reason = "Other users leftt!";
+      io.in(self.room_name).emit("gameOver", "score", self.game_over_reason);
+      self.exitGameLoopInterval(thisInterval);
+    } else {
+      await self.pauseGame(self.users[self.user_index].id, self);
+    }
+
+    // self.users_left = false;
+    // self.users_left_the_game = [];
+    // // newly end
 
     // self.nextPlayerAlert(socket, self.users[self.user_index].id, self, io);
     self.timer_seconds = 20000;
@@ -308,8 +327,7 @@ async function intervalHandler(socket, thisGameIntance, thisInterval) {
   }
   // sendwords (gameloop)
   else {
-    io.in(self.room_name).emit("aUserJoined", self.users);
-
+    console.log(socket.connected);
     self.sendWords(socket, async () => {
       if (self.userRoundsFinished(self)) {
         self.user_index++;
