@@ -308,6 +308,8 @@ async function intervalHandler(socket, thisGameIntance, thisInterval) {
   }
   // sendwords (gameloop)
   else {
+    io.in(self.room_name).emit("aUserJoined", self.users);
+
     self.sendWords(socket, async () => {
       if (self.userRoundsFinished(self)) {
         self.user_index++;

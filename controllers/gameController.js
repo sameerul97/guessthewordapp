@@ -64,11 +64,11 @@ const handShakeListerner = (socket) => async (gameInstanceKey) => {
     if (parsedGameObject.game_over === false) {
       await GameService.handShakeVerify(socket, parsedGameObject);
     } else {
-      io.in(parsedGameObject.room_name).emit(
-        "gameOver",
-        "score",
-        parsedGameObject.game_over_reason
-      );
+      // io.in(parsedGameObject.room_name).emit(
+      //   "gameOver",
+      //   "score",
+      //   parsedGameObject.game_over_reason
+      // );
     }
   } catch (err) {
     console.log(err);
