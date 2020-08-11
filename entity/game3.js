@@ -157,7 +157,7 @@ Game.prototype.pauseGame = function (socketId, game) {
 
   io.to(socketId).emit("switchingToNextPlayer", {
     playing: true,
-    timerSeconds: game.timer_seconds,
+    timerSeconds: game.timer_seconds / 2 + 5000,
 
     // gameInstanceIndex: this.gameInstanceIndex
   });
@@ -283,6 +283,7 @@ async function intervalHandler(socket, thisGameIntance, thisInterval) {
       self.exitGameLoopInterval(thisInterval);
     } else {
       await self.pauseGame(self.users[self.user_index].id, self);
+      io.in(self.room_name).emit("aUserJoined", self.users);
     }
 
     // self.users_left = false;
