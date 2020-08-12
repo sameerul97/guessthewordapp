@@ -12,7 +12,8 @@ module.exports = {
         socket._username = username;
         resolve(true);
       } else {
-        reject(new InvalidUsernameError());
+        reject(false);
+        // reject(new InvalidUsernameError());
       }
     });
   },

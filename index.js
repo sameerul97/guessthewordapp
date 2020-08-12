@@ -87,7 +87,10 @@ function onConnection(socket) {
     });
   });
 
-  socket.on("createRoom", roomController.createRoom(socket));
+  socket.on("createRoom", () => {
+    var response = roomController.createRoom(socket);
+    socket.emit
+  });
 
   socket.on("joinRoom", roomController.joinRoom(socket));
 
