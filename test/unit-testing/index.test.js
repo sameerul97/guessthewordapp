@@ -15,13 +15,45 @@ var socketC1;
 //   dummyUserServiceMethod1: jest.fn(),
 // }));
 
-describe("Create Room With no username", () => {
+describe("Create Room", () => {
   test("should throw invalid username error", async () => {
     jest.spyOn(UserService, "setUsername").mockReturnValue(false);
 
     var roomName = await createRoom()("");
 
     expect(roomName).toMatchObject(new InvalidUsernameError());
+  });
+  test("should return userId, roomName, userList", async () => {
+    var userName = "sameer";
+    var socket = { id: "00zz54xcsad2121sda1", username: "sameer" };
+    var clientIdsInRoom = ["00zz54xcsad2121sda1"];
+    var AllUserNameInRoom = ["sameer"];
+    var arr = [{ id: "00zz54xcsad2121sda1", name: "sameer" }];
+
+    jest.spyOn(UserService, "getUserId").mockReturnValue(socket.id);
+    jest.spyOn(UserService, "getUsername").mockReturnValue(socket.username);
+
+    jest.spyOn(UserService, "setUsername").mockResolvedValueOnce(true);
+    jest.spyOn(UserService, "setAdmin").mockReturnValue(true);
+    jest.spyOn(RoomService, "createRoom").mockResolvedValueOnce("room");
+    jest.spyOn(RoomService, "joinRoom").mockResolvedValueOnce(true);
+    jest.spyOn(RoomService, "setUsernameInRedis").mockResolvedValueOnce(true);
+    jest
+      .spyOn(RoomService, "getAllClientIdsInRoom")
+      .mockResolvedValueOnce(clientIdsInRoom);
+    jest
+      .spyOn(RoomService, "getAllUsersInRoom")
+      .mockResolvedValueOnce(AllUserNameInRoom);
+    jest.spyOn(RoomService, "mapUserIdWithUsername").mockResolvedValueOnce(arr);
+
+    var roomName = await createRoom()({ username: userName });
+    // expect(roomName).to.be.an("object");
+    expect(roomName).toMatchObject({
+      roomName: "room",
+      userId: "00zz54xcsad2121sda1",
+      userList: arr,
+    });
+    // expect(roomName).toMatchObject(new InvalidUsernameError());
   });
 });
 

@@ -115,7 +115,7 @@ module.exports = {
             // console.log('Added then');
             // TODO: create custom error if set user name fails
             roomName != undefined
-              ? resolve(roomName)
+              ? resolve(true)
               : reject(new Error("Unable to set in Redis"));
           } else {
           }

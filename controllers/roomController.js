@@ -73,27 +73,41 @@ const createRoom = (socket) => async (socketData) => {
     return new InvalidUsernameError();
   }
 
-  var setAdmin = await User.setAdmin(socket, true);
+  await User.setAdmin(socket, true);
+
   var roomName = await RoomService.createRoom();
-  var joinRoom = await RoomService.joinRoom(socket, roomName);
-  var addUserInRoom = await RoomService.setUsernameInRedis(
+  var userid = User.getUserId(socket);
+  
+  await RoomService.joinRoom(socket, roomName);
+  await RoomService.setUsernameInRedis(
     User.getUserId(socket),
     roomName,
     User.getUsername(socket)
   );
+
   var clientIdsInRoom = await RoomService.getAllClientIdsInRoom(roomName);
   var usersInRoom = clientIdsInRoom.map(
     (id) => Redis.KeyNames.SocketIdUsername + id
   );
+
   var getAllUsersInRoom = await RoomService.getAllUsersInRoom(usersInRoom);
   let arr = await RoomService.mapUserIdWithUsername(
     usersInRoom,
     getAllUsersInRoom
   );
 
-  io.to(roomName).emit("roomNameIs", roomName);
-  socket.emit("userId", User.getUserId(socket));
-  io.in(roomName).emit("aUserJoined", arr);
+  var jsonResponse = {
+    roomName: roomName,
+    userId: userid,
+    userList: arr,
+  };
+
+  return jsonResponse;
+
+  // io.to(roomName).emit("roomNameIs", roomName);
+  // socket.emit("userId", User.getUserId(socket));
+  // io.in(roomName).emit("aUserJoined", arr);
+
   // } catch (err) {
   //   var message;
   //   if (err instanceof InvalidUsernameError) {

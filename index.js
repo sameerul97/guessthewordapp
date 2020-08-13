@@ -87,9 +87,12 @@ function onConnection(socket) {
     });
   });
 
-  socket.on("createRoom", () => {
-    var response = roomController.createRoom(socket);
-    socket.emit
+  socket.on("createRoom", async function (socketData) {
+    var resBe = await roomController.createRoom(socket)(socketData);
+    console.log(resBe);
+    // let { roomName } = response;
+    // socket.emit("roomNameIs", response);
+    // io.to(roomName).emit("roomNameIs", response);
   });
 
   socket.on("joinRoom", roomController.joinRoom(socket));

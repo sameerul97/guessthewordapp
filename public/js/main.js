@@ -114,7 +114,7 @@ function createRoom(e) {
     socket.emit("createRoom", { username: userName });
     // socket replies back with created room name (which should be sent to other user who wants to play together)
     socket.on("roomNameIs", function (roomName) {
-      // console.log(roomName);
+      console.log(roomName);
       document.getElementById("createdRoomName").innerHTML =
         "Room name : " + roomName;
       $("#createdRoomName").show();
