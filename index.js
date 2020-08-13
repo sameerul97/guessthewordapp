@@ -89,10 +89,12 @@ function onConnection(socket) {
 
   socket.on("createRoom", async function (socketData) {
     var resBe = await roomController.createRoom(socket)(socketData);
-    console.log(resBe);
-    // let { roomName } = response;
-    // socket.emit("roomNameIs", response);
-    // io.to(roomName).emit("roomNameIs", response);
+
+    let { roomName, userId, userList } = resBe;
+
+    io.to(roomName).emit("roomNameIs", roomName);
+    socket.emit("userId", userId);
+    io.in(roomName).emit("aUserJoined", userList);
   });
 
   socket.on("joinRoom", roomController.joinRoom(socket));

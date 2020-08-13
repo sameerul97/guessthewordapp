@@ -32,9 +32,9 @@ describe("Create Room", () => {
 
     jest.spyOn(UserService, "getUserId").mockReturnValue(socket.id);
     jest.spyOn(UserService, "getUsername").mockReturnValue(socket.username);
+    jest.spyOn(UserService, "setAdmin").mockReturnValue(true);
 
     jest.spyOn(UserService, "setUsername").mockResolvedValueOnce(true);
-    jest.spyOn(UserService, "setAdmin").mockReturnValue(true);
     jest.spyOn(RoomService, "createRoom").mockResolvedValueOnce("room");
     jest.spyOn(RoomService, "joinRoom").mockResolvedValueOnce(true);
     jest.spyOn(RoomService, "setUsernameInRedis").mockResolvedValueOnce(true);
@@ -46,14 +46,18 @@ describe("Create Room", () => {
       .mockResolvedValueOnce(AllUserNameInRoom);
     jest.spyOn(RoomService, "mapUserIdWithUsername").mockResolvedValueOnce(arr);
 
-    var roomName = await createRoom()({ username: userName });
-    // expect(roomName).to.be.an("object");
-    expect(roomName).toMatchObject({
-      roomName: "room",
-      userId: "00zz54xcsad2121sda1",
-      userList: arr,
-    });
-    // expect(roomName).toMatchObject(new InvalidUsernameError());
+    var response = await createRoom()({ username: userName });
+
+    expect(typeof response).toBe("object");
+
+    expect(response).toHaveProperty("roomName", "room");
+    expect(typeof response.roomName).toBe("string");
+
+    expect(response).toHaveProperty("userId", "00zz54xcsad2121sda1");
+    expect(typeof response.userId).toBe("string");
+
+    expect(response).toHaveProperty("userList", arr);
+    expect(typeof response.userList).toBe("object");
   });
 });
 
@@ -65,7 +69,7 @@ describe("dummyController Test", () => {
         id: "testUserRandomUUID",
       },
     };
-    // const mMemberRecord = { id: '1', username: 'KF1' };
+
     jest
       .spyOn(UserService, "dummyUserServiceMethod1")
       .mockResolvedValueOnce(mockData);
@@ -76,6 +80,7 @@ describe("dummyController Test", () => {
       .mockResolvedValueOnce(mockData);
 
     var res = await dummyController();
+
     expect(res).toMatchObject({
       user: {
         userName: "testuser",
@@ -92,7 +97,7 @@ describe("dummyController Test", () => {
         id: "testUserRandomUUID",
       },
     };
-    // const mMemberRecord = { id: '1', username: 'KF1' };
+
     jest
       .spyOn(UserService, "dummyUserServiceMethod1")
       .mockResolvedValueOnce(mockData);
@@ -101,6 +106,7 @@ describe("dummyController Test", () => {
       .mockRejectedValueOnce(new RoomNotInDbError());
 
     var res = await dummyController();
+
     expect(res).toMatchObject(new RoomNotInDbError());
   });
 });
