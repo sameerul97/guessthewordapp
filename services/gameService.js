@@ -6,6 +6,7 @@ module.exports = {
   setRClient: (client) => {
     rClient = client;
   },
+
   generateGameEnvironment: async (clients, adminSocketId) => {
     return new Promise((resolve, reject) => {
       resolve(
@@ -23,6 +24,7 @@ module.exports = {
       );
     });
   },
+
   gameInit: async (roomName, users, socket, gameInstanceKey) => {
     return new Promise((resolve, reject) => {
       const NewGame = new Game(roomName, users, gameInstanceKey);
@@ -42,9 +44,11 @@ module.exports = {
       );
     });
   },
+
   handShakeVerify: async (socket, gameInstance) => {
     setTimeout(() => gameInstance.startGame(socket), 3000);
   },
+
   checkAnswer: async (gameInstanceKey, selectedAnswer) => {
     return new Promise((resolve, reject) => {
       rClient.get(
@@ -61,6 +65,7 @@ module.exports = {
       );
     });
   },
+
   userAlreadyGuessed: async (socketId, gameInstance) => {
     return new Promise((resolve, reject) => {
       if (!gameInstance.userAlreadyGuessed(socketId)) {
@@ -76,6 +81,7 @@ module.exports = {
       }
     });
   },
+
   verifyAnswer: async (socketId, gameInstance, isCorrect) => {
     if (isCorrect) {
       gameInstance.correctAnswer(socketId);
@@ -83,6 +89,7 @@ module.exports = {
       gameInstance.wrongAnswer(socketId);
     }
   },
+
   getGameObject: async (gameInstanceKey) => {
     return new Promise((resolve, reject) => {
       rClient.get(
@@ -99,6 +106,7 @@ module.exports = {
       );
     });
   },
+
   gameParser: async (gameObject) => {
     return new Promise((resolve, reject) => {
       var tempGame = JSON.parse(gameObject);

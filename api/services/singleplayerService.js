@@ -1,10 +1,10 @@
-const WordService = require("./wordService");
+const WordService = require("../../services/wordService");
 const {
   Singleplayer_GuestMode,
   Singleplayer_GuestMode_Words,
-} = require("../entity/sequelize");
+} = require("../model/sequelize");
 
-var { drawing } = require("../data/googledrawing_pre_processed_data_4.json");
+var { drawing } = require("../../data/googledrawing_pre_processed_data_4.json");
 // var { drawing } = require("../data/googledrawing_pre_processed_data_3.json");
 // var { drawing } = require("../data/googledrawing_pre_processed_data_2.json");
 // var { drawing } = require("../data/googledrawings.json");
@@ -12,26 +12,44 @@ var { drawing } = require("../data/googledrawing_pre_processed_data_4.json");
 module.exports = {
   drawingWords: async function () {
     var words = [];
+
     while (words.length !== 5) {
       var selectedDrawing =
         drawing[Math.floor(Math.random() * (drawing.length - 1))];
+
       var { word, key_id } = selectedDrawing;
       var selectedDrawing2 = selectedDrawing.drawing;
       var found = false;
+
       for (var drawings in words) {
         if (words[drawings].word === selectedDrawing.word) {
           found = true;
           break;
         }
       }
+
       if (!found) {
         words.push({ word, drawing: selectedDrawing2, drawingId: key_id });
       }
     }
+
     return words;
   },
+
+  getWordAndOptions: async function (drawingAndWords) {
+    var words = drawingAndWords;
+
+    for (i in drawingAndWords) {
+      drawingAndWords[i]["options"] = WordService.getWord(
+        drawingAndWords[i].word
+      ).options;
+    }
+
+    return words;
+  },
+
   createGame: async function (username, words) {
-    return Singleplayer_GuestMode.create(
+    var createdGame = Singleplayer_GuestMode.create(
       {
         username: username,
         words: words,
@@ -40,7 +58,10 @@ module.exports = {
         include: ["words"],
       }
     );
+
+    return createdGame;
   },
+
   verifyAnswer: async function (game_id, round_id, selected_answer, options) {
     return Singleplayer_GuestMode.findByPk(game_id, {
       attributes: ["username", "score", "uuid"],
@@ -78,13 +99,16 @@ module.exports = {
     //   // DONE! :)
     // });
   },
+
   updateScore: async function (Singleplayer_GuestMode_Record, game_id) {
     var score_holder = Singleplayer_GuestMode_Record.score;
+
     return Singleplayer_GuestMode_Record.update(
       { score: score_holder + 1 },
       { where: { uuid: game_id } }
     );
   },
+
   updateAlreadyGuessed: async function (
     Singleplayer_GuestMode_Record,
     round_id,

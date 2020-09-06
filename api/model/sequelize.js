@@ -1,5 +1,5 @@
 const Sequelize = require("sequelize");
-const GameRoomLinkModel = require("./gameRoomLink");
+const GameRoomLinkModel = require("../../entity/gameRoomLink");
 const Singleplayer_GuestMode_Model = require("./singleplayer_guestmode");
 const Singleplayer_GuestMode_Words_Model = require("./singleplayer_guestMode_words");
 const sequelize = new Sequelize(
@@ -18,7 +18,7 @@ const sequelize = new Sequelize(
     await sequelize.authenticate();
     console.log("Connection has been established successfully.");
   } catch (error) {
-    console.error("Unable to connect to the database:", error);
+    // console.error("Unable to connect to the database:", error);
   }
 })();
 
@@ -37,13 +37,14 @@ Singleplayer_GuestMode.hasMany(Singleplayer_GuestMode_Words, {
   foreignKey: "gameid",
   // targetKey: "uuid",
 });
+
 Singleplayer_GuestMode_Words.belongsTo(Singleplayer_GuestMode, {
   foreignKey: "gameid",
   targetKey: "uuid",
 });
 
 sequelize.sync({ alter: true }).then(() => {
-// sequelize.sync({ force: true }).then(() => {
+  // sequelize.sync({ force: true }).then(() => {
   console.log(`Database & tables created!`);
 });
 

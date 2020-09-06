@@ -21,8 +21,8 @@ app.use(
 );
 
 // controller
-var roomController = require("./controllers/roomController");
-var gameController = require("./controllers/gameController");
+const RoomController = require("./controllers/roomController");
+const GameController = require("./controllers/gameController");
 
 // service
 const word = require("./services/wordService");
@@ -32,6 +32,10 @@ const jwtService = require("./services/jwtService");
 
 // Game module
 var GameClass = require("./entity/game3");
+
+// Error
+require("./errors/gameError");
+require("./errors/userError");
 
 // Redis Config
 const { Redis } = require("./config");
@@ -47,9 +51,11 @@ const pub = redis.createClient(REDIS_STORE_PORT, REDIS_STORE_HOST, {
 const sub = redis.createClient(REDIS_STORE_PORT, REDIS_STORE_HOST, {
   auth_pass: REDIS_STORE_PASSWORD,
 });
+
 io.adapter(
   rAdapter({ pubClient: pub, subClient: sub, requestsTimeout: 15000 })
 );
+
 const client = redis
   .createClient(REDIS_STORE_PORT, REDIS_STORE_HOST)
   .on("error", (err) => console.error("Redis connection error ", err));
@@ -61,7 +67,7 @@ gameService.setRClient(client);
 GameClass.setRClient(client);
 
 var customRoom = require("./controllers/customRoomController");
-var singleplayer = require("./controllers/singleplayer");
+// var singleplayer = require("./controllers/singleplayerController");
 // rAdapter.pubClient.on('error', function () {
 //   console.log("Redis Labs Error for Pub");
 // });
@@ -70,9 +76,18 @@ var singleplayer = require("./controllers/singleplayer");
 // });
 
 // Game Api
+var singleplayerRouter = require("./api/routes/singleplayer.route")
 app.use("/api/game", customRoom);
 
-app.use("/api/singleplayer", singleplayer);
+app.use("/api/singleplayer", singleplayerRouter);
+
+const {
+  CreateRoomResponse,
+  JoinRoomResponse,
+} = require("./responses/roomResponse");
+
+// var tbn = require("./controllers/tbn");
+// app.use("/api/tbn/", tbn);
 
 // Setting view
 app.use(express.static(__dirname + "/public"));
@@ -81,6 +96,10 @@ app.use(express.static(__dirname + "/public"));
 // io.use(existingUser);
 
 function onConnection(socket) {
+  socket.on("lol", () => {
+    socket.emit("response", "returnLOL");
+  });
+
   socket.on("drawing", (data) => {
     socket.to(data.currentRoom).emit("drawing", {
       data: data.drawData,
@@ -88,28 +107,72 @@ function onConnection(socket) {
   });
 
   socket.on("createRoom", async function (socketData) {
-    var resBe = await roomController.createRoom(socket)(socketData);
+    var resBe = await RoomController.createRoom(socket)(socketData);
 
-    let { roomName, userId, userList } = resBe;
+    if (resBe instanceof CreateRoomResponse) {
+      console.log(resBe);
 
-    io.to(roomName).emit("roomNameIs", roomName);
-    socket.emit("userId", userId);
-    io.in(roomName).emit("aUserJoined", userList);
+      let { roomName, userId, userList } = resBe;
+
+      io.to(roomName).emit("roomNameIs", roomName);
+      socket.emit("userId", userId);
+      io.in(roomName).emit("aUserJoined", userList);
+    }
+
+    if (resBe instanceof InvalidUsernameError) {
+      socket.emit("invalidUsername", new InvalidUsernameError());
+    }
   });
 
-  socket.on("joinRoom", roomController.joinRoom(socket));
+  socket.on("joinRoom", async function (socketData) {
+    let { roomname } = socketData;
 
-  socket.on("playGame", gameController.playGame(socket));
+    var response = await RoomController.joinRoom(socket)(socketData);
 
-  socket.on("handshakeIntialised", gameController.handShakeListerner(socket));
+    if (response instanceof JoinRoomResponse) {
+      let { success, userId, userList } = response;
 
-  socket.on("selectedAnswer", gameController.verifyAnswer(socket));
+      socket.emit("roomVerified", {
+        success: success,
+        message: null,
+      });
+      socket.emit("userId", userId);
+      io.in(roomname).emit("aUserJoined", userList);
+    }
 
-  socket.on("clearCanvas", gameController.clearCanvas(socket));
+    var message;
+
+    if (response instanceof GameAlreadyStarted) {
+      message = response.message;
+    }
+
+    if (response instanceof RoomNotInDbError) {
+      message = response.message;
+    }
+
+    if (response instanceof InvalidUsernameError) {
+      message = response.message;
+    }
+
+    socket.emit("roomVerified", {
+      success: false,
+      message: message,
+    });
+  });
+
+  socket.on("playGame", async function (socket) {
+    var response = await GameController.playGame(socket)(roomName);
+  });
+
+  socket.on("handshakeIntialised", GameController.handShakeListerner(socket));
+
+  socket.on("selectedAnswer", GameController.verifyAnswer(socket));
+
+  socket.on("clearCanvas", GameController.clearCanvas(socket));
   // socket.on("clearCanvas", (data) => {
   //   gameInstances[data.gameInstanceIndex].clearSocketsCanvas();
   // });
-  socket.on("disconnecting", gameController.disconnecting(socket));
+  socket.on("disconnecting", GameController.disconnecting(socket));
 
   socket.on("disconnect", function () {});
 }

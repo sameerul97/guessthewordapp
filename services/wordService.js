@@ -9,6 +9,7 @@
 var fs = require("fs");
 var obj = JSON.parse(fs.readFileSync("data/data.json", "utf8"));
 var guessWords = obj.guessWords;
+
 module.exports = {
   /**
      * Returns chosen word and optional word for user to select one
@@ -22,27 +23,33 @@ module.exports = {
      */
   getWord: (chosenWord) => {
     let options = [];
+
     if (chosenWord) {
       var chosenWord = chosenWord;
     } else {
       var chosenWord =
         guessWords[Math.floor(Math.random() * guessWords.length)];
     }
+
     options.push(chosenWord);
+
     while (options.length !== 4) {
       var word = guessWords[Math.floor(Math.random() * guessWords.length)];
       var found = false;
+
       for (var i in options) {
         if (options[i] === word) {
           found = true;
           break;
         }
       }
+
       if (!found) {
         options.push(word);
       }
     }
     options = module.exports.shuffle(options);
+
     return {
       // data: {
       chosenWord,
@@ -53,8 +60,10 @@ module.exports = {
   shuffle: (a) => {
     for (let i = a.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
+
       [a[i], a[j]] = [a[j], a[i]];
     }
+
     return a;
   },
 };

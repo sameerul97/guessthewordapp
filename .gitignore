@@ -5,6 +5,7 @@ bash.exe.stackdump
 # googleduickdrawdatasets/*
 *.ndjson
 *.aof
+tbn.js
 # !.googleduickdrawdatasets/
 # !/googleduickdrawdatasets/.gitkeep
 # googleduickdrawdatasets

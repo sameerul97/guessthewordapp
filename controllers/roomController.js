@@ -2,65 +2,97 @@ const RoomService = require("../services/roomService");
 const User = require("../services/userService");
 const GameService = require("../services/gameService");
 const { NameSpace, Redis } = require("../config");
+const {
+  CreateRoomResponse,
+  JoinRoomResponse,
+} = require("../responses/roomResponse");
+
 require("../errors/gameError");
 require("../errors/userError");
-const joinRoom = (socket) => async (roomToJoin, userName) => {
-  // let { username } = userName;
-  try {
-    var roomExist = await RoomService.roomExist(roomToJoin);
+require("../errors/AppError");
 
-    // check if game started already
-    var gameInstanceKey = await RoomService.getRoomKey(roomToJoin);
-    var gameObject = await GameService.getGameObject(gameInstanceKey);
+require("../responses/roomResponse");
 
-    if (gameObject != null) {
-      throw new GameAlreadyStarted();
-    }
+const joinRoom = (socket) => async (socketData) => {
+  let { roomname, username } = socketData;
+  // try {
 
-    var setuserName = await User.setUsername(socket, userName);
-    var setAdmin = await User.setAdmin(socket, false);
-    var joinRoom = await RoomService.joinRoom(socket, roomToJoin);
-    var addUserInRoom = await RoomService.setUsernameInRedis(
-      User.getUserId(socket),
-      roomToJoin,
-      User.getUsername(socket)
-    );
-    var clientIdsInRoom = await RoomService.getAllClientIdsInRoom(roomToJoin);
-    var usersInRoom = clientIdsInRoom.map(
-      (id) => Redis.KeyNames.SocketIdUsername + id
-    );
-    var getAllUsersInRoom = await RoomService.getAllUsersInRoom(usersInRoom);
-    let arr = await RoomService.mapUserIdWithUsername(
-      clientIdsInRoom,
-      getAllUsersInRoom
-    );
-
-    socket.emit("roomVerified", {
-      success: true,
-      message: null,
-    });
-    socket.emit("userId", User.getUserId(socket));
-    io.in(roomToJoin).emit("aUserJoined", arr);
-  } catch (err) {
-    var message;
-
-    if (err instanceof GameAlreadyStarted) {
-      message = err.message;
-    }
-
-    if (err instanceof RoomNotInDbError) {
-      message = err.message;
-    }
-
-    if (err instanceof InvalidUsernameError) {
-      message = err.message;
-    }
-
-    socket.emit("roomVerified", {
-      success: false,
-      message: message,
-    });
+  if (
+    !(
+      roomname != null &&
+      roomname != undefined &&
+      roomname.match(/^ *$/) === null
+    )
+  ) {
+    return new RoomNotInDbError();
   }
+
+  if ((await User.setUsername(socket, username)) === false) {
+    return new InvalidUsernameError();
+  }
+
+  var roomExist = await RoomService.roomExist(roomname);
+
+  if (roomExist === false) {
+    return new RoomNotInDbError();
+  }
+
+  // check if game started already
+  var gameInstanceKey = await RoomService.getRoomKey(roomname);
+  var gameObject = await GameService.getGameObject(gameInstanceKey);
+
+  if (gameObject != null) {
+    return new GameAlreadyStarted();
+  }
+
+  // var setuserName = await User.setUsername(socket, userName);
+  var setAdmin = await User.setAdmin(socket, false);
+  var joinRoom = await RoomService.joinRoom(socket, roomname);
+  var addUserInRoom = await RoomService.setUsernameInRedis(
+    User.getUserId(socket),
+    roomname,
+    User.getUsername(socket)
+  );
+  var clientIdsInRoom = await RoomService.getAllClientIdsInRoom(roomname);
+  var usersInRoom = clientIdsInRoom.map(
+    (id) => Redis.KeyNames.SocketIdUsername + id
+  );
+  var getAllUsersInRoom = await RoomService.getAllUsersInRoom(usersInRoom);
+
+  let arr = await RoomService.mapUserIdWithUsername(
+    clientIdsInRoom,
+    getAllUsersInRoom
+  );
+
+  // return { userList: arr, success: true, userId: User.getUserId(socket) };
+  // var res = ;
+  return new JoinRoomResponse(true, roomname, User.getUserId(socket), arr);
+  // socket.emit("roomVerified", {
+  //   success: true,
+  //   message: null,
+  // });
+  // socket.emit("userId", User.getUserId(socket));
+  // io.in(roomname).emit("aUserJoined", arr);
+  // } catch (err) {
+  //   var message;
+
+  //   if (err instanceof GameAlreadyStarted) {
+  //     message = err.message;
+  //   }
+
+  //   if (err instanceof RoomNotInDbError) {
+  //     message = err.message;
+  //   }
+
+  //   if (err instanceof InvalidUsernameError) {
+  //     message = err.message;
+  //   }
+
+  //   socket.emit("roomVerified", {
+  //     success: false,
+  //     message: message,
+  //   });
+  // }
 };
 
 const createRoom = (socket) => async (socketData) => {
@@ -77,7 +109,7 @@ const createRoom = (socket) => async (socketData) => {
 
   var roomName = await RoomService.createRoom();
   var userid = User.getUserId(socket);
-  
+
   await RoomService.joinRoom(socket, roomName);
   await RoomService.setUsernameInRedis(
     User.getUserId(socket),
@@ -89,20 +121,21 @@ const createRoom = (socket) => async (socketData) => {
   var usersInRoom = clientIdsInRoom.map(
     (id) => Redis.KeyNames.SocketIdUsername + id
   );
-
   var getAllUsersInRoom = await RoomService.getAllUsersInRoom(usersInRoom);
+
   let arr = await RoomService.mapUserIdWithUsername(
     usersInRoom,
     getAllUsersInRoom
   );
 
-  var jsonResponse = {
-    roomName: roomName,
-    userId: userid,
-    userList: arr,
-  };
+  // var jsonResponse = {
+  //   roomName: roomName,
+  //   userId: userid,
+  //   userList: arr,
+  // };
+  // new CreateRoom(roomName, userid, arr);
 
-  return jsonResponse;
+  return new CreateRoomResponse(roomName, userid, arr);
 
   // io.to(roomName).emit("roomNameIs", roomName);
   // socket.emit("userId", User.getUserId(socket));

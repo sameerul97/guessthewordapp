@@ -1,5 +1,6 @@
 OnlyAdminCanStartGameError = function (message) {
   this.name = "OnlyAdminCanStartGame";
+  this.message = "Only Admin can start game";
 };
 OnlyAdminCanStartGameError.prototype = Error.prototype;
 

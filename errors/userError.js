@@ -2,7 +2,7 @@ InvalidUsernameError = function (message) {
     this.message = "Username is invalid, verify and try again"
     this.name    = "Invalid Username"
     // if (Error.captureStackTrace) {
-    //     Error.captureStackTrace(this, RoomNotInDbError);
+    //     Error.captureStackTrace(this, InvalidUsernameError);
     // }
 }
 InvalidUsernameError.prototype = Error.prototype;

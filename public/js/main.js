@@ -162,7 +162,10 @@ function joinRoom(e, roomAlreadyCreated) {
       socket.open();
       var enteredRoomName = document.getElementById("enteredRoomName").value;
       userName = document.getElementById("userName").value;
-      socket.emit("joinRoom", enteredRoomName, userName);
+      socket.emit("joinRoom", {
+        roomname: enteredRoomName,
+        username: userName,
+      });
       currentRoom = enteredRoomName;
     }
   }

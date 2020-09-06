@@ -103,7 +103,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       // console.log('Going to add ', socketId, 'NAME ', userName);
       rClient.set(
-       Redis.KeyNames.SocketIdUsername + socketId,
+        Redis.KeyNames.SocketIdUsername + socketId,
         userName,
         "NX",
         "EX",
@@ -183,20 +183,16 @@ module.exports = {
    * @throws {ErrorMessage} Unknown to get all clients in room
    */
   roomExist: async (roomName) => {
-    return new Promise(function (resolve, reject) {
-      rClient.get(Redis.KeyNames.Roomname + roomName, (err, data) => {
-        err || data === null
-          ? reject(new RoomNotInDbError())
-          : resolve(SuccessMessage.roomExist);
-      });
+    // return new Promise(function (resolve, reject) {
+    rClient.get(Redis.KeyNames.Roomname + roomName, (err, data) => {
+      return err || data === null ? false : SuccessMessage.roomExist;
     });
+    // });
   },
   getRoomKey: async (roomName) => {
     return new Promise(function (resolve, reject) {
       rClient.get(Redis.KeyNames.Roomname + roomName, (err, data) => {
-        err || data === null
-          ? reject(new RoomNotInDbError())
-          : resolve(data);
+        err || data === null ? reject(new RoomNotInDbError()) : resolve(data);
       });
     });
   },

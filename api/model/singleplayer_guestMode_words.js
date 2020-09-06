@@ -10,9 +10,11 @@ module.exports = (sequelize, type) => {
         autoIncrement: true,
         primaryKey: true,
       },
+
       word: {
         type: type.STRING,
       },
+
       options: {
         type: type.STRING,
         allowNull: false,
@@ -21,17 +23,20 @@ module.exports = (sequelize, type) => {
           // return this.getDataValue("options").split(";");
           return JSON.parse(this.getDataValue("options"));
         },
+
         set(val) {
           // console.log("Model", val.join(";"));
           this.setDataValue("options", JSON.stringify(val));
         },
       },
+
       alreadyGuessed: {
         type: type.BOOLEAN,
         defaultValue: false,
       },
     }
   );
+
   Singleplayer_GuestMode_Words_Model.prototype.toJSON = function () {
     var values = Object.assign({}, this.get());
     // console.log(values)
