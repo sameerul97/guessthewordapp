@@ -16,6 +16,9 @@ var alreadyGuessed = false;
 var singleplayer_mode = false;
 var multiplayer_mode = false;
 const GAMEURLPARAMS = "game";
+
+localStorage.setItem("guessthewordapp_GENERATED_ROOM_ID","");
+
 // positioning exitRoom, clearnCanvas and colour selector element dynamically
 function positionButtonsInCanvasResponsively() {
   $(".leaveRoom").css({

@@ -76,7 +76,7 @@ var customRoom = require("./controllers/customRoomController");
 // });
 
 // Game Api
-var singleplayerRouter = require("./api/routes/singleplayer.route")
+var singleplayerRouter = require("./api/routes/singleplayer.route");
 app.use("/api/game", customRoom);
 
 app.use("/api/singleplayer", singleplayerRouter);
@@ -125,44 +125,49 @@ function onConnection(socket) {
   });
 
   socket.on("joinRoom", async function (socketData) {
-    let { roomname } = socketData;
+    try {
+      let { roomname } = socketData;
 
-    var response = await RoomController.joinRoom(socket)(socketData);
+      var response = await RoomController.joinRoom(socket)(socketData);
+      console.log(response);
 
-    if (response instanceof JoinRoomResponse) {
-      let { success, userId, userList } = response;
+      if (response instanceof JoinRoomResponse) {
+        let { success, userId, userList } = response;
+        console.log(success, userId, userList);
+
+        socket.emit("roomVerified", {
+          success: success,
+          message: null,
+        });
+        socket.emit("userId", userId);
+        io.in(roomname).emit("aUserJoined", userList);
+      }
+    } catch (response) {
+      var message;
+
+      if (response instanceof GameAlreadyStarted) {
+        message = response.message;
+      }
+
+      if (response instanceof RoomNotInDbError) {
+        message = response.message;
+      }
+
+      if (response instanceof InvalidUsernameError) {
+        message = response.message;
+      }
 
       socket.emit("roomVerified", {
-        success: success,
-        message: null,
+        success: false,
+        message: message,
       });
-      socket.emit("userId", userId);
-      io.in(roomname).emit("aUserJoined", userList);
     }
-
-    var message;
-
-    if (response instanceof GameAlreadyStarted) {
-      message = response.message;
-    }
-
-    if (response instanceof RoomNotInDbError) {
-      message = response.message;
-    }
-
-    if (response instanceof InvalidUsernameError) {
-      message = response.message;
-    }
-
-    socket.emit("roomVerified", {
-      success: false,
-      message: message,
-    });
   });
 
-  socket.on("playGame", async function (socket) {
-    var response = await GameController.playGame(socket)(roomName);
-  });
+  // socket.on("playGame", async function (socket) {
+  //   var response = await GameController.playGame(socket)(roomName);
+  // });
+  socket.on("playGame", GameController.playGame(socket));
 
   socket.on("handshakeIntialised", GameController.handShakeListerner(socket));
 

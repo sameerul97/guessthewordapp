@@ -1,6 +1,7 @@
 socket.on("roomVerified", function (data) {
+  console.log(data)
   if (!data.success) {
-    // console.log(data);
+    console.log(data);
     $("#modal-2-content").prepend(
       '<p class="errorMessage">' + data.message + "</p>"
     );
