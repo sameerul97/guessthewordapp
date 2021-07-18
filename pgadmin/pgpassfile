@@ -1,1 +1,1 @@
-db:5432:guessthewordapp_db:guessthewordappPgAdmin:guessthewordappPgAdminPassword
+db:5432:guesstheword_db:guesstheword_user:guesstheword_password

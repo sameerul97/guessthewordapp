@@ -1,12 +1,12 @@
 {
   "Servers": {
     "1": {
-      "Name": "pgadmin4@pgadmin.org",
+      "Name": "guesstheword_db",
       "Group": "Servers",
       "Host": "db",
       "Port": 5432,
       "MaintenanceDB": "postgres",
-      "Username": "guessthewordappPgAdmin",
+      "Username": "guesstheword_user",
       "SSLMode": "prefer",
       "PassFile": "/pgpassfile"
     }

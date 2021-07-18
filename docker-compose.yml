@@ -6,11 +6,11 @@ services:
     container_name: guessthewordapp_pgDb
     restart: always
     environment:
-      - POSTGRES_USER=${PG_DB_USERNAME}
-      - POSTGRES_PASSWORD=${PG_DB_PASSWORD}
-      - POSTGRES_DB=${PG_DB_NAME}
-      - TZ=Europe/Lisbon
-      - PGTZ=Europe/Lisbon
+      POSTGRES_USER: ${PG_DB_USERNAME}
+      POSTGRES_PASSWORD: ${PG_DB_PASSWORD}
+      POSTGRES_DB: ${PG_DB_NAME}
+      TZ: Europe/Lisbon
+      PGTZ: Europe/Lisbon
     volumes:
       - pgdata:/var/lib/postgresql/data
       - pgconf:/etc/postgresql
@@ -40,11 +40,11 @@ services:
     image: redis
     container_name: guessthewordapp_redis
     ports:
-    - "6379:6379"
+      - "6379:6379"
     command: redis-server --requirepass RedisPassword
     volumes:
-    - ~/db/data:/data
-    - ~/db/redis.conf:/usr/local/etc/redis/redis.conf
+      - ~/db/data:/data
+      - ~/db/redis.conf:/usr/local/etc/redis/redis.conf
 
   redis-commander:
     image: rediscommander/redis-commander:latest
